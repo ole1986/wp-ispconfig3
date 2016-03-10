@@ -1,4 +1,4 @@
-# WP-ISPConfig 3
+## WP-ISPConfig 3
 ```
 Contributors: ole1986, etruel
 Tags:  host, ISPConfig, hosting, remote, manager, admin, panel, control, wordpress, post, plugin, interfase, server
@@ -28,7 +28,7 @@ All you have to do is just activate and type in a few lines of settings.
 
 You can either install it automatically from the WordPress admin, or do it manually:
 
-### Using the Plugin Manager
+**Using the Plugin Manager**
 
 1. Click Plugins
 2. Click Add New
@@ -38,7 +38,7 @@ You can either install it automatically from the WordPress admin, or do it manua
 6. Click Activate Plugin
 7. Now you must see WP-ISPConfig Item on Wordpress menu
 
-### Manual installation
+**Manual installation**
 
 1. Upload the whole plugin folder to your /wp-content/plugins/ folder.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
@@ -55,7 +55,10 @@ You should have received a copy of the GNU General Public License along with WP 
 
 ### Changelog
 
-= 1.0.0 =
-* improved version
+```
+v1.0.0
+- improved version of the orginal wp-ispconfig
 
 (original version wp-ispconfig from https://de.wordpress.org/plugins/wp-ispconfig/)
+```
+
