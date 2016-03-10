@@ -32,14 +32,23 @@ abstract class IspconfigRegister {
     
     abstract static function init($options);
     
+    /**
+     * Initialize the SoapClient for ISPConfig
+     */
     public function withSoap(){
         $this->soap = new SoapClient(null, array('location' => $this->options['soap_location'], 'uri' => $this->options['soap_uri'], 'trace' => 1, 'exceptions' => 1));
     }
     
+    /** 
+     * Enable shortcode for the calling class
+     */
     public function withShortcode(){
         add_shortcode( 'ispconfig', array($this,'shortcode') );
     }
     
+    /**
+     * Provide shortcode execution by calling the class constructor defined "class=..." attribute
+     */
     public function shortcode($attr, $content = null){
         // init
         if(empty($attr)) return 'No parameters defined in shortcode';
@@ -56,10 +65,23 @@ abstract class IspconfigRegister {
         return ob_get_clean();
     }
     
+    /**
+     * SOAP: Get Client by username
+     */
     public function GetClientByUser($username){
         $this->client = $this->soap->client_get_by_username($this->session_id, $username);
     }
     
+    /**
+     * SOAP: Get a list of arrays containing all Client/Reseller limit templates
+     */
+    public function GetClientTemplates() {
+        return $this->soap->client_templates_get_all($this->session_id);
+    }
+    
+    /**
+     * SOAP: Add a new client into ISPConfig
+     */
     public function AddClient($options = []){
         $defaultOptions = array(
             'company_name' => '',
@@ -134,6 +156,9 @@ abstract class IspconfigRegister {
         $this->client_id = $this->soap->client_add($this->session_id, $this->random_id, $options);
     }
     
+    /**
+     * SOAP: Add a new Website into ISPConfig
+     */
     public function AddWebsite($options){
         $defaultOptions = array(
             'server_id'	=> '1',
@@ -187,6 +212,9 @@ abstract class IspconfigRegister {
         return $this->domain_id;
     }
     
+    /**
+     * SOAP: Add a new shell user into ISPConfig
+     */
     public function AddShell($options){
         $defaultOptions = array(
 			'server_id' => 1,
@@ -208,6 +236,9 @@ abstract class IspconfigRegister {
         return $this->shell_id;
     }
     
+    /** 
+     * Provide an option to send a confirmation email
+     */
     public function SendConfirmation($options, $subject = 'Order confirmation - yourhost', $message = 'The order has been confirmed', $sender = 'NO REPLY <no-reply@yourhost>'){
         if(!$this->client_id) return;
         if(!filter_var($options['email'], FILTER_VALIDATE_EMAIL)) return;
