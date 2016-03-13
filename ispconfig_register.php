@@ -6,7 +6,7 @@ defined( 'ABSPATH' ) || exit;
 spl_autoload_register(function($class) { 
     $cls = strtolower(preg_replace(['/([a-z\d])([A-Z])/', '/([^_])([A-Z][a-z])/'], "$1_$2", $class));
     $f = $cls .'.php';
-    error_log('Loading file '. $f .' from class ' . $class);
+    //error_log('Loading file '. $f .' from class ' . $class);
     include $f;
 });
 
@@ -246,6 +246,65 @@ abstract class IspconfigRegister {
 		$header = 'From: '. $sender;
 
 		return mail($options['email'], $subject, $message, $header);
+    }
+    
+    public function Captcha($title = 'Catpcha'){
+        if(!isset($_COOKIE['captcha_uid']))
+            $uid = uniqid();
+        else
+            $uid = $_COOKIE['captcha_uid'];
+        
+        $m = [];
+        for($i = 0; $i <= 5; $i++) {
+            $op = (rand(0,1))?true:false;
+            if($op)
+                $m[$i] = ['a' => rand(1, 5), 'b' => rand(1, 15), 'op' => $op];
+            else
+                $m[$i] = ['a' => rand(1, 15), 'b' => rand(1, 5), 'op' => $op];
+        }
+        
+        $choice = rand(0,5);
+        
+        if($m[$choice]['op'])
+            $result = $m[$choice]['a'] + $m[$choice]['b'];
+        else
+            $result = $m[$choice]['a'] - $m[$choice]['b'];
+        
+        set_transient( 'wp_ispconfig_register_'.$uid.'_captcha', ['result' => $result, 'key' => $choice], 360);
+        
+        foreach($m as $k => $v) {
+            if($v['op'])
+                $str = $v['a'] . ' + ' . $v['b'] . ' = ?';
+            else
+                $str = $v['a'] . ' - ' . $v['b'] . ' = ?';
+            
+            echo "<div id=\"captcha_problem_{$k}\" style=\"display:none\"><label>{$title} {$str}</label><input type=\"text\" name=\"captcha[{$k}]\" maxlength=\"2\"></div>";
+        }
+        echo "<input type=\"hidden\" name=\"captcha_uid\" value=\"{$uid}\" />";
+
+        echo "<script>jQuery(function(){ var t = new Date(); t.setSeconds(t.getSeconds() + 360); document.cookie=\"captcha_uid={$uid};expires=\"+t.toUTCString();   jQuery('#captcha_problem_{$choice}').show(); })</script>";
+    }
+    
+    public function onCaptchaPost(){
+        if(!isset($_POST['captcha_uid'])) return false;
+        
+        $cachedData = get_transient( 'wp_ispconfig_register_'.$_POST['captcha_uid'].'_captcha' );
+        if($cachedData === false) return false;
+        
+        delete_transient( 'wp_ispconfig_register_captcha' );
+        
+        $result = $cachedData['result'];
+        $key = $cachedData['key'];
+                
+        if(!isset($_POST['captcha'])) return false;
+        if(!isset($_POST['captcha'][$key])) return false;
+        
+        if($result === false) return false;
+        
+        if($result != $_POST['captcha'][$key])
+            return false;
+            
+        return true;
     }
 }
 ?>
