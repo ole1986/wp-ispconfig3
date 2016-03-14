@@ -47,6 +47,33 @@ abstract class IspconfigRegister {
      */
     public function withShortcode(){
         add_shortcode( 'ispconfig', array($this,'shortcode') );
+        $this->withAjax();
+    }
+    
+    public function withAjax(){
+        // used to request whois through ajax
+        add_action('wp_ajax_ispconfig_whois', array($this, 'AJAX_ispconfig_whois_callback'));   
+    }
+    
+    public function registerAjax(){
+        echo "<script>";
+        // ajax used for whois request - AJAX_WhoisCallback is called
+        echo "var ispconfig_whois = function(domain, callback){ jQuery.post('". admin_url()  ."admin-ajax.php', {'action': 'ispconfig_whois', 'domain': domain}, callback); };";
+        echo "</script>";
+    }
+        
+    public function AJAX_ispconfig_whois_callback(){
+        $dom = strtolower($_POST['domain']);
+
+        $result = shell_exec("whois $dom");
+        
+        if(preg_match("/^(No whois server is known|This TLD has no whois server)/m", $result))
+            echo -1;
+        else if(preg_match("/^(Status: AVAILABLE|Status: free|NOT FOUND|".$dom." no match|No match for \"(.*?)\"\.)$/im", $result))
+            echo 1;
+        else
+            echo 0;
+        wp_die();
     }
     
     /**
