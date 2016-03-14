@@ -250,7 +250,7 @@ abstract class IspconfigRegister {
 
 		return mail($options['email'], $subject, $message, $header);
     }
-    
+        
     public function Captcha($title = 'Catpcha'){
         if(!isset($_COOKIE['captcha_uid']))
             $uid = uniqid();
@@ -308,6 +308,46 @@ abstract class IspconfigRegister {
             return false;
             
         return true;
+    }
+    
+    protected function validateName($input){
+        if(empty($input)) throw new Exception( __("The name cannot be empty", 'wp-ispconfig3') );
+        if(substr_count($input, ' ') < 1) throw new Exception( __("Please enter your name in full-style", 'wp-ispconfig3') ); 
+            
+        return $input;
+    }
+    
+    protected function validateUsername($u){
+        if(empty($u)) throw new Exception(__("The username cannot be empty", 'wp-ispconfig3'));
+        if(preg_match('/[^A-z0-9]/', $u)) throw new Exception( __("The username contains invalid characters", 'wp-ispconfig3'));
+        if(strlen($u) < 4) throw new Exception( __("The username is too short",'wp-ispconfig3'));
+        if(strlen($u) > 20) throw new Exception( __("The username is too long",'wp-ispconfig3') );
+        
+        if(!empty($this->forbiddenUserEx)) if(preg_match('/'.$this->forbiddenUserEx .'/i', $u)) throw new Exception( __("The username is not allowed", 'wp-ispconfig3'));
+        
+        return strtolower($u);
+    }
+    
+    protected function validatePassword($input, $input_confirm){
+        if(strlen($input) < 10) throw new Exception(__("The password is too short", 'wp-ispconfig3'));
+        if(strlen($input) > 30) throw new Exception(__("The password is too long", 'wp-ispconfig3'));
+        
+        if(preg_match('/[^\x20-\x7f]/', $input)) throw new Exception(__('The password contains invalid characters', 'wp-ispconfig3'));
+        
+        if($input !== $input_confirm) throw new Exception( __("The password does not match", 'wp-ispconfig3'));
+    }
+    
+    protected function validateDomain($input){
+        if(!preg_match("/^(?!\-)(?:[a-zA-Z\d\-]{0,62}[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63}$/", $input))
+            throw new Exception(__("The domain name is invalid", 'wp-ispconfig3'));
+        return strtolower($input);
+    }
+    
+    protected function validateMail($input, $input_confirm){
+        if(!filter_var($input, FILTER_VALIDATE_EMAIL)) throw new Exception( __("The email address is invalid", 'wp-ispconfig3'));
+        if($input !== $input_confirm) throw new Exception( __("The email address does not match", 'wp-ispconfig3'));
+        
+        return strtolower($input);
     }
 }
 ?>

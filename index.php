@@ -1,12 +1,15 @@
 <?php
 /*
- Plugin Name: WP-ISPConfig3
- Description: This plugin allows you to manage some features of ISPConfig by using the remote api
- Version: 1.0.0
- Author(s): Ole Koeckemann <ole.k@web.de>, etruel (wp-ispconfig)
- Author URI: http://www.github.com/wp-ispconfig3
+ * Plugin Name: WP-ISPConfig3
+ * Description: This plugin allows you to manage some features of ISPConfig by using the remote api
+ * Version: 1.0.0
+ * Author(s): Ole Koeckemann <ole.k@web.de>, etruel (wp-ispconfig)
+ * Author URI: http://www.github.com/wp-ispconfig3
+ * Text Domain: wp-ispconfig3
  */
 # @charset utf-8
+
+//define ('WPLANG', 'de_DE');
 
 if ( ! function_exists( 'add_filter' ) )
 	exit;
@@ -54,6 +57,9 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             
             require( WPISPCONFIG3_PLUGIN_DIR . 'ispconfig_register.php' );
             IspconfigRegisterClient::init($this->options);
+            
+            // load some Woocommerce hooks
+            IspconfigWcHooks::init($this->options);
             
             if ( ! is_admin() )	return;
             
@@ -120,7 +126,7 @@ if(!class_exists( 'WPISPConfig3' ) ) {
                                             echo $this->getField('soap_location', 'SOAP Location:');
                                             echo $this->getField('soap_uri', 'SOAP URI:');
                                             ?>
-                                            <p><?php echo __( 'Send Confirmation:' ) ?> <input type="checkbox" name="confirm_mail" value="1" <?php echo ($cfg['confirm_mail'])?'checked':'' ?> /></p>
+                                            <p><?php echo __( 'Send Confirmation:', 'wp-ispconfig3') ?> <input type="checkbox" name="confirm_mail" value="1" <?php echo ($cfg['confirm_mail'])?'checked':'' ?> /></p>
                                             </div>
                                         </div>
                                         <p></p>
@@ -139,7 +145,7 @@ if(!class_exists( 'WPISPConfig3' ) ) {
         }
         
         public function getField($name, $title, $type = 'text'){
-            return '<div><label>'. __( $title ) .'</label><input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.$this->options[$name].'" /></div>';
+            return '<div><label>'. __( $title, 'wp-ispconfig3') .'</label><input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.$this->options[$name].'" /></div>';
         }
         
         /**

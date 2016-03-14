@@ -1,0 +1,63 @@
+# Loco Gettext template
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Loco Demo\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: Mon Mar 14 2016 15:02:43 GMT+0100 (W. Europe Standard "
+"Time)\n"
+"PO-Revision-Date: Mon Mar 14 2016 15:13:23 GMT+0100 (W. Europe Standard "
+"Time)\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: English\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Loco-Source-Locale: en_US\n"
+"X-Loco-Target-Locale: de_DE\n"
+"X-Generator: Loco - https://localise.biz/\n"
+"X-Loco-Parser: loco_parse_po"
+
+msgid "The name cannot be empty"
+msgstr "Der Name kann nicht leer bleiben"
+
+msgid "Please enter your name in full-style"
+msgstr "Bitte geben Sie Ihren vollständigen Namen ein"
+
+msgid "The username cannot be empty"
+msgstr "DEr Benutzername kann nicht leer sein"
+
+msgid "The username contains invalid characters"
+msgstr "Der Benutzer enthält ungültige Zeichen"
+
+msgid "The username is too short"
+msgstr "Der Benutzername ist zu kurz"
+
+msgid "The username is too long"
+msgstr "Der Benutzername ist zu lang"
+
+msgid "The username is not allowed"
+msgstr "Der Benutzername ist nicht erlaubt"
+
+msgid "The password is too short"
+msgstr "Das Passwort ist zu kurz"
+
+msgid "The password is too long"
+msgstr "Das Passwort ist zu lang"
+
+msgid "The password contains invalid characters"
+msgstr "Das Passwort enthält ungültige Zeichen"
+
+msgid "The password does not match"
+msgstr "Das Passwort stimmt nicht überein"
+
+msgid "The domain name is invalid"
+msgstr "Der Domainname ist ungültig"
+
+msgid "The email address is invalid"
+msgstr "Die Email Adresse ist ungültig"
+
+msgid "The email address does not match"
+msgstr "Die Email Adresse stimmt nicht überein"
