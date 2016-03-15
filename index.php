@@ -60,8 +60,10 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             require( WPISPCONFIG3_PLUGIN_DIR . 'ispconfig_register.php' );
             IspconfigRegisterClient::init($this->options);
             
-            // load some Woocommerce hooks
-            IspconfigWcHooks::init($this->options);
+            // load some Woocommerce hooks if script exist
+            if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) && file_exists(WPISPCONFIG3_PLUGIN_DIR . 'ispconfig_wc_hooks.php')) {
+                IspconfigWcHooks::init($this->options);
+            }
             
             if ( ! is_admin() )	return;
             
