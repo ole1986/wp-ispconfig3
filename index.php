@@ -55,6 +55,8 @@ if(!class_exists( 'WPISPConfig3' ) ) {
         public function __construct( $hook_in = FALSE ) {
             $this->load_options();
             
+            add_action('wp_enqueue_scripts', array($this, 'wpdocs_theme_name_scripts') );
+            
             require( WPISPCONFIG3_PLUGIN_DIR . 'ispconfig_register.php' );
             IspconfigRegisterClient::init($this->options);
             
@@ -64,15 +66,15 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             if ( ! is_admin() )	return;
             
             if ( $hook_in ) {
-                add_action( 'admin_init', array( $this, 'admin_init' ) );
+                //add_action( 'admin_init', array( $this, 'admin_init' ) );
                 add_action( 'admin_menu', array( $this, 'admin_menu' ) );
             }
         }
 
-        public function admin_init() {
-            
+        public function wpdocs_theme_name_scripts(){
+            wp_enqueue_style( 'style-name', WPISPCONFIG3_PLUGIN_URL . '/style/wordpress.css' );
         }
-
+        
         /**
          * admin menu
          *
@@ -80,7 +82,7 @@ if(!class_exists( 'WPISPConfig3' ) ) {
          * @return void
          */
         public function admin_menu() {		
-            $page= add_menu_page(__('WP-ISPConfig3'), __('WP-ISPConfig3'), 'edit_themes', 'ispconfig_allinone',  array( IspconfigRegisterClient::$Self, 'Display' ), WPISPCONFIG3_PLUGIN_URL.'/prou.png', 3.2); 
+            $page= add_menu_page(__('WP-ISPConfig3'), __('WP-ISPConfig3'), 'edit_themes', 'ispconfig_allinone',  array( IspconfigRegisterClient::$Self, 'Display' ), WPISPCONFIG3_PLUGIN_URL.'/img/prou.png', 3.2); 
             $page= add_submenu_page('ispconfig_allinone', __('Settings', 'wp-ispconfig3'), __('Settings', 'wp-ispconfig3'), 'edit_themes', 'ispconfig_settings',  array( $this, 'add_admin_submenu_page') );
         }
         
