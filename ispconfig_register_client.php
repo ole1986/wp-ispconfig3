@@ -55,11 +55,11 @@ class IspconfigRegisterClient extends IspconfigRegister {
             
             // send confirmation mail
             if(!empty($this->options['confirm_mail'])) {
-                $sent = $this->SendConfirmation( $opt, 'Nordhosting <no-reply@nordhosting.tk>');
-                if($sent) echo "<div class='ispconfig-msg ispconfig-msg-success'>Eine Bestätigung wurde per E-Mail versendet</div>";
+                $sent = $this->SendConfirmation( $opt, 'YourHost <no-reply@yourhost.tld>');
+                if($sent) echo "<div class='ispconfig-msg ispconfig-msg-success'>An email confirmation has been sent</div>";
             }
             
-            echo "<div class='ispconfig-msg'>Die Anmeldung erfolgt <a href=\"http://".$_SERVER['HTTP_HOST'].":8080/\">hier</a></div>";
+            echo "<div class='ispconfig-msg'>You registered successfully to ISPconfig: <a href=\"http://".$_SERVER['HTTP_HOST'].":8080/\">login</a></div>";
             
         } catch (SoapFault $e) {
             //echo $this->soap->__getLastResponse();
@@ -86,28 +86,6 @@ class IspconfigRegisterClient extends IspconfigRegister {
             $opt = $defaultOptions;
             
         ?>
-        <style>
-            form.ispconfig label {
-                display: inline-block;
-                width: 140px;
-                margin-bottom: 0.5em;
-                margin-top: 0.5em;
-                white-space: nowrap;
-            }
-            div.ispconfig-msg {
-                border-style: solid;
-                margin-bottom: 0.5em;
-                margin-top: 0.5em;
-                background-color: white;
-                font-weight: bold;
-                border-color: #F3F3F3;
-                border-width: 2px 2px 2px 5px;
-                box-shadow: 0 1px 1px 0 rgba(0,0,0,.1);
-                padding: 5px 12px;
-            }
-            div.ispconfig-msg-success { border-left-color: #46b450 !important; }
-            div.ispconfig-msg-error { border-left-color: #C3273A !important; }
-        </style>
         <div class="wrap">
             <h2><?php if($opt['showtitle']) _e( $opt['title'], 'wp-ispconfig3' ); ?></h2>
             <?php 
