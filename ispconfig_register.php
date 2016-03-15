@@ -365,7 +365,7 @@ abstract class IspconfigRegister {
     }
     
     protected function validateDomain($input){
-        if(!preg_match("/^(?!\-)(?:[a-zA-Z\d\-]{0,62}[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63}$/", $input))
+        if (!preg_match("/^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,4}$/", $domain_name))
             throw new Exception(__("The domain name is invalid", 'wp-ispconfig3'));
         return strtolower($input);
     }
