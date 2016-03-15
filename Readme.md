@@ -1,31 +1,32 @@
 ## WP-ISPConfig 3
 ```
-Contributors: ole1986, etruel
+Contributors: ole1986
 Tags:  host, ISPConfig, hosting, remote, manager, admin, panel, control, wordpress, post, plugin, interfase, server
 Requires at least: 3.1
 Tested up to: 4.4
 Stable tag: trunk
 License: GPLv2
 ```
+<sup>originally written by etruel - https://de.wordpress.org/plugins/wp-ispconfig/ -  and optimized by ole1986</sup>
 
 WordPress interface for ISPConfig 3 ~ Hosting Control Panel.  The plugin allows you to manage ISPConfig through SOAP requests
 
-It was originally writte by etruel - https://de.wordpress.org/plugins/wp-ispconfig/ -  and optimized by ole1986
-
 ### Description
 
-The WordPress interface for [ISPConfig](http://www.ispconfig.org) – Hosting Control Panel. An excelent Open Source, transparent, free Server Manager.
+This wordpress plugin is used access [ISPConfig](http://www.ispconfig.org) features by connecting to its SOAP Server
 
-By adding a remote user (ISPConfig -> UserManagement - > Remote Users) you can manage clients features and websites from the ISPConfig 3 – Hosting Control Panel.
+By adding a remote user (through ISPConfig -> UserManagement - > Remote Users) you can manage client features, websites shell accounts, etc... directly from wordpress.
 
 This plugin is shipped with two additional files to demonstrate a customer registration form using wordpress shortcodes.
 
 Usage: `[ispconfig class=IspconfigRegisterClient]` or `[ispconfig class=IspconfigRegisterFree]`
 
+Please make sure your followed the steps below before adding shortcodes
+
 ### Configuration
 
 Before you can start it is neccessary to setup the remote SOAP server and user credentials.
-See the example screenshot below:
+The below screenshot shows an example on how to setup the plugin when ISPConfig is running on the same machine:
 
 ![WP-ISPConfig3 settings](img/wp-ispconfig-settings.png "WP-ISPConfig3 settings")
 
