@@ -1,9 +1,9 @@
 <?php
 /*
  * Plugin Name: WP-ISPConfig3
- * Description: This plugin allows you to manage some features of ISPConfig by using the remote api
- * Version: 1.0.0
- * Author(s): Ole Koeckemann <ole.k@web.de>, etruel (wp-ispconfig)
+ * Description: ISPConfig3 plugin allows you to register customers through wordpress frontend using shortcodes
+ * Version: 1.0.1
+ * Author(s): Ole Koeckemann <ole.k@web.de>
  * Author URI: http://www.github.com/wp-ispconfig3
  * Text Domain: wp-ispconfig3
  */
@@ -85,7 +85,7 @@ if(!class_exists( 'WPISPConfig3' ) ) {
          * @return void
          */
         public function admin_menu() {		
-            $page= add_menu_page(__('WP-ISPConfig3'), __('WP-ISPConfig3'), 'edit_themes', 'ispconfig_allinone',  array( IspconfigRegisterClient::$Self, 'Display' ), WPISPCONFIG3_PLUGIN_URL.'/img/prou.png', 3.2); 
+            $page= add_menu_page(__('WP-ISPConfig3'), __('WP-ISPConfig3'), 'edit_themes', 'ispconfig_allinone',  array( IspconfigRegisterClient::$Self, 'Display' ), WPISPCONFIG3_PLUGIN_URL.'img/ispconfig.png', 3.2); 
             $page= add_submenu_page('ispconfig_allinone', __('Settings', 'wp-ispconfig3'), __('Settings', 'wp-ispconfig3'), 'edit_themes', 'ispconfig_settings',  array( $this, 'add_admin_submenu_page') );
         }
         

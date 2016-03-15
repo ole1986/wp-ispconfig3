@@ -16,34 +16,32 @@ It was originally writte by etruel - https://de.wordpress.org/plugins/wp-ispconf
 
 The WordPress interface for [ISPConfig](http://www.ispconfig.org) – Hosting Control Panel. An excelent Open Source, transparent, free Server Manager.
 
-As a remote user, with WP-ISPConfig plugin you can manage new account and client setup features of your ISPConfig 3 – Hosting Control Panel.
+By adding a remote user (ISPConfig -> UserManagement - > Remote Users) you can manage clients features and websites from the ISPConfig 3 – Hosting Control Panel.
 
-With WP-ISPConfig you can have WordPress installed on the same host, or in a remote host, and add what every new client needs all-in-one click. 
+This plugin is shipped with two additional files to demonstrate a customer registration form using wordpress shortcodes.
 
-This means the Client, DNS, Domain (website), FTP user, email Domain and mailbox, all just with minimal input and no complicated setup. 
+Usage: `[ispconfig class=IspconfigRegisterClient]` or `[ispconfig class=IspconfigRegisterFree]`
 
-All you have to do is just activate and type in a few lines of settings.
+### Configuration
 
-### Installation
+Before you can start it is neccessary to setup the remote SOAP server and user credentials.
+See the example screenshot below:
 
-You can either install it automatically from the WordPress admin, or do it manually:
+![WP-ISPConfig3 settings](img/wp-ispconfig-settings.png "WP-ISPConfig3 settings")
 
-**Using the Plugin Manager**
+### Add a new shortcode class (its easy - believe me)
 
-1. Click Plugins
-2. Click Add New
-3. Search for `wp-ispconfig3`
-4. Click Install
-5. Click Install Now
-6. Click Activate Plugin
-7. Now you must see WP-ISPConfig Item on Wordpress menu
+If you want to add your own registration form, do the following:
 
-**Manual installation**
+- copy one of the existing files (`ispconfig_register_client.php` or `ispconfig_register_free.php`)
+- change the php class name to "IspconfigYourClass" for example
+- rename the file to "ispconfig_your_class.php".
+- customize the file with your needs.
+- use the shortcode `[ispconfig class=IspconfigYourClass]` to display its content
 
-1. Upload the whole plugin folder to your /wp-content/plugins/ folder.
-2. Activate the plugin through the 'Plugins' menu in WordPress.
-3. That's all, everything will work automatically
+PLEASE NOTE:
 
+The autoload function uses CamelCase style to include the php classes. So, `IspconfigYourClass` will be converted to `ispconfig_your_class.php`
 
 ### License
 
@@ -56,6 +54,9 @@ You should have received a copy of the GNU General Public License along with WP 
 ### Changelog
 
 ```
+v1.0.1
+- clean up code and moved code at the right places
+
 v1.0.0
 - improved version of the orginal wp-ispconfig
 
