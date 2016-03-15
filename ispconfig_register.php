@@ -52,7 +52,10 @@ abstract class IspconfigRegister {
     
     public function withAjax(){
         // used to request whois through ajax
-        add_action('wp_ajax_ispconfig_whois', array($this, 'AJAX_ispconfig_whois_callback'));   
+        if( is_admin() ) {
+            add_action('wp_ajax_ispconfig_whois', array($this, 'AJAX_ispconfig_whois_callback'));
+            add_action('wp_ajax_nopriv_ispconfig_whois', array($this, 'AJAX_ispconfig_whois_callback'));
+        }
     }
     
     public function registerAjax(){
@@ -65,17 +68,21 @@ abstract class IspconfigRegister {
     public function AJAX_ispconfig_whois_callback(){
         $dom = strtolower($_POST['domain']);
 
-        $result = shell_exec("whois $dom");
+        echo $this->isDomainAvailable($dom);
         
-        if(preg_match("/^(No whois server is known|This TLD has no whois server)/m", $result))
-            echo -1;
-        else if(preg_match("/^(Status: AVAILABLE|Status: free|NOT FOUND|".$dom." no match|No match for \"(.*?)\"\.)$/im", $result))
-            echo 1;
-        else
-            echo 0;
         wp_die();
     }
     
+    protected function isDomainAvailable($dom) {
+        $result = shell_exec("whois $dom");
+        
+        if(preg_match("/^(No whois server is known|This TLD has no whois server)/m", $result))
+            return -1;
+        else if(preg_match("/^(Status: AVAILABLE|Status: free|NOT FOUND|".$dom." no match|No match for \"(.*?)\"\.)$/im", $result))
+            return 1;
+        return 0;
+    }
+   
     /**
      * Provide shortcode execution by calling the class constructor defined "class=..." attribute
      */
@@ -365,7 +372,7 @@ abstract class IspconfigRegister {
     }
     
     protected function validateDomain($input){
-        if (!preg_match("/^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,4}$/", $domain_name))
+        if (!preg_match("/^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,4}$/", $input))
             throw new Exception(__("The domain name is invalid", 'wp-ispconfig3'));
         return strtolower($input);
     }
