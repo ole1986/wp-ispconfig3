@@ -1,11 +1,12 @@
 ## WP-ISPConfig 3
 ```
 Contributors: ole1986
-Tags:  host, ISPConfig, hosting, remote, manager, admin, panel, control, wordpress, post, plugin, interfase, server
+Tags:  host, ISPConfig, hosting, remote, manager, admin, panel, control, wordpress, post, plugin, interface, server
 Requires at least: 3.1
 Tested up to: 4.4
 Stable tag: trunk
 License: GPLv2
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 ```
 <sup>originally written by etruel - https://de.wordpress.org/plugins/wp-ispconfig/ -  and optimized by ole1986</sup>
 
@@ -23,22 +24,43 @@ Usage: `[ispconfig class=IspconfigRegisterClient]` or `[ispconfig class=Ispconfi
 
 Please make sure your followed the steps below before adding shortcodes
 
+### Installation
+
+* Search for "wp-ispconfig3" in the "Plugins -> Install" register
+* Press Install followed by activate
+* Setup the plugin as mentioned below 
+
 ### Configuration
 
 Before you can start it is neccessary to setup the remote SOAP server and user credentials.
-The below screenshot shows an example on how to setup the plugin when ISPConfig is running on the same machine:
 
-![WP-ISPConfig3 settings](img/wp-ispconfig-settings.png "WP-ISPConfig3 settings")
+* Open the ISPConfig website with your favorite browser and login as admin.
+* Navigate to `System -> User Management -> Remote User`
+* Add a new remote user with a secure password
 
-### Add a new shortcode class (its easy - believe me)
+In Wordpress, once you activated the wp-ispconfig3 plugin you need to setup the `WP-ISPConfig3 -> Settings` 
+
+`SOAP Username: remoteuser`
+`SOAP Password: remoteuserpass`
+`SOAP Location: http://localhost:8080/remote/index.php`
+`SOAP URI: http://localhost:8080/remote/`
+
+## Screenshots
+
+
+1. Register a new customer <br /> ![Register a new customer](img/screenshot-1.png "Register a new customer") 
+2. Register a new free customer <br /> ![Register a new free customer](img/screenshot-2.png "Register a new free customer") 
+3. Plugin settings <br /> ![Display plugin settings](img/screenshot-3.png "Display plugin settings") 
+
+### Add a new shortcode class
 
 If you want to add your own registration form, do the following:
 
-- copy one of the existing files (`ispconfig_register_client.php` or `ispconfig_register_free.php`)
-- change the php class name to "IspconfigYourClass" for example
-- rename the file to "ispconfig_your_class.php".
-- customize the file with your needs.
-- use the shortcode `[ispconfig class=IspconfigYourClass]` to display its content
+* copy one of the existing files (`ispconfig_register_client.php` or `ispconfig_register_free.php`)
+* change the php class name to "IspconfigYourClass" for example
+* rename the file to "ispconfig_your_class.php".
+* customize the file with your needs.
+* use the shortcode `[ispconfig class=IspconfigYourClass]` to display its content
 
 PLEASE NOTE:
 
@@ -56,10 +78,10 @@ You should have received a copy of the GNU General Public License along with WP 
 
 ```
 v1.0.1
-- clean up code and moved code at the right places
+* clean up code and moved code at the right places
 
 v1.0.0
-- improved version of the orginal wp-ispconfig
+* improved version of the orginal wp-ispconfig
 
 (original version wp-ispconfig from https://de.wordpress.org/plugins/wp-ispconfig/)
 ```

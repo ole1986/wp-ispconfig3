@@ -3,7 +3,7 @@
  * Plugin Name: WP-ISPConfig3
  * Description: ISPConfig3 plugin allows you to register customers through wordpress frontend using shortcodes
  * Version: 1.0.1
- * Author(s): Ole Koeckemann <ole.k@web.de>
+ * Author: Ole Koeckemann <ole.k@web.de>
  * Author URI: http://www.github.com/wp-ispconfig3
  * Text Domain: wp-ispconfig3
  */
