@@ -32,8 +32,10 @@ abstract class IspconfigRegister {
     protected $shell_id;
     
     private $random_id = 0;
-    
-    abstract static function init($options);
+        
+    public function __construct(&$opt){
+        $this->options = &$opt;
+    }
     
     /**
      * Initialize the SoapClient for ISPConfig

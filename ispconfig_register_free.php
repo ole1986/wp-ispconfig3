@@ -21,13 +21,13 @@ class IspconfigRegisterFree extends IspconfigRegister {
         '3' => ['name' => '30GB Webspace']
     ];
     
-    public static function init($options){
-        if(!self::$Self)
-            self::$Self = new self($options);
+    public static function init(&$opt) {
+        if(!self::$Self) self::$Self = new self($opt);
     }
     
-    public function __construct($options){
-        $this->options = $options;
+    public function __construct(&$opt){
+        parent::__construct($opt);
+        
         // support for shortcode using "[ispconfig class=IspconfigRegisterFree ...]"
         $this->withShortcode();
         // used to active ajax request for this plugin

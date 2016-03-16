@@ -2,9 +2,9 @@
 /*
  * Plugin Name: WP-ISPConfig3
  * Description: ISPConfig3 plugin allows you to register customers through wordpress frontend using shortcodes
- * Version: 1.0.1
- * Author: Ole Koeckemann <ole.k@web.de>
- * Author URI: http://www.github.com/wp-ispconfig3
+ * Version: 1.0.2
+ * Author: ole1986 <ole.k@web.de>
+ * Author URI: https://github.com/ole1986/wp-ispconfig3
  * Text Domain: wp-ispconfig3
  */
 # @charset utf-8
@@ -31,21 +31,15 @@ if(!class_exists( 'WPISPConfig3' ) ) {
     register_uninstall_hook( plugin_basename( __FILE__ ), array( 'WPISPConfig3', 'uninstall' ) );
 
     class WPISPConfig3 {
-
         const TEXTDOMAIN = 'wpispconfig3';
-
-        /**		 * Option Key		 */
         const OPTION_KEY = 'WPISPConfig3_Options';
 
-        protected static $default_options = array(
+        protected $options = array(
             'soapusername' => 'remote_user',
             'soappassword' => 'remote_user_pass',
             'soap_location' => 'http://localhost:8080/remote/index.php',
             'soap_uri' => 'http://localhost:8080/remote/',
-            'confirm_mail' => '1',
         );
-
-        protected $options = array();
 
         public static function init() {
             WPISPConfig3 :: load_textdomain_file();
@@ -58,12 +52,15 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             add_action('wp_enqueue_scripts', array($this, 'wpdocs_theme_name_scripts') );
             
             require( WPISPCONFIG3_PLUGIN_DIR . 'ispconfig_register.php' );
+            
             IspconfigRegisterClient::init($this->options);
             
             // load some Woocommerce hooks if script exist
             if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) && file_exists(WPISPCONFIG3_PLUGIN_DIR . 'ispconfig_wc_hooks.php')) {
                 IspconfigWcHooks::init($this->options);
             }
+            
+            
             
             if ( ! is_admin() )	return;
             
@@ -84,33 +81,29 @@ if(!class_exists( 'WPISPConfig3' ) ) {
          * @access public
          * @return void
          */
-        public function admin_menu() {		
-            $page= add_menu_page(__('WP-ISPConfig3'), __('WP-ISPConfig3'), 'edit_themes', 'ispconfig_allinone',  array( IspconfigRegisterClient::$Self, 'Display' ), WPISPCONFIG3_PLUGIN_URL.'img/ispconfig.png', 3.2); 
-            $page= add_submenu_page('ispconfig_allinone', __('Settings', 'wp-ispconfig3'), __('Settings', 'wp-ispconfig3'), 'edit_themes', 'ispconfig_settings',  array( $this, 'add_admin_submenu_page') );
+        public function admin_menu() {
+            add_menu_page(__('WP-ISPConfig 3', 'wp-ispconfig3'), __('WP-ISPConfig 3', 'wp-ispconfig3'), 'null', 'ispconfig3_menu',  null, WPISPCONFIG3_PLUGIN_URL.'img/ispconfig.png', 3); 
+            add_submenu_page('ispconfig3_menu', __('Settings', 'wp-ispconfig3'), __('Settings', 'wp-ispconfig3'), 'edit_themes', 'ispconfig_settings',  array($this, 'DisplaySettings') );
         }
         
-        public function register_form_sc( $atts, $content = null ){
-            ob_start();
-            require( WPISPCONFIG3_PLUGIN_DIR . 'ispconfig-register.php' );
-            return ob_get_clean();
-        }
-        
-        public function add_admin_submenu_page () {
+        private function onUpdateSettings(){
             if ( 'POST' === $_SERVER[ 'REQUEST_METHOD' ] ) {
                 if ( get_magic_quotes_gpc() ) {
                     $_POST = array_map( 'stripslashes_deep', $_POST );
                 }
-
-                # evaluation goes here
                 $this->options = $_POST;
-
-                # saving
+                
                 if ( $this->update_options() ) {
                     ?><div class="updated"><p> <?php _e( 'Settings saved', 'wp-ispconfig3' );?></p></div><?php
                 }
             }
+        }
+        
+        public function DisplaySettings(){
+            $this->onUpdateSettings();
             
             $this->load_options();
+            
             $cfg = $this->options;
             ?>
             <div class="wrap">
@@ -121,23 +114,19 @@ if(!class_exists( 'WPISPConfig3' ) ) {
                         <div id="post-body-content">
                             <div id="normal-sortables" class="meta-box-sortables ui-sortable">
                                 <div class="postbox inside">
-                                    <h3><?php _e( 'Remote server data', 'wp-ispconfig3' );?></h3>
-                                    <div class="inside">
-                                        <div><strong><?php _e( 'Complete necessary data to connect to ISPConfig remote server.', 'wp-ispconfig3' );?></strong><br />
-                                            <div style="display: table;margin: 10px 0;">
-                                            <?php 
-                                            echo $this->getField('soapusername', 'SOAP Username:');
-                                            echo $this->getField('soappassword', 'SOAP Password:', 'password');
-                                            echo $this->getField('soap_location', 'SOAP Location:');
-                                            echo $this->getField('soap_uri', 'SOAP URI:');
-                                            ?>
-                                            <p><?php echo __( 'Send Confirmation:', 'wp-ispconfig3') ?> <input type="checkbox" name="confirm_mail" value="1" <?php echo ($cfg['confirm_mail'])?'checked':'' ?> /></p>
-                                            </div>
-                                        </div>
-                                        <p></p>
-                                        <p><input type="submit" class="button-primary" name="submit" value="<?php _e('Save');?>" /></p>
-                                        <p></p>									
-                                        
+                                    <h3><?php _e( 'SOAP Settings', 'wp-ispconfig3' );?></h3>
+                                    <div class="inside" style="display: table;margin: 10px 0;">
+                                        <?php 
+                                        echo $this->getField('soapusername', 'SOAP Username:');
+                                        echo $this->getField('soappassword', 'SOAP Password:', 'password');
+                                        echo $this->getField('soap_location', 'SOAP Location:');
+                                        echo $this->getField('soap_uri', 'SOAP URI:');
+                                        ?>
+                                    </div>
+                                    <?php do_action('ispconfig_options'); ?>
+                                    <p></p>
+                                    <p><input type="submit" class="button-primary" name="submit" value="<?php _e('Save');?>" /></p>
+                                    <p></p>									
                                     </div>
                                 </div>
                             </div>
@@ -184,15 +173,9 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             * @return void
             */
         protected function load_options() {
-
-            if ( ! get_option( self :: OPTION_KEY ) ) {
-                if ( empty( self :: $default_options ) )
-                    return;
-                $this->options = self :: $default_options;
-                add_option( self :: OPTION_KEY, $this->options , '', 'yes' );
-            }
-            else {
-                $this->options = get_option( self :: OPTION_KEY );
+            $opt = get_option( self :: OPTION_KEY );
+            if(!empty($opt)) {
+                $this->options = $opt;
             }
         }
 
@@ -237,22 +220,6 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             * @return void
             */
         public static function uninstall() {
-            global $wpdb, $blog_id;
-            if ( is_network_admin() ) {
-                if ( isset ( $wpdb->blogs ) ) {
-                    $blogs = $wpdb->get_results(
-                        $wpdb->prepare(
-                            'SELECT blog_id ' .
-                            'FROM ' . $wpdb->blogs . ' ' .
-                            "WHERE blog_id <> '%s'",
-                            $blog_id
-                        )
-                    );
-                    foreach ( $blogs as $blog ) {
-                        delete_blog_option( $blog->blog_id, self :: OPTION_KEY );
-                    }
-                }
-            }
             delete_option( self :: OPTION_KEY );
         }
     }

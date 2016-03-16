@@ -47,7 +47,6 @@ In Wordpress, once you activated the wp-ispconfig3 plugin you need to setup the 
 
 ## Screenshots
 
-
 1. Register a new customer <br /> ![Register a new customer](img/screenshot-1.png "Register a new customer") 
 2. Register a new free customer <br /> ![Register a new free customer](img/screenshot-2.png "Register a new free customer") 
 3. Plugin settings <br /> ![Display plugin settings](img/screenshot-3.png "Display plugin settings") 
