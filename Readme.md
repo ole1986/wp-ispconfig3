@@ -76,6 +76,10 @@ You should have received a copy of the GNU General Public License along with WP 
 ### Changelog
 
 ```
+v1.0.2
+* added action hook `ispconfig_options` to include additional options
+* optimized th option handling
+
 v1.0.1
 * clean up code and moved code at the right places
 
