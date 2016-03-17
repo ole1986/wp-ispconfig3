@@ -107,7 +107,7 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             $cfg = $this->options;
             ?>
             <div class="wrap">
-                <h2><?php _e( 'WP-ISPConfig3 Settings', 'wp-ispconfig3' );?></h2>
+                <h2><?php _e( 'WP-ISPConfig 3 Settings', 'wp-ispconfig3' );?></h2>
                 <form method="post" action="">
                 <div id="poststuff" class="metabox-holder has-right-sidebar">
                     <div id="post-body">
@@ -124,6 +124,7 @@ if(!class_exists( 'WPISPConfig3' ) ) {
                                         ?>
                                     </div>
                                     <?php do_action('ispconfig_options'); ?>
+                                    <div class="inside">
                                     <p></p>
                                     <p><input type="submit" class="button-primary" name="submit" value="<?php _e('Save');?>" /></p>
                                     <p></p>									
@@ -139,7 +140,7 @@ if(!class_exists( 'WPISPConfig3' ) ) {
         }
         
         public function getField($name, $title, $type = 'text'){
-            return '<div><label>'. __( $title, 'wp-ispconfig3') .'</label><input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.$this->options[$name].'" /></div>';
+            return '<div><label style="width: 160px; display:inline-block;">'. __( $title, 'wp-ispconfig3') .'</label><input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.$this->options[$name].'" /></div>';
         }
         
         /**
