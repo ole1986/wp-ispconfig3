@@ -61,3 +61,18 @@ msgstr "Die Email Adresse ist ungültig"
 
 msgid "The email address does not match"
 msgstr "Die Email Adresse stimmt nicht überein"
+
+msgid "Payments shall be made in advance:"
+msgstr "Die Zahlung erfolgt im Voraus:"
+
+msgid "yearly"
+msgstr "jährlich"
+
+msgid "monthly"
+msgstr "monatlich"
+
+msgid "per year"
+msgstr "pro Jahr"
+
+msgid "per month"
+msgstr "pro Monat"
