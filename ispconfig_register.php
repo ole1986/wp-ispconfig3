@@ -6,8 +6,8 @@ defined( 'ABSPATH' ) || exit;
 spl_autoload_register(function($class) { 
     $cls = strtolower(preg_replace(['/([a-z\d])([A-Z])/', '/([^_])([A-Z][a-z])/'], "$1_$2", $class));
     $f = $cls .'.php';
-    // only include 'ispconfig_' files
-    if(preg_match("/^ispconfig_/", $cls)) {
+    // only include 'ispconfig_register' files
+    if(preg_match("/^ispconfig_register/", $cls)) {
         //error_log('Loading file '. $f .' from class ' . $class);
         include $f;
     }
