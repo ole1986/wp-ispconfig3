@@ -76,9 +76,13 @@ You should have received a copy of the GNU General Public License along with WP 
 ### Changelog
 
 ```
+v1.0.3
+* PREMIUM: load invoicing module, when WooCommerce and the invoice module exists
+* autoload all php files starting with 'ispconfig_register' instead of 'ispconfig_'
+
 v1.0.2
 * added action hook `ispconfig_options` to include additional options
-* optimized th option handling
+* optimized the option handling
 
 v1.0.1
 * clean up code and moved code at the right places
