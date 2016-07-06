@@ -2,17 +2,6 @@
 // Prevent loading this file directly
 defined( 'ABSPATH' ) || exit; 
 
-// autoload php files starting with "ispconfig_register_[...].php" when class is used
-spl_autoload_register(function($class) { 
-    $cls = strtolower(preg_replace(['/([a-z\d])([A-Z])/', '/([^_])([A-Z][a-z])/'], "$1_$2", $class));
-    $f = $cls .'.php';
-    // only include 'ispconfig_register' files
-    if(preg_match("/^ispconfig_register/", $cls)) {
-        //error_log('Loading file '. $f .' from class ' . $class);
-        include $f;
-    }
-});
-
 /**
  * Abstract class to provide soap requests and shortcodes
  * 

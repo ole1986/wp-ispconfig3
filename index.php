@@ -23,7 +23,18 @@ if ( ! defined( 'WPISPCONFIG3_PLUGIN_URL' ) ) {
 
 if ( ! defined( 'WPISPCONFIG3_VERSION' ) ) {
 	define( 'WPISPCONFIG3_VERSION', '1.0.0' );
-}	
+}
+
+// autoload php files starting with "ispconfig_register_[...].php" when class is used
+spl_autoload_register(function($class) { 
+    $cls = strtolower(preg_replace(['/([a-z\d])([A-Z])/', '/([^_])([A-Z][a-z])/'], "$1_$2", $class));
+    $f = $cls .'.php';
+    // only include 'ispconfig_register' files
+    if(preg_match("/^ispconfig_register/", $cls)) {
+        error_log('Loading file '. $f .' from class ' . $class);
+        include $f;
+    }
+});
 
 if(!class_exists( 'WPISPConfig3' ) ) {
     add_action( 'init', array( 'WPISPConfig3', 'init' ) );
@@ -52,15 +63,13 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             $this->load_options();
             
             add_action('wp_enqueue_scripts', array($this, 'wpdocs_theme_name_scripts') );
-            
-            require( WPISPCONFIG3_PLUGIN_DIR . 'ispconfig_register.php' );
-            
+                       
             IspconfigRegisterClient::init($this->options);
             
             // load the ISPConfig invoicing module by using WooCommerce hooks
             if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) 
-                 && file_exists(WPISPCONFIG3_PLUGIN_DIR . 'woocommerce/ispconfig_wc.php')) {
-                require( WPISPCONFIG3_PLUGIN_DIR . 'woocommerce/ispconfig_wc.php' );
+                 && file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php')) {
+                require_once( WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php' );
                 IspconfigWc::init($this->options);
             }
             
@@ -89,7 +98,7 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             add_submenu_page('ispconfig3_menu', __('Settings', 'wp-ispconfig3'), __('Settings', 'wp-ispconfig3'), 'edit_themes', 'ispconfig_settings',  array($this, 'DisplaySettings') );
             // if woocommerce and invoicing module for ISPConfig is avialble, load it and display invoices menu entry
             if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) 
-                 && file_exists(WPISPCONFIG3_PLUGIN_DIR . 'woocommerce/ispconfig_wc.php')) {
+                 && file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php')) {
                 add_submenu_page('ispconfig3_menu', __('Invoices', 'wp-ispconfig3'), __('Invoices', 'wp-ispconfig3'), 'edit_themes', 'ispconfig_invoices',  array('IspconfigWcBackend', 'DisplayInvoices') );
             }
         }
@@ -210,9 +219,9 @@ if(!class_exists( 'WPISPConfig3' ) ) {
         public function plugins_loaded(){
             global $pagenow, $wpdb;
             if (current_user_can('ispconfig_invoice') && $pagenow=='admin.php' && isset($_GET['invoice'])) {
-                if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) && file_exists(WPISPCONFIG3_PLUGIN_DIR . 'woocommerce/ispconfig_wc.php'))
+                if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) && file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php'))
                 {
-                    require_once( WPISPCONFIG3_PLUGIN_DIR . 'woocommerce/ispconfig_wc.php' );
+                    require_once( WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php' );
                     IspconfigWcBackend::OutputInvoice();
                 }
                     
@@ -228,8 +237,8 @@ if(!class_exists( 'WPISPConfig3' ) ) {
          */
         public static function install() {
             // run the installer if ISPConfig invoicing module is available
-            if(file_exists(WPISPCONFIG3_PLUGIN_DIR . 'woocommerce/ispconfig_wc.php')){
-                require_once( WPISPCONFIG3_PLUGIN_DIR . 'woocommerce/ispconfig_wc.php' );
+            if(file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php')){
+                require_once( WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php' );
                 IspconfigWcBackend::install();
             }
         }
