@@ -29,6 +29,7 @@ if(!class_exists( 'WPISPConfig3' ) ) {
     add_action( 'init', array( 'WPISPConfig3', 'init' ) );
     add_action('plugins_loaded', array('WPISPConfig3', 'plugins_loaded'));
     register_activation_hook( plugin_basename( __FILE__ ), array( 'WPISPConfig3', 'install' ) );
+    register_deactivation_hook(plugin_basename( __FILE__ ), array( 'WPISPConfig3', 'deactivate' ));
     register_uninstall_hook( plugin_basename( __FILE__ ), array( 'WPISPConfig3', 'uninstall' ) );
 
     class WPISPConfig3 {
@@ -230,6 +231,20 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             if(file_exists(WPISPCONFIG3_PLUGIN_DIR . 'woocommerce/ispconfig_wc.php')){
                 require_once( WPISPCONFIG3_PLUGIN_DIR . 'woocommerce/ispconfig_wc.php' );
                 IspconfigWcBackend::install();
+            }
+        }
+
+        /**
+         * when plugin gets deactivated
+         *
+         * @access public
+         * @static
+         * @return void
+         */
+        public static function deactivate(){
+            if(file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php')){
+                require_once( WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php' );
+                IspconfigWcBackend::deactivate();
             }
         }
 
