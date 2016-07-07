@@ -1,0 +1,3 @@
+[submodule "pdf-php-experimental"]
+	path = pdf-php-experimental
+	url = https://github.com/rospdf/pdf-php.git
