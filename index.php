@@ -31,7 +31,7 @@ spl_autoload_register(function($class) {
     $f = $cls .'.php';
     // only include 'ispconfig_register' files
     if(preg_match("/^ispconfig_register/", $cls)) {
-        error_log('Loading file '. $f .' from class ' . $class);
+        //error_log('Loading file '. $f .' from class ' . $class);
         include $f;
     }
 });
@@ -123,10 +123,9 @@ if(!class_exists( 'WPISPConfig3' ) ) {
          * Display the settings for ISPConfig (and modules - using action hook 'ispconfig_options') 
          */
         public function DisplaySettings(){
-            $this->onUpdateSettings();
-            
             $this->load_options();
-            
+            $this->onUpdateSettings();
+                       
             $cfg = $this->options;
             ?>
             <div class="wrap">
@@ -177,19 +176,6 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             load_plugin_textdomain( 'wp-ispconfig3', FALSE, dirname( plugin_basename( __FILE__ ) ) . '/lang' );			
         }
 
-        /**
-            * mce_localisation
-            *
-            * @access public
-            * @param array $mce_external_languages
-            * @return array
-            */
-        public function mce_localisation( $mce_external_languages ) {
-
-            if ( file_exists( self :: $dir . 'lang/mce_langs.php' ) )
-                $mce_external_languages[ 'inpsydeOembedVideoShortcode' ] = self :: $dir . 'lang/mce-langs.php';
-            return $mce_external_languages;
-        }
         /**
             * load_options
             *
