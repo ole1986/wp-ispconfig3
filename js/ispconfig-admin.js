@@ -1,7 +1,5 @@
 /**
- * ISPConfig Frontend class
- * - used to check if a domain is avilable (but not guaranteed)
- * - and display ether domain or subdomain preview
+ * ISPConfig Admin class
  */
 function ISPConfigAdminClass(){
     var $ = jQuery;
