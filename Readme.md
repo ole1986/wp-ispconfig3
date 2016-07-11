@@ -76,6 +76,10 @@ You should have received a copy of the GNU General Public License along with WP 
 ### Changelog
 
 ```
+v1.0.4
+* improved options property
+* added confirmation subject and body text into settings (Account creation)
+
 v1.0.3
 * PREMIUM: load invoicing module, when WooCommerce and the invoice module exists
 * autoload all php files starting with 'ispconfig_register' instead of 'ispconfig_'
