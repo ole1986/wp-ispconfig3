@@ -44,7 +44,6 @@ function ISPConfigAdminClass(){
                 } else {
                     $c.text( $input.val() );
                 }
-               
                 closeEdit();
             });
         });
