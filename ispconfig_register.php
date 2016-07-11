@@ -13,7 +13,6 @@ defined( 'ABSPATH' ) || exit;
  */
 abstract class IspconfigRegister {
     protected $soap;
-    protected $options;
     
     protected $session_id;   
     protected $client_id;
@@ -22,15 +21,15 @@ abstract class IspconfigRegister {
     
     private $random_id = 0;
         
-    public function __construct(&$opt){
-        $this->options = &$opt;
+    public function __construct(){
+
     }
     
     /**
      * Initialize the SoapClient for ISPConfig
      */
     public function withSoap(){
-        $this->soap = new SoapClient(null, array('location' => $this->options['soap_location'], 'uri' => $this->options['soap_uri'], 'trace' => 1, 'exceptions' => 1));
+        $this->soap = new SoapClient(null, array('location' => WPISPConfig3::$OPTIONS['soap_location'] , 'uri' => WPISPConfig3::$OPTIONS['soap_uri'], 'trace' => 1, 'exceptions' => 1));
     }
     
     /** 
@@ -83,7 +82,7 @@ abstract class IspconfigRegister {
         if(empty($attr['class'])) return 'No CLASS parameter defined in shortcode'; 
         
         $cls = $attr['class'];
-        $cls::init($this->options);
+        $cls::init();
         
         $defaultAttr = ['showtitle' => false, 'title' => 'New Client', 'subtitle' => 'Register a new client'];
         $attr = array_merge($defaultAttr, $attr);
@@ -267,13 +266,16 @@ abstract class IspconfigRegister {
     /** 
      * Provide an option to send a confirmation email
      */
-    public function SendConfirmation($options, $subject = 'Order confirmation - yourhost', $message = 'The order has been confirmed', $sender = 'NO REPLY <no-reply@yourhost>'){
+    public function SendConfirmation($opt){
         if(!$this->client_id) return;
-        if(!filter_var($options['email'], FILTER_VALIDATE_EMAIL)) return;
-        
-		$header = 'From: '. $sender;
+        if(!filter_var($opt['email'], FILTER_VALIDATE_EMAIL)) return;
 
-		return mail($options['email'], $subject, $message, $header);
+		$header = 'From: '. WPISPConfig3::$OPTIONS['sender_name'] .' <no-reply@' . WPISPConfig3::$OPTIONS['default_domain'] .'>';
+
+        $subject = WPISPConfig3::$OPTIONS['confirm_subject'];
+        $message = str_replace(['#USERNAME#', '#PASSWORD#', '#DOMAIN#', '#HOSTNAME#'], [$opt['username'], $opt['password'], $opt['domain'], $_SERVER['HTTP_HOST']], WPISPConfig3::$OPTIONS['confirm_body']);
+
+		return mail($opt['email'], $subject, $message, $header);
     }
         
     public function Captcha($title = 'Catpcha'){

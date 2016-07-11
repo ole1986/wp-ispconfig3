@@ -10,6 +10,7 @@
 # @charset utf-8
 
 //define ('WPLANG', 'de_DE');
+defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
 if ( ! function_exists( 'add_filter' ) )
 	exit;
@@ -47,12 +48,21 @@ if(!class_exists( 'WPISPConfig3' ) ) {
         const TEXTDOMAIN = 'wpispconfig3';
         const OPTION_KEY = 'WPISPConfig3_Options';
 
-        protected $options = array(
+        public static $OPTIONS = [
             'soapusername' => 'remote_user',
             'soappassword' => 'remote_user_pass',
             'soap_location' => 'http://localhost:8080/remote/index.php',
             'soap_uri' => 'http://localhost:8080/remote/',
-        );
+            'confirm'   => 0,
+            'confirm_subject'=> 'Your ISPConfig account has been created',
+            'confirm_body'   => "Your payment has been received and your account has been created\n
+                                Username: #USERNAME#
+                                Password: #PASSWORD#\n
+                                Domain: #DOMAIN#\n
+                                Login with your account on http://#HOSTNAME#:8080",
+            'default_domain' => 'yourdomain.tld',
+            'sender_name' => 'Your Sevice name'
+        ];
 
         public static function init() {
             WPISPConfig3 :: load_textdomain_file();
@@ -64,13 +74,13 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             
             add_action('wp_enqueue_scripts', array($this, 'wpdocs_theme_name_scripts') );
                        
-            IspconfigRegisterClient::init($this->options);
+            IspconfigRegisterClient::init();
             
             // load the ISPConfig invoicing module by using WooCommerce hooks
             if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) 
                  && file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php')) {
                 require_once( WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php' );
-                IspconfigWc::init($this->options);
+                IspconfigWc::init();
             }
             
             if ( ! is_admin() )	return;
@@ -111,7 +121,8 @@ if(!class_exists( 'WPISPConfig3' ) ) {
                 if ( get_magic_quotes_gpc() ) {
                     $_POST = array_map( 'stripslashes_deep', $_POST );
                 }
-                $this->options = $_POST;
+                
+                self::$OPTIONS = $_POST;
                 
                 if ( $this->update_options() ) {
                     ?><div class="updated"><p> <?php _e( 'Settings saved', 'wp-ispconfig3' );?></p></div><?php
@@ -126,7 +137,7 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             $this->load_options();
             $this->onUpdateSettings();
                        
-            $cfg = $this->options;
+            $cfg = self::$OPTIONS;
             ?>
             <div class="wrap">
                 <h2><?php _e( 'WP-ISPConfig 3 Settings', 'wp-ispconfig3' );?></h2>
@@ -139,11 +150,21 @@ if(!class_exists( 'WPISPConfig3' ) ) {
                                     <h3><?php _e( 'SOAP Settings', 'wp-ispconfig3' );?></h3>
                                     <div class="inside" style="display: table;margin: 10px 0;">
                                         <?php 
-                                        echo $this->getField('soapusername', 'SOAP Username:');
-                                        echo $this->getField('soappassword', 'SOAP Password:', 'password');
-                                        echo $this->getField('soap_location', 'SOAP Location:');
-                                        echo $this->getField('soap_uri', 'SOAP URI:');
+                                        echo self::getField('soapusername', 'SOAP Username:');
+                                        echo self::getField('soappassword', 'SOAP Password:', 'password');
+                                        echo self::getField('soap_location', 'SOAP Location:');
+                                        echo self::getField('soap_uri', 'SOAP URI:');
                                         ?>
+                                    </div>
+                                    <h3>Account creation</h3>
+                                    <div class="inside">
+                                    <?php
+                                        echo WPISPConfig3::getField('confirm', 'Send Confirmation','checkbox');
+                                        echo WPISPConfig3::getField('confirm_subject', 'Confirmation subject');
+                                        echo WPISPConfig3::getField('confirm_body', 'Confirmation Body', 'textarea');
+                                        echo WPISPConfig3::getField('default_domain', 'Default Domain');
+                                        echo WPISPConfig3::getField('sender_name', 'Sender name');
+                                    ?>
                                     </div>
                                     <?php do_action('ispconfig_options'); ?>
                                     <div class="inside">
@@ -161,8 +182,13 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             </div><?php
         }
         
-        private function getField($name, $title, $type = 'text'){
-            return '<div><label style="width: 160px; display:inline-block;">'. __( $title, 'wp-ispconfig3') .'</label><input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.$this->options[$name].'" /></div>';
+        public static function getField($name, $title, $type = 'text'){
+            if($type == 'text' || $type == 'password')
+                return '<p><label style="width: 160px; display:inline-block;">'. __( $title, 'wp-ispconfig3') .'</label><input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.self::$OPTIONS[$name].'" /></p>';
+            else if($type == 'textarea')
+                return "<p><label style='width:160px;display:inline-block;vertical-align:top;height:100px'>". __( $title, 'wp-ispconfig3') . '</label> <textarea name="'.$name.'" style="width:25em;height: 150px">'  . strip_tags(self::$OPTIONS[$name]) . '</textarea></p>';
+            else if($type == 'checkbox')
+                return '<p><label style="width:160px;display:inline-block;">'.__( $title, 'wp-ispconfig3').'</label> <input type="'.$type.'" name="'.$name.'" value="1"' . ((self::$OPTIONS[$name])?'checked':'') .' /></p>';
         }
         
         /**
@@ -185,7 +211,7 @@ if(!class_exists( 'WPISPConfig3' ) ) {
         protected function load_options() {
             $opt = get_option( self :: OPTION_KEY );
             if(!empty($opt)) {
-                $this->options = $opt;
+                self::$OPTIONS = $opt;
             }
         }
 
@@ -196,7 +222,7 @@ if(!class_exists( 'WPISPConfig3' ) ) {
          * @return bool True, if option was changed
          */
         public function update_options() {
-            return update_option( self :: OPTION_KEY, $this->options );
+            return update_option( self :: OPTION_KEY, self::$OPTIONS );
         }
         
         /**

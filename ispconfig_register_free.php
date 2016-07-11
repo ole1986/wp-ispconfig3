@@ -21,12 +21,12 @@ class IspconfigRegisterFree extends IspconfigRegister {
         '3' => ['name' => '30GB Webspace']
     ];
     
-    public static function init(&$opt) {
-        if(!self::$Self) self::$Self = new self($opt);
+    public static function init() {
+        if(!self::$Self) self::$Self = new self();
     }
     
-    public function __construct(&$opt){
-        parent::__construct($opt);
+    public function __construct(){
+        parent::__construct();
         
         // support for shortcode using "[ispconfig class=IspconfigRegisterFree ...]"
         $this->withShortcode();
@@ -66,7 +66,7 @@ class IspconfigRegisterFree extends IspconfigRegister {
             // check password
             $this->validatePassword($_POST['password'], $_POST['password_confirm']);
             
-            $this->session_id = $this->soap->login($this->options['soapusername'], $this->options['soappassword']);
+            $this->session_id = $this->soap->login( WPISPConfig3::$OPTIONS['soapusername'], WPISPConfig3::$OPTIONS['soappassword']);
             
             // fetch all templates from ISPConfig 
             $limitTemplates = $this->GetClientTemplates();
@@ -78,13 +78,13 @@ class IspconfigRegisterFree extends IspconfigRegister {
             
             $opt = ['company_name' => $_POST['company'], 
                     'contact_name' => $client,
+                    'domain' => $domain,
                     'street' => $_POST['street'],
                     'zip' => $_POST['zip'],
                     'city' => $_POST['city'],
                     'email' => $email,
                     'username' => $username,
-                    'password' => $_POST['password'],
-                    'template_master' => 4
+                    'password' => $_POST['password']
             ];
             
             $this->GetClientByUser($opt['username']);
@@ -94,7 +94,7 @@ class IspconfigRegisterFree extends IspconfigRegister {
             // add the customer
             $this->AddClient($opt);
             
-            $this->AddWebsite( ['domain' => $domain, 'password' => $_POST['password'],  'hd_quota' => $foundTemplate['limit_web_quota'], 'traffic_quota' => $foundTemplate['limit_traffic_quota'] ] );
+            $this->AddWebsite( ['domain' => $opt['domain'], 'password' => $_POST['password'],  'hd_quota' => $foundTemplate['limit_web_quota'], 'traffic_quota' => $foundTemplate['limit_traffic_quota'] ] );
             
             // give the free user a shell
             $this->AddShell(['username' => $opt['username'] . '_shell', 'username_prefix' => $opt['username'] . '_', 'password' => $_POST['password'] ] );
@@ -105,20 +105,12 @@ class IspconfigRegisterFree extends IspconfigRegister {
             echo "<div class='ispconfig-msg ispconfig-msg-success'>Your account '".$opt['username']."' has been created!</div>";
             
             // send confirmation mail
-            if(!empty($this->options['confirm_mail'])) {
-                
-                $subject = 'Webspace confirmation email from ' . self::$DefaultDomain;
-                $message = "This email is a confirmation email you registered to yourdomain.tld\r\n\r\n";
-                $message.= sprintf("Package: %s", $this->products[$_POST['product']]['name']);
-                $message.= sprintf("Username: %s\r\n", $opt['username']);
-                $message.= sprintf("Password: %s\r\n", $opt['password']);
-                $message.= "URL: http://www.".$_SERVER['HTTP_HOST'].':8080/';
-                
-                $sent = $this->SendConfirmation($opt, $subject, $message,'no-reply <no-reply@' . self::$DefaultDomain . '>');
-                if($sent) echo "<div class='ispconfig-msg ispconfig-msg-success'>Eine Bestätigung wurde per E-Mail versendet</div>";
+            if(!empty(WPISPConfig3::$OPTIONS['confirm'])) {
+                $sent = $this->SendConfirmation($opt);
+                if($sent) echo "<div class='ispconfig-msg ispconfig-msg-success'>Confirmation sent</div>";
             }
-            
-            echo "<div class='ispconfig-msg'>The resgistration was successful - click <a href=\"http://".$_SERVER['HTTP_HOST'].":8080/\">here</a> to login</div>";
+
+            echo "<div class='ispconfig-msg'>The registration was successful - click <a href=\"https://".$_SERVER['HTTP_HOST'].":8080/\">here</a> to login</div>";
             
         } catch (SoapFault $e) {
             //echo $this->soap->__getLastResponse();
@@ -126,7 +118,6 @@ class IspconfigRegisterFree extends IspconfigRegister {
         } catch (Exception $e) {
             echo '<div class="ispconfig-msg ispconfig-msg-error">'.$e->getMessage() . "</div>";
             $_POST['password'] = $_POST['password_confirm'] = '';
-            $this->options = $_POST;
         }
     }
     
@@ -135,7 +126,7 @@ class IspconfigRegisterFree extends IspconfigRegister {
         $req = ($mandatory)?'<span style="color: red;"> *</span>':'';
         $label = '<label>'. __( $title ) . $req .'</label>';
         
-        $input = '<input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.$this->options[$name].'"';
+        $input = '<input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.WPISPConfig3::$OPTIONS[$name].'"';
         foreach($additionalParams as $k => $v) {
             $input .= $k .'="' . $v . '"';
         }
@@ -162,7 +153,7 @@ class IspconfigRegisterFree extends IspconfigRegister {
             <h2><?php if($opt['showtitle']) _e( $opt['title'], 'wp-ispconfig3' ); ?></h2>
             <?php 
                 $this->onPost();
-                $cfg = &$this->options;
+                $cfg = WPISPConfig3::$OPTIONS;
             ?>
             <form method="post" class="ispconfig" action="<?php echo get_permalink() ?>">
             <div id="poststuff" class="metabox-holder has-right-sidebar">

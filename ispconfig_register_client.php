@@ -8,12 +8,12 @@ defined( 'ABSPATH' ) || exit;
 class IspconfigRegisterClient extends IspconfigRegister {
     public static $Self;
 
-    public static function init(&$opt) {
-        if(!self::$Self) self::$Self = new self($opt);
+    public static function init() {
+        if(!self::$Self) self::$Self = new self();
     }
 
-    public function __construct(&$opt){
-        parent::__construct($opt);
+    public function __construct(){
+        parent::__construct();
         // support for shortcode using "[ispconfig class=IspconfigRegisterClient ...]"
         $this->withShortcode();
         // enable SOAP requests for ISPconfig
@@ -27,11 +27,12 @@ class IspconfigRegisterClient extends IspconfigRegister {
         if ( 'POST' !== $_SERVER[ 'REQUEST_METHOD' ] ) return;
         
         try{
-            $this->session_id = $this->soap->login($this->options['soapusername'], $this->options['soappassword']);
+            $this->session_id = $this->soap->login( WPISPConfig3::$OPTIONS['soapusername'], WPISPConfig3::$OPTIONS['soappassword']);
             
             $opt = ['company_name' => $_POST['empresa'], 
                     'contact_name' => $_POST['cliente'],
                     'email' => $_POST['email'],
+                    'domain' => $_POST['domain'],
                     'username' => $_POST['username'],
                     'password' => $_POST['password'],
                     'template_master' => $_POST['template']
@@ -45,7 +46,7 @@ class IspconfigRegisterClient extends IspconfigRegister {
             $this->AddClient($opt);
             
             // add the first page for the customer
-            $this->AddWebsite( ['domain' => $_POST['domain'], 'password' => $_POST['password']] );
+            $this->AddWebsite( ['domain' => $opt['domain'], 'password' => $_POST['password']] );
             
             // Logout from ISPconfig
             $this->soap->logout($this->session_id);
@@ -53,12 +54,12 @@ class IspconfigRegisterClient extends IspconfigRegister {
             echo "<div class='ispconfig-msg ispconfig-msg-success'>Das Konto '".$opt['username']."' wurde erstellt!</div>";
             
             // send confirmation mail
-            if(!empty($this->options['confirm_mail'])) {
-                $sent = $this->SendConfirmation( $opt, 'YourHost <no-reply@yourhost.tld>');
+            if(!empty(WPISPConfig3::$OPTIONS['confirm'])) {
+                $sent = $this->SendConfirmation( $opt );
                 if($sent) echo "<div class='ispconfig-msg ispconfig-msg-success'>An email confirmation has been sent</div>";
             }
             
-            echo "<div class='ispconfig-msg'>You registered successfully to ISPconfig: <a href=\"http://".$_SERVER['HTTP_HOST'].":8080/\">login</a></div>";
+            echo "<div class='ispconfig-msg'>The registration was successful - click <a href=\"https://".$_SERVER['HTTP_HOST'].":8080/\">here</a> to login</div>";
             
         } catch (SoapFault $e) {
             //echo $this->soap->__getLastResponse();
@@ -69,7 +70,7 @@ class IspconfigRegisterClient extends IspconfigRegister {
     }
     
     protected function getField($name, $title, $type = 'text'){
-        return '<div><label>'. __( $title ) .'</label><input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.$this->options[$name].'" /></div>';
+        return '<div><label>'. __( $title ) .'</label><input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.WPISPConfig3::$OPTIONS[$name].'" /></div>';
     }
     
     /**
@@ -89,7 +90,7 @@ class IspconfigRegisterClient extends IspconfigRegister {
             <h2><?php if($opt['showtitle']) _e( $opt['title'], 'wp-ispconfig3' ); ?></h2>
             <?php 
                 $this->onPost();
-                $cfg = &$this->options;
+                $cfg = WPISPConfig3::$OPTIONS;
             ?>
             <form method="post" class="ispconfig" action="">
             <div id="poststuff" class="metabox-holder has-right-sidebar">
