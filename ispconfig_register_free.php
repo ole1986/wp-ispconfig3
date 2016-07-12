@@ -7,11 +7,16 @@ defined( 'ABSPATH' ) || exit;
  */
 class IspconfigRegisterFree extends IspconfigRegister {
     public static $Self;
-    public static $TemplateID = 4;
+    /**
+     * Used to provide subdomain registration instead of domain registration in frontend using the below template ID
+     */
+    public static $FreeTemplateID = 4;
     
     public $forbiddenUserEx;
     
-    // product example using Client limit tempaltes from ISPconfig
+    /**
+     * List of Client Limit Template from ISPConfig 
+     */
     public $products = [];
     
     public static function init() {
@@ -57,11 +62,11 @@ class IspconfigRegisterFree extends IspconfigRegister {
             $email = $this->validateMail($_POST['email'], $_POST['email_confirm']);
             
             // check the domain part
-            if(intval($_POST['product_id']) < 4)
-                $domain = $this->validateDomain($_POST['domain']);
-            else if(intval($_POST['product_id']) == 4)
+            if(intval($_POST['product_id']) == self::$FreeTemplateID )
                 // add the first page for the customer
                 $domain = $username . '.'. WPISPConfig3::$OPTIONS['default_domain'];
+            else
+                $domain = $this->validateDomain($_POST['domain']);
             
             // check password
             $this->validatePassword($_POST['password'], $_POST['password_confirm']);
@@ -124,8 +129,8 @@ class IspconfigRegisterFree extends IspconfigRegister {
             $opt = array_merge($defaultOptions, $opt);
         else 
             $opt = $defaultOptions;
-        
-        $this->registerAjax();  
+
+        $this->registerAjax(); 
         ?>
         <div class="wrap">
             <h2><?php if($opt['showtitle']) _e( $opt['title'], 'wp-ispconfig3' ); ?></h2>
@@ -147,7 +152,8 @@ class IspconfigRegisterFree extends IspconfigRegister {
                                             <?php
                                                 foreach($this->products as $k => $v) {
                                                     $s = (isset($_GET['product']) && $_GET['product'] == $k)?'selected':'';
-                                                    echo '<option value="'.$k.'" '.$s.'>'.$v['template_name'].'</option>';
+                                                    $free = ($k == self::$FreeTemplateID)?'data-isfree="1"':'';
+                                                    echo '<option value="'.$k.'" '.$s.' '.$free.'>'.$v['template_name'].'</option>';
                                                 }
                                                 
                                                     
