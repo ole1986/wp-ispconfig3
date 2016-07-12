@@ -20,6 +20,15 @@ msgstr ""
 "X-Generator: Loco - https://localise.biz/\n"
 "X-Loco-Parser: loco_parse_po"
 
+msgid "Your account %s has been created"
+msgstr "Ihr Konto %s wurde erfolgreich erstellt"
+
+msgid "You will receive a confirmation email shortly"
+msgstr "Sie erhalten in kürze eine Bestätigung per Email"
+
+msgid "You can now login here"
+msgstr "Sie können sich hier anmelden"
+
 msgid "The name cannot be empty"
 msgstr "Der Name kann nicht leer bleiben"
 

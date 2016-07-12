@@ -99,15 +99,15 @@ class IspconfigRegisterFree extends IspconfigRegister {
             // Logout from ISPconfig
             $this->soap->logout($this->session_id);
             
-            echo "<div class='ispconfig-msg ispconfig-msg-success'>Your account '".$opt['username']."' has been created!</div>";
+            echo "<div class='ispconfig-msg ispconfig-msg-success'>" . sprintf(__('Your account %s has been created', 'wp-ispconfig3'), $opt['username']) ."</div>";
             
             // send confirmation mail
             if(!empty(WPISPConfig3::$OPTIONS['confirm'])) {
                 $sent = $this->SendConfirmation($opt);
-                if($sent) echo "<div class='ispconfig-msg ispconfig-msg-success'>Confirmation sent</div>";
+                if($sent) echo "<div class='ispconfig-msg ispconfig-msg-success'>" . __('You will receive a confirmation email shortly', 'wp-ispconfig3') . "</div>";
             }
 
-            echo "<div class='ispconfig-msg'>The registration was successful - click <a href=\"https://".$_SERVER['HTTP_HOST'].":8080/\">here</a> to login</div>";
+            echo "<div class='ispconfig-msg'>" . __('You can now login here', 'wp-ispconfig3') .": <a href=\"https://".$_SERVER['HTTP_HOST'].":8080/\">click</a></div>";
             
         } catch (SoapFault $e) {
             //WPISPConfig3::soap->__getLastResponse();

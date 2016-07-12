@@ -29,6 +29,11 @@ class IspconfigRegisterClient extends IspconfigRegister {
         try{
             $this->session_id = $this->soap->login( WPISPConfig3::$OPTIONS['soapusername'], WPISPConfig3::$OPTIONS['soappassword']);
             
+            // at least chekc if the client limit template exists in ISPConfig
+            $templates = $this->GetClientTemplates();
+            $filtered = array_filter($templates, function($v){ return $v['template_id'] == $_POST['template']; });
+            if(empty($filtered)) throw new Exception('No Limit template found for ID ' . $_POST['template']);
+
             $opt = ['company_name' => $_POST['empresa'], 
                     'contact_name' => $_POST['cliente'],
                     'email' => $_POST['email'],
@@ -51,15 +56,15 @@ class IspconfigRegisterClient extends IspconfigRegister {
             // Logout from ISPconfig
             $this->soap->logout($this->session_id);
                         
-            echo "<div class='ispconfig-msg ispconfig-msg-success'>Das Konto '".$opt['username']."' wurde erstellt!</div>";
+            echo "<div class='ispconfig-msg ispconfig-msg-success'>" . sprintf(__('Your account %s has been created', 'wp-ispconfig3'), $opt['username']) ."</div>";
             
             // send confirmation mail
             if(!empty(WPISPConfig3::$OPTIONS['confirm'])) {
                 $sent = $this->SendConfirmation( $opt );
-                if($sent) echo "<div class='ispconfig-msg ispconfig-msg-success'>An email confirmation has been sent</div>";
+                if($sent) echo "<div class='ispconfig-msg ispconfig-msg-success'>" . __('You will receive a confirmation email shortly', 'wp-ispconfig3') . "</div>";
             }
             
-            echo "<div class='ispconfig-msg'>The registration was successful - click <a href=\"https://".$_SERVER['HTTP_HOST'].":8080/\">here</a> to login</div>";
+            echo "<div class='ispconfig-msg'>" . __('You can now login here', 'wp-ispconfig3') .": <a href=\"https://".$_SERVER['HTTP_HOST'].":8080/\">click</a></div>";
             
         } catch (SoapFault $e) {
             //WPISPConfig3::soap->__getLastResponse();
@@ -114,6 +119,7 @@ class IspconfigRegisterClient extends IspconfigRegister {
                                         <option value="1">5GB Webspace</option>
                                         <option value="2">2GB Webspace</option>
                                         <option value="3">10GB Webspace</option>
+                                        <option value="4">Free Webspace</option>
                                     </select>
                                     </div>
                                 </div>
