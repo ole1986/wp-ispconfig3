@@ -150,20 +150,20 @@ if(!class_exists( 'WPISPConfig3' ) ) {
                                     <h3><?php _e( 'SOAP Settings', 'wp-ispconfig3' );?></h3>
                                     <div class="inside" style="display: table;margin: 10px 0;">
                                         <?php 
-                                        echo self::getField('soapusername', 'SOAP Username:');
-                                        echo self::getField('soappassword', 'SOAP Password:', 'password');
-                                        echo self::getField('soap_location', 'SOAP Location:');
-                                        echo self::getField('soap_uri', 'SOAP URI:');
+                                        self::getField('soapusername', 'SOAP Username:');
+                                        self::getField('soappassword', 'SOAP Password:', 'password');
+                                        self::getField('soap_location', 'SOAP Location:');
+                                        self::getField('soap_uri', 'SOAP URI:');
                                         ?>
                                     </div>
                                     <h3>Account creation</h3>
                                     <div class="inside">
                                     <?php
-                                        echo WPISPConfig3::getField('confirm', 'Send Confirmation','checkbox');
-                                        echo WPISPConfig3::getField('confirm_subject', 'Confirmation subject');
-                                        echo WPISPConfig3::getField('confirm_body', 'Confirmation Body', 'textarea');
-                                        echo WPISPConfig3::getField('default_domain', 'Default Domain');
-                                        echo WPISPConfig3::getField('sender_name', 'Sender name');
+                                        self::getField('confirm', 'Send Confirmation','checkbox');
+                                        self::getField('confirm_subject', 'Confirmation subject');
+                                        self::getField('confirm_body', 'Confirmation Body', 'textarea');
+                                        self::getField('default_domain', 'Default Domain');
+                                        self::getField('sender_name', 'Sender name');
                                     ?>
                                     </div>
                                     <?php do_action('ispconfig_options'); ?>
@@ -182,15 +182,50 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             </div><?php
         }
         
-        public static function getField($name, $title, $type = 'text'){
+        public static function getField($name, $title, $type = 'text', $args = []){
+            $xargs = [  'container' => 'p', 
+                        'required' => false,
+                        'attr' => [], 
+                        'label_attr' => ['style' => 'width: 160px; display:inline-block;vertical-align:top;'], 
+                        'input_attr' => []
+                    ];
+
+            if($type == null) $type = 'text';
+
+            foreach ($xargs as $k => $v) {
+                if(!empty($args[$k])) $xargs[$k] = $args[$k];
+            }
+
+            echo '<' . $xargs['container'];
+            foreach ($xargs['attr'] as $k => $v) {
+                echo ' '.$k.'="'.$v.'"';
+            }
+            echo '>';
+            echo '<label';
+            foreach ($xargs['label_attr'] as $k => $v)
+                echo ' '. $k . '="'.$v.'"';
+
+            echo '>';
+            _e($title, 'wp-ispconfig3');
+            if($xargs['required']) echo '<span style="color: red;"> *</span>';
+            echo '</label>';
+
+            $attrStr = '';
+            foreach ($xargs['input_attr'] as $k => $v)
+                $attrStr.= ' '.$k.'="'.$v.'"';
+
             if($type == 'text' || $type == 'password')
-                return '<p><label style="width: 160px; display:inline-block;">'. __( $title, 'wp-ispconfig3') .'</label><input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.self::$OPTIONS[$name].'" /></p>';
+                echo '<input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.self::$OPTIONS[$name].'"'.$attrStr.' />';
             else if($type == 'textarea')
-                return "<p><label style='width:160px;display:inline-block;vertical-align:top;height:100px'>". __( $title, 'wp-ispconfig3') . '</label> <textarea name="'.$name.'" style="width:25em;height: 150px">'  . strip_tags(self::$OPTIONS[$name]) . '</textarea></p>';
+                echo '<textarea name="'.$name.'" style="width:25em;height: 150px" '.$attrStr.'>'  . strip_tags(self::$OPTIONS[$name]) . '</textarea>';
             else if($type == 'checkbox')
-                return '<p><label style="width:160px;display:inline-block;">'.__( $title, 'wp-ispconfig3').'</label> <input type="'.$type.'" name="'.$name.'" value="1"' . ((self::$OPTIONS[$name])?'checked':'') .' /></p>';
-            else if($type == 'rte')
-                return '<div><label style="width:160px;display:inline-block;">'.__( $title, 'wp-ispconfig3').'</label> <div style="width: 300px;">'.wp_editor(self::$OPTIONS[$name], $name, ['teeny' => true,'editor_height'=>200, 'media_buttons' => false]).'</div></div>';
+                echo '<input type="'.$type.'" name="'.$name.'" value="1"' . ((self::$OPTIONS[$name])?'checked':'') .''.$attrStr.' />';
+            else if($type == 'rte') {
+                echo '<div '.$attrStr.'>';
+                wp_editor(self::$OPTIONS[$name], $name, ['teeny' => true, 'editor_height'=>200, 'media_buttons' => false]);
+                echo '</div>'; 
+            }           
+            echo '</' . $xargs['container'] .'>';
         }
         
         /**

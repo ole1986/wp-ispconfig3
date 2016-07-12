@@ -62,15 +62,11 @@ class IspconfigRegisterClient extends IspconfigRegister {
             echo "<div class='ispconfig-msg'>The registration was successful - click <a href=\"https://".$_SERVER['HTTP_HOST'].":8080/\">here</a> to login</div>";
             
         } catch (SoapFault $e) {
-            //echo $this->soap->__getLastResponse();
+            //WPISPConfig3::soap->__getLastResponse();
             echo '<div class="ispconfig-msg ispconfig-msg-error">SOAP Error: '.$e->getMessage() .'</div>';
         } catch (Exception $e) {
             echo '<div class="ispconfig-msg ispconfig-msg-error">Exception: '.$e->getMessage() . "</div>";
         }
-    }
-    
-    protected function getField($name, $title, $type = 'text'){
-        return '<div><label>'. __( $title ) .'</label><input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.WPISPConfig3::$OPTIONS[$name].'" /></div>';
     }
     
     /**
@@ -102,15 +98,15 @@ class IspconfigRegisterClient extends IspconfigRegister {
                                 <div class="inside">
                                     <div>
                                     <?php 
-                                        echo $this->getField('domain', 'Domain:');
-                                        echo $this->getField('cliente', 'Full Name:');
-                                        echo $this->getField('email', 'e-Mail:');
-                                        echo $this->getField('empresa', 'Company Name:');
-                                        echo $this->getField('username', 'Username:');
-                                        echo $this->getField('password', 'Password:');
-                                        echo $this->getField('ip', 'Client IP:');
-                                        echo $this->getField('ns1', 'NameServer 1:');
-                                        echo $this->getField('ns2', 'NameServer 2:');
+                                        WPISPConfig3::getField('domain', 'Domain:', 'text', ['container' => 'div']);
+                                        WPISPConfig3::getField('cliente', 'Full Name:', 'text', ['container' => 'div']);
+                                        WPISPConfig3::getField('email', 'e-Mail:', 'text', ['container' => 'div']);
+                                        WPISPConfig3::getField('empresa', 'Company Name:', 'text', ['container' => 'div']);
+                                        WPISPConfig3::getField('username', 'Username:', 'text', ['container' => 'div']);
+                                        WPISPConfig3::getField('password', 'Password:', 'password', ['container' => 'div']);
+                                        WPISPConfig3::getField('ip', 'Client IP:', 'text', ['container' => 'div']);
+                                        WPISPConfig3::getField('ns1', 'NameServer 1:', 'text', ['container' => 'div']);
+                                        WPISPConfig3::getField('ns2', 'NameServer 2:', 'text', ['container' => 'div']);
                                     ?>
                                     <div>
                                     <label><?php echo __( 'Template:' ); ?></label>

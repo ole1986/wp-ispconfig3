@@ -7,19 +7,12 @@ defined( 'ABSPATH' ) || exit;
  */
 class IspconfigRegisterFree extends IspconfigRegister {
     public static $Self;
-    
     public static $TemplateID = 4;
-    public static $DefaultDomain = 'yourdomain.tld';
     
     public $forbiddenUserEx;
     
     // product example using Client limit tempaltes from ISPconfig
-    public $products = [
-        '4' => ['name' => '300MB Free Webspace'],
-        '1' => ['name' => '5GB Webspace'],
-        '2' => ['name' => '10GB Webspace'],
-        '3' => ['name' => '30GB Webspace']
-    ];
+    public $products = [];
     
     public static function init() {
         if(!self::$Self) self::$Self = new self();
@@ -27,7 +20,7 @@ class IspconfigRegisterFree extends IspconfigRegister {
     
     public function __construct(){
         parent::__construct();
-        
+
         // support for shortcode using "[ispconfig class=IspconfigRegisterFree ...]"
         $this->withShortcode();
         // used to active ajax request for this plugin
@@ -41,6 +34,13 @@ class IspconfigRegisterFree extends IspconfigRegister {
         $this->forbiddenUserEx .= '|^kb$|^wiki$|^api$|^static$|^dev$|^mysql$|^search$|^media$|^status$';
         // start with words forbidden in username
         $this->forbiddenUserEx .= '|^mobile';
+
+        // load the Client templates from ISPCONFIG
+        $this->session_id = $this->soap->login( WPISPConfig3::$OPTIONS['soapusername'], WPISPConfig3::$OPTIONS['soappassword']);
+        $templates = $this->GetClientTemplates();
+        foreach ($templates as $k => $v) {
+            $this->products[$v['template_id']] = $v;
+        }
     }
     
     /**
@@ -61,20 +61,12 @@ class IspconfigRegisterFree extends IspconfigRegister {
                 $domain = $this->validateDomain($_POST['domain']);
             else if(intval($_POST['product_id']) == 4)
                 // add the first page for the customer
-                $domain = $username . '.'. self::$DefaultDomain;
+                $domain = $username . '.'. WPISPConfig3::$OPTIONS['default_domain'];
             
             // check password
             $this->validatePassword($_POST['password'], $_POST['password_confirm']);
             
-            $this->session_id = $this->soap->login( WPISPConfig3::$OPTIONS['soapusername'], WPISPConfig3::$OPTIONS['soappassword']);
-            
-            // fetch all templates from ISPConfig 
-            $limitTemplates = $this->GetClientTemplates();
-            // filter for only the TemplateID defined in self::$TemplateID
-            $limitTemplates = array_filter($limitTemplates, function($v, $k) { return (self::$TemplateID == $v['template_id']); }, ARRAY_FILTER_USE_BOTH);
-            
-            if(empty($limitTemplates)) throw new Exception("No client template found with ID '{$this->TemplateID}'");
-            $foundTemplate = array_pop($limitTemplates);
+            $foundTemplate = $this->products[$_POST['product_id']];
             
             $opt = ['company_name' => $_POST['company'], 
                     'contact_name' => $client,
@@ -113,28 +105,14 @@ class IspconfigRegisterFree extends IspconfigRegister {
             echo "<div class='ispconfig-msg'>The registration was successful - click <a href=\"https://".$_SERVER['HTTP_HOST'].":8080/\">here</a> to login</div>";
             
         } catch (SoapFault $e) {
-            //echo $this->soap->__getLastResponse();
+            //WPISPConfig3::soap->__getLastResponse();
             echo '<div class="ispconfig-msg ispconfig-msg-error">SOAP Error: '.$e->getMessage() .'</div>';
         } catch (Exception $e) {
             echo '<div class="ispconfig-msg ispconfig-msg-error">'.$e->getMessage() . "</div>";
             $_POST['password'] = $_POST['password_confirm'] = '';
         }
     }
-    
-    protected function getField($name, $title, $type = 'text', $mandatory = false, $additionalParams = []){
-        if(empty($type)) $type = 'text';
-        $req = ($mandatory)?'<span style="color: red;"> *</span>':'';
-        $label = '<label>'. __( $title ) . $req .'</label>';
         
-        $input = '<input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.WPISPConfig3::$OPTIONS[$name].'"';
-        foreach($additionalParams as $k => $v) {
-            $input .= $k .'="' . $v . '"';
-        }
-        $input .= ' />';
-         
-        return '<div style="display:inline-block;margin-left: 0.3em;">'. $label . $input .'</div>';
-    }
-    
     /**
      * Display the formular and submit button
      * Usually called through shortcode
@@ -169,7 +147,7 @@ class IspconfigRegisterFree extends IspconfigRegister {
                                             <?php
                                                 foreach($this->products as $k => $v) {
                                                     $s = (isset($_GET['product']) && $_GET['product'] == $k)?'selected':'';
-                                                    echo '<option value="'.$k.'" '.$s.'>'.$v['name'].'</option>';
+                                                    echo '<option value="'.$k.'" '.$s.'>'.$v['template_name'].'</option>';
                                                 }
                                                 
                                                     
@@ -181,20 +159,25 @@ class IspconfigRegisterFree extends IspconfigRegister {
                                     </div>
                                     <div id="domainMessage" class="ispconfig-msg" style="display:none;"></div>
                                     <div id="subdomain" style="margin-left: 0.3em;margin-bottom: 0.5em;font-weight: bold;">
-                                        <label>Subdomain:</label><span style="font-weight: normal;">http://</span><span id="domain_part">username</span><span style="font-weight: normal;">.<?php echo self::$DefaultDomain ?></span>
+                                        <label>Subdomain:</label><span style="font-weight: normal;">http://</span><span id="domain_part">username</span><span style="font-weight: normal;">.<?php echo WPISPConfig3::$OPTIONS['default_domain']; ?></span>
                                     </div>
                                     <div>
-                                    <?php 
-                                        echo $this->getField('client', 'Full name:',null, true);
-                                        echo $this->getField('company', 'Company:');
-                                        echo $this->getField('street', 'Street', null, true) . "<div style='height:1px'>&nbsp;</div>";
-                                        echo $this->getField('zipcode', 'Postal code', null, false);
-                                        echo $this->getField('city', 'City', null, true);
-                                        echo $this->getField('email', 'e-Mail:', null, true);
-                                        echo $this->getField('email_confirm', 'e-Mail confirm:', null, true);
-                                        echo $this->getField('username', 'Username:', null, true, ['maxLength' => 20, 'data-ispconfig-subdomain' => '1']) . "<div style='height:1px'>&nbsp;</div>";
-                                        echo $this->getField('password', 'Password:', 'password', true);
-                                        echo $this->getField('password_confirm', 'Password confirm:', 'password', true);
+                                    <?php
+                                        $attr = ['style' => 'display:inline-block'];
+                                        $attr2 = ['style' => 'display:inline-block;margin-left:0.4em'];
+
+                                        WPISPConfig3::getField('client', 'Full name:',null, ['container' => 'div','attr'=> $attr,'required' => true]);
+                                        WPISPConfig3::getField('company', 'Company:', null, ['container' => 'div', 'attr'=> $attr2 ]);
+                                        WPISPConfig3::getField('street', 'Street', null, ['container' => 'div','attr'=> $attr, 'required' => true]);
+                                        echo "<div style='height:1px'>&nbsp;</div>";
+                                        WPISPConfig3::getField('zipcode', 'Postal code', null, ['container' => 'div', 'attr'=> $attr]);
+                                        WPISPConfig3::getField('city', 'City', null, ['container' => 'div','attr'=> $attr2, 'required' => true]);
+                                        WPISPConfig3::getField('email', 'e-Mail:', null, ['container' => 'div','attr'=> $attr, 'required' => true]);
+                                        WPISPConfig3::getField('email_confirm', 'e-Mail confirm:', null, ['container' => 'div', 'attr'=> $attr2, 'required' => true]);
+                                        WPISPConfig3::getField('username', 'Username:', null, ['container' => 'div', 'required' => true, 'input_attr' => ['maxLength' => 20, 'data-ispconfig-subdomain' => '1']]);
+                                        echo "<div style='height:1px'>&nbsp;</div>";
+                                        WPISPConfig3::getField('password', 'Password:', 'password', ['container' => 'div','attr'=> $attr, 'required' => true]);
+                                        WPISPConfig3::getField('password_confirm', 'Password confirm:', 'password', ['container' => 'div','attr'=> $attr2, 'required' => true]);
                                     ?>
                                 </div>
                                 <div>&nbsp;</div>
