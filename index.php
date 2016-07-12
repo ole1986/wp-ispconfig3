@@ -189,6 +189,8 @@ if(!class_exists( 'WPISPConfig3' ) ) {
                 return "<p><label style='width:160px;display:inline-block;vertical-align:top;height:100px'>". __( $title, 'wp-ispconfig3') . '</label> <textarea name="'.$name.'" style="width:25em;height: 150px">'  . strip_tags(self::$OPTIONS[$name]) . '</textarea></p>';
             else if($type == 'checkbox')
                 return '<p><label style="width:160px;display:inline-block;">'.__( $title, 'wp-ispconfig3').'</label> <input type="'.$type.'" name="'.$name.'" value="1"' . ((self::$OPTIONS[$name])?'checked':'') .' /></p>';
+            else if($type == 'rte')
+                return '<div><label style="width:160px;display:inline-block;">'.__( $title, 'wp-ispconfig3').'</label> <div style="width: 300px;">'.wp_editor(self::$OPTIONS[$name], $name, ['teeny' => true,'editor_height'=>200, 'media_buttons' => false]).'</div></div>';
         }
         
         /**

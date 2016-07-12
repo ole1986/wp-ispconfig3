@@ -76,3 +76,22 @@ msgstr "pro Jahr"
 
 msgid "per month"
 msgstr "pro Monat"
+
+msgid "Invoice"
+msgstr "Rechnung"
+
+msgid "Offer"
+msgstr "Angebot"
+
+msgid "No#"
+msgstr "Pos."
+
+msgid "Description"
+msgstr "Bezeichnung"
+
+msgid "Qty"
+msgstr "Menge"
+
+msgid "Net"
+msgstr "Netto"
+
