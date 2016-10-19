@@ -14,9 +14,7 @@ class IspconfigRegisterClient extends IspconfigRegister {
 
     public function __construct(){
         parent::__construct();
-        // support for shortcode using "[ispconfig class=IspconfigRegisterClient ...]"
-        $this->withShortcode();
-        // enable SOAP requests for ISPconfig
+        // enable SOAP requests for this class
         $this->withSoap();
     }
     
@@ -45,7 +43,7 @@ class IspconfigRegisterClient extends IspconfigRegister {
             
             $this->GetClientByUser($opt['username']);
             
-            if(!empty($this->client)) throw new Exception('The user already exist. Please choice a different name');
+            if(!empty($this->client_id)) throw new Exception('The user already exist. Please choice a different name');
             
             // add the customer
             $this->AddClient($opt);

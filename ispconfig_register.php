@@ -7,11 +7,11 @@ defined( 'ABSPATH' ) || exit;
  * 
  * PLEASE NOTE: 
  * You can easily add features by creating a "ispconfig_register_<yourfeature>.php" file
- * shortcode can than be use the folowing in RTF Editor: [ispconfig class=IspconfigRegisterYourfeature]
+ * shortcode can than be use the following in RTF Editor: [ispconfig class=IspconfigRegisterYourfeature]
  *
  * An Example can be found in the file: ispconfig_register_client.php
  */
-abstract class IspconfigRegister {
+class IspconfigRegister {
     protected $soap;
     
     protected $session_id;   
@@ -22,14 +22,15 @@ abstract class IspconfigRegister {
     private $random_id = 0;
         
     public function __construct(){
-
+        if ( ! is_admin() )
+            $this->withShortcode();
     }
     
     /**
      * Initialize the SoapClient for ISPConfig
      */
     public function withSoap(){
-        $this->soap = new SoapClient(null, array('location' => WPISPConfig3::$OPTIONS['soap_location'] , 'uri' => WPISPConfig3::$OPTIONS['soap_uri'], 'trace' => 1, 'exceptions' => 1));
+        $this->soap = new SoapClient(null, ['location' => WPISPConfig3::$OPTIONS['soap_location'] , 'uri' => WPISPConfig3::$OPTIONS['soap_uri'], 'trace' => 1, 'exceptions' => 1]);
     }
     
     /** 
@@ -43,8 +44,8 @@ abstract class IspconfigRegister {
     public function withAjax(){
         // used to request whois through ajax
         if( is_admin() ) {
-            add_action('wp_ajax_ispconfig_whois', array($this, 'AJAX_ispconfig_whois_callback'));
-            add_action('wp_ajax_nopriv_ispconfig_whois', array($this, 'AJAX_ispconfig_whois_callback'));
+            add_action('wp_ajax_ispconfig_whois', [$this, 'AJAX_ispconfig_whois_callback'] );
+            add_action('wp_ajax_nopriv_ispconfig_whois', [$this, 'AJAX_ispconfig_whois_callback']);
         }
     }
     
@@ -96,7 +97,11 @@ abstract class IspconfigRegister {
      * SOAP: Get Client by username
      */
     public function GetClientByUser($username){
-        $this->client = $this->soap->client_get_by_username($this->session_id, $username);
+        try{
+            $this->client_id = $this->soap->client_get_by_username($this->session_id, $username);
+        } catch(SoapFault $e) {
+
+        }
     }
     
     /**
@@ -114,12 +119,12 @@ abstract class IspconfigRegister {
             'company_name' => '',
             'contact_name' => '',
             'customer_no' => '',
-            'vat_id' => '1',
+            'vat_id' => '',
             'street' => '',
             'zip' => '',
             'city' => '',
             'state' => '',
-            'country' => 'DE',
+            'country' => 'EN',
             'telephone' => '',
             'mobile' => '',
             'fax' => '',
@@ -164,7 +169,7 @@ abstract class IspconfigRegister {
             'limit_traffic_quota' => -1,
             'username' => '',
             'password' => '',
-            'language' => 'de',
+            'language' => 'en',
             'usertheme' => 'default',
             'template_master' => 0,
             'template_additional' => '',
@@ -191,6 +196,8 @@ abstract class IspconfigRegister {
             'server_id'	=> '1',
             'domain' => $domain,
             'ip_address' => '*',
+            'http_port' => '80',
+            'https_port' => '443',
             'type' => 'vhost',
             'parent_domain_id' => 0,
             'vhost_type' => '',

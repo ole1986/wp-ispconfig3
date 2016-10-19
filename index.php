@@ -2,7 +2,7 @@
 /*
  * Plugin Name: WP-ISPConfig3
  * Description: ISPConfig3 plugin allows you to register customers through wordpress frontend using shortcodes
- * Version: 1.0.4
+ * Version: 1.0.5
  * Author: ole1986 <ole.k@web.de>
  * Author URI: https://github.com/ole1986/wp-ispconfig3
  * Text Domain: wp-ispconfig3
@@ -12,8 +12,6 @@
 //define ('WPLANG', 'de_DE');
 defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
-if ( ! function_exists( 'add_filter' ) )
-	exit;
 if ( ! defined( 'WPISPCONFIG3_PLUGIN_DIR' ) ) {
 	define( 'WPISPCONFIG3_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 }
@@ -23,7 +21,7 @@ if ( ! defined( 'WPISPCONFIG3_PLUGIN_URL' ) ) {
 }
 
 if ( ! defined( 'WPISPCONFIG3_VERSION' ) ) {
-	define( 'WPISPCONFIG3_VERSION', '1.0.0' );
+	define( 'WPISPCONFIG3_VERSION', '1.0.5' );
 }
 
 // autoload php files starting with "ispconfig_register_[...].php" when class is used
@@ -38,16 +36,25 @@ spl_autoload_register(function($class) {
 });
 
 if(!class_exists( 'WPISPConfig3' ) ) {
-    add_action( 'init', array( 'WPISPConfig3', 'init' ) );
-    add_action('plugins_loaded', array('WPISPConfig3', 'plugins_loaded'));
+    add_action('init', array( 'WPISPConfig3', 'init' ) );
+
     register_activation_hook( plugin_basename( __FILE__ ), array( 'WPISPConfig3', 'install' ) );
     register_deactivation_hook(plugin_basename( __FILE__ ), array( 'WPISPConfig3', 'deactivate' ));
     register_uninstall_hook( plugin_basename( __FILE__ ), array( 'WPISPConfig3', 'uninstall' ) );
 
     class WPISPConfig3 {
+        /**
+         * @var language domain
+         */
         const TEXTDOMAIN = 'wpispconfig3';
+        /**
+         * @var option key stored in wordpress 'wp_options' table
+         */
         const OPTION_KEY = 'WPISPConfig3_Options';
-
+        /**
+         * @var default options when loaded the first time
+         * Once the options are being loaded using load_options method the default options will be overwritten.
+         */
         public static $OPTIONS = [
             'soapusername' => 'remote_user',
             'soappassword' => 'remote_user_pass',
@@ -64,39 +71,47 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             'sender_name' => 'Your Sevice name'
         ];
 
+        /**
+         * initialize the text domain and load the constructor
+         */
         public static function init() {
             WPISPConfig3 :: load_textdomain_file();
-            new self( TRUE );
+            new self();
         }
         
-        public function __construct( $hook_in = FALSE ) {            
+        public function __construct() {
+            // load the options from database and make available in WPISPConfig3::$OPTIONS
             $this->load_options();
-            
-            add_action('wp_enqueue_scripts', array($this, 'wpdocs_theme_name_scripts') );
-                       
-            IspconfigRegisterClient::init();
-            
-            // load the ISPConfig invoicing module by using WooCommerce hooks
-            if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) 
-                 && file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php')) {
-                require_once( WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php' );
+		  
+            // load the ISPConfig3 invoicing module (PREMIUM)
+            if (file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php')) {
+                require_once( WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php');
                 IspconfigWc::init();
             }
             
+            // action hook to load the scripts and style sheets (frontend)
+            add_action('wp_enqueue_scripts', array($this, 'wpdocs_theme_name_scripts') );
+            
+            // initialize the Ispconfig register class
+            new IspconfigRegister();
+            
+            // skip the rest if its a frontend request
             if ( ! is_admin() )	return;
-
-            if ( $hook_in ) {
-                add_action( 'admin_menu', array( $this, 'admin_menu' ) );
-            }
+            
+            // below is for backend only
+            add_action( 'admin_menu', array( $this, 'admin_menu' ) );
         }
-
+        /**
+         * Load the neccessary JS and stylesheets 
+         * HOOK: wp_enqueue_scripts
+         */
         public function wpdocs_theme_name_scripts(){
-            wp_enqueue_style( 'style-name', WPISPCONFIG3_PLUGIN_URL . 'style/wordpress.css' );
+            wp_enqueue_style( 'style-name', WPISPCONFIG3_PLUGIN_URL . 'style/ispconfig.css' );
             wp_enqueue_script('ispconfig-script', WPISPCONFIG3_PLUGIN_URL . 'js/ispconfig.js');
         }
         
         /**
-         * admin menu
+         * Display the ISPConfig3 admin menu
          *
          * @access public
          * @return void
@@ -263,21 +278,6 @@ if(!class_exists( 'WPISPConfig3' ) ) {
         }
         
         /**
-         * Used to provide a download function as invoice preview
-         */
-        public function plugins_loaded(){
-            global $pagenow, $wpdb;
-            if (current_user_can('ispconfig_invoice') && $pagenow=='admin.php' && isset($_GET['invoice'])) {
-                if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) && file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php'))
-                {
-                    require_once( WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php' );
-                    IspconfigWcBackend::OutputInvoice();
-                }
-                    
-            }
-        }
-
-        /**
          * installation
          *
          * @access public
@@ -285,7 +285,7 @@ if(!class_exists( 'WPISPConfig3' ) ) {
          * @return void
          */
         public static function install() {
-            // run the installer if ISPConfig invoicing module is available
+            // run the installer if ISPConfig invoicing module (if available)
             if(file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php')){
                 require_once( WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php' );
                 IspconfigWcBackend::install();
@@ -300,6 +300,7 @@ if(!class_exists( 'WPISPConfig3' ) ) {
          * @return void
          */
         public static function deactivate(){
+            // run the deactivate method from ISPConfig invoicing module (if available)
             if(file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php')){
                 require_once( WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php' );
                 IspconfigWcBackend::deactivate();

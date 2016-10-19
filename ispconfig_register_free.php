@@ -26,8 +26,6 @@ class IspconfigRegisterFree extends IspconfigRegister {
     public function __construct(){
         parent::__construct();
 
-        // support for shortcode using "[ispconfig class=IspconfigRegisterFree ...]"
-        $this->withShortcode();
         // used to active ajax request for this plugin
         $this->withAjax();
         // enable SOAP requests for ISPconfig
@@ -86,7 +84,7 @@ class IspconfigRegisterFree extends IspconfigRegister {
             
             $this->GetClientByUser($opt['username']);
             
-            if(!empty($this->client)) throw new Exception('The user you have entered already exists');
+            if(!empty($this->client_id)) throw new Exception('The user you have entered already exists');
             
             // add the customer
             $this->AddClient($opt);
@@ -110,10 +108,10 @@ class IspconfigRegisterFree extends IspconfigRegister {
             echo "<div class='ispconfig-msg'>" . __('You can now login here', 'wp-ispconfig3') .": <a href=\"https://".$_SERVER['HTTP_HOST'].":8080/\">click</a></div>";
             
         } catch (SoapFault $e) {
-            //WPISPConfig3::soap->__getLastResponse();
-            echo '<div class="ispconfig-msg ispconfig-msg-error">SOAP Error: '.$e->getMessage() .'</div>';
+            //$this->soap->__getLastResponse();
+            echo '<div class="ispconfig-msg ispconfig-msg-error">SOAP Error: '. $e->getMessage() . $e->getTraceAsString() .'</div>';
         } catch (Exception $e) {
-            echo '<div class="ispconfig-msg ispconfig-msg-error">'.$e->getMessage() . "</div>";
+            echo '<div class="ispconfig-msg ispconfig-msg-error">'. $e->getMessage() . "</div>";
             $_POST['password'] = $_POST['password_confirm'] = '';
         }
     }
