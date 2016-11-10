@@ -122,8 +122,8 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             // display the settings menu entry 
             add_submenu_page('ispconfig3_menu', __('Settings', 'wp-ispconfig3'), __('Settings', 'wp-ispconfig3'), 'edit_themes', 'ispconfig_settings',  array($this, 'DisplaySettings') );
             // if woocommerce and invoicing module for ISPConfig is avialble, load it and display invoices menu entry
-            if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) 
-                 && file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php')) {
+            
+            if (file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php')) {
                 add_submenu_page('ispconfig3_menu', __('Invoices', 'wp-ispconfig3'), __('Invoices', 'wp-ispconfig3'), 'edit_themes', 'ispconfig_invoices',  array('IspconfigWcBackend', 'DisplayInvoices') );
             }
         }
