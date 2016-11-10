@@ -231,13 +231,16 @@ if(!class_exists( 'WPISPConfig3' ) ) {
 
             if($type == 'text' || $type == 'password')
                 echo '<input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.self::$OPTIONS[$name].'"'.$attrStr.' />';
-            else if($type == 'textarea')
-                echo '<textarea name="'.$name.'" style="width:25em;height: 150px" '.$attrStr.'>'  . strip_tags(self::$OPTIONS[$name]) . '</textarea>';
+            else if($type == 'textarea') {
+                $msg = isset(self::$OPTIONS[$name])?self::$OPTIONS[$name]:'';
+                echo '<textarea name="'.$name.'" style="width:25em;height: 150px" '.$attrStr.'>'  . strip_tags($msg) . '</textarea>';
+            }
             else if($type == 'checkbox')
-                echo '<input type="'.$type.'" name="'.$name.'" value="1"' . ((self::$OPTIONS[$name])?'checked':'') .''.$attrStr.' />';
+                echo '<input type="'.$type.'" name="'.$name.'" value="1"' . ((isset(self::$OPTIONS[$name]) && self::$OPTIONS[$name])?'checked':'') .''.$attrStr.' />';
             else if($type == 'rte') {
                 echo '<div '.$attrStr.'>';
-                wp_editor(self::$OPTIONS[$name], $name, ['teeny' => true, 'editor_height'=>200, 'media_buttons' => false]);
+                $msg = isset(self::$OPTIONS[$name])?self::$OPTIONS[$name]:'';
+                wp_editor($msg, $name, ['teeny' => true, 'editor_height'=>200, 'media_buttons' => false]);
                 echo '</div>'; 
             }           
             echo '</' . $xargs['container'] .'>';
