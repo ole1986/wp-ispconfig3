@@ -89,6 +89,18 @@ msgstr "pro Monat"
 msgid "Invoice"
 msgstr "Rechnung"
 
+msgid "Invoices"
+msgstr "Rechnungen"
+
+msgid "Pay Now"
+msgstr "Bezahlen"
+
+msgid "Paid at"
+msgstr "Bezahlt am"
+
+msgid "Paid"
+msgstr "Bezahlt"
+
 msgid "Offer"
 msgstr "Angebot"
 
@@ -104,3 +116,8 @@ msgstr "Menge"
 msgid "Net"
 msgstr "Netto"
 
+msgid "Working hours"
+msgstr "Arbeitsstunden"
+
+msgid "Webspace"
+msgstr "Webspeicher"
