@@ -98,6 +98,9 @@ msgstr "Bezahlen"
 msgid "Paid at"
 msgstr "Bezahlt am"
 
+msgid "Due at"
+msgstr "Fällig am"
+
 msgid "Paid"
 msgstr "Bezahlt"
 
