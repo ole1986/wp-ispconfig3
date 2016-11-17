@@ -8,6 +8,7 @@ class IspconfigWcBackend extends IspconfigRegister {
     public function __construct(){
         parent::__construct();
         
+        // enable changing the due date through ajax
         add_action( 'wp_ajax_update_invoice_due_date', array(&$this,'update_invoice_due_date_callback') );
 
         // the rest after this is for NON-AJAX requests
@@ -97,8 +98,8 @@ class IspconfigWcBackend extends IspconfigRegister {
         WPISPConfig3::getField('wc_recur_reminder', 'Recurring Reminder<br />(for customers)','checkbox');
         WPISPConfig3::getField('wc_recur_test', 'Test Recurring<br />(use admin email instead)','checkbox');
         WPISPConfig3::getField('wc_recur_message', 'Recurring Message<br />(for customers)', 'textarea');
-        
         ?>
+        <input type="hidden" name="wc_enable" value="1" />
         </div>
         <?php
     }

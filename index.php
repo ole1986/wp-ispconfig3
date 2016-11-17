@@ -79,15 +79,15 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             new self();
         }
         
-        public function __construct() {	  
+        public function __construct() {
+            // load the options from database and make available in WPISPConfig3::$OPTIONS
+            $this->load_options();
+
             // load the ISPConfig3 invoicing module (PREMIUM)
             if (file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php')) {
                 require_once( WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php');
                 IspconfigWc::init();
             }
-
-            // load the options from database and make available in WPISPConfig3::$OPTIONS
-            $this->load_options();
             
             // action hook to load the scripts and style sheets (frontend)
             add_action('wp_enqueue_scripts', array($this, 'wpdocs_theme_name_scripts') );

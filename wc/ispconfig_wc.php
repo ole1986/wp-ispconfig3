@@ -10,16 +10,8 @@ include_once WPISPCONFIG3_PLUGIN_WC_DIR . 'ispconfig_wc_backend.php';
 class IspconfigWc extends IspconfigWcBackend {
     public static $Self;
 
-    public static $WEBTEMPLATE_PARAMS = [
-        /* 5GB Webspace */
-        1 => ['pm_max_children' => 2],
-        /* 10GB Webspace */
-        2 => ['pm_max_children' => 3, 'pm_max_spare_servers' => 3],
-        /* 30GB Webspace */
-        3 => ['pm_max_children' => 5, 'pm_min_spare_servers'=> 2, 'pm_max_spare_servers' => 5],
-    ];
-    
-    protected $default_options = [
+    public static $OPTIONS = [
+        'wc_enable' => 0,
         'wc_payment_reminder' => 1,
         'wc_payment_message' => "Dear Administrator,\n\nThe following invoices are not being paid yet: %s\n\nPlease remind the customer(s) for payment",
         'wc_recur_reminder' => 0,
@@ -31,9 +23,21 @@ class IspconfigWc extends IspconfigWcBackend {
         'wc_pdf_logo' => '/plugins/wp-ispconfig3/logo.png',
         'wc_pdf_addressline' => 'Your address in a single line',
         'wc_pdf_condition' => "Some conditional things related to invoices\nLine breaks supported",
-        'wc_pdf_info' => 'Info block containing created date here: %s'
+        'wc_pdf_info' => 'Info block containing created date here: %s',
+        'wc_pdf_block1' => 'BLOCK #1',
+        'wc_pdf_block2' => 'BLOCK #2',
+        'wc_pdf_block3' => 'BLOCK #3'
     ];
-    
+
+    public static $WEBTEMPLATE_PARAMS = [
+        /* 5GB Webspace */
+        1 => ['pm_max_children' => 2],
+        /* 10GB Webspace */
+        2 => ['pm_max_children' => 3, 'pm_max_spare_servers' => 3],
+        /* 30GB Webspace */
+        3 => ['pm_max_children' => 5, 'pm_min_spare_servers'=> 2, 'pm_max_spare_servers' => 5],
+    ];
+        
     public static function init(){
         if(!self::IsWooCommerceAvailable()) return;
 
@@ -50,9 +54,11 @@ class IspconfigWc extends IspconfigWcBackend {
     }
     
     public function __construct(){
-        parent::__construct();
+        // load default OPTIONS when not yet saved
+        if(empty(WPISPConfig3::$OPTIONS['wc_enable']))
+            WPISPConfig3::$OPTIONS = array_merge(WPISPConfig3::$OPTIONS, self::$OPTIONS);
 
-        WPISPConfig3::$OPTIONS = array_merge(WPISPConfig3::$OPTIONS, $this->default_options);
+        parent::__construct();
 
         // enable soap for this
         $this->withSoap();
