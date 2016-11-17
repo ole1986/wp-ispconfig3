@@ -3,7 +3,7 @@
 defined( 'ABSPATH' ) || exit; 
 
 /**
- * Nordhosting TK - Register a free user through ISPConfig SOAP with including subdomain and shell account
+ * Free registration form example
  */
 class IspconfigRegisterFree extends IspconfigRegister {
     public static $Self;

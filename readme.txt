@@ -8,23 +8,29 @@ Stable tag: trunk
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-WordPress interface for ISPConfig 3 ~ Hosting Control Panel.  The plugin allows you to manage ISPConfig through SOAP requests
+ISPConfig 3 ~ Hosting Control Panel ~ Interface for Wordpress including INVOICE MODULE for WooCommerce
 
 == Description ==
 
-This wordpress plugin is used to access [ISPConfig](http://www.ispconfig.org) features by connecting to its SOAP Server API
+The ISPConfig 3 plugin allows you to create clients, websites, shell users into the [ISPConfig](http://www.ispconfig.org) Control Panel by using its REST API.
 
-By adding a remote user (through ISPConfig -> UserManagement - > Remote Users) you can manage client features, websites shell accounts, etc... directly from wordpress.
+**Features**
 
-This plugin is shipped with two additional files to demonstrate a customer registration form using wordpress shortcodes.
+* use registration forms to create sites, accounts, etc. (shortcode: [ispconfig class=IspconfigRegisterClient] or [ispconfig class=IspconfigRegisterFree])
+* quickly build a registration form yourself with a single PHP file (details below)
+* extend you WooCommerce shoping cart with "Webspace" products
 
-Usage: `[ispconfig class=IspconfigRegisterClient]` or `[ispconfig class=IspconfigRegisterFree]`
+**FREE PREMIUM: INVOICE MODULE** (WooCommerce plugin required)
 
-Please make sure your followed the steps in chapter "Installation" before adding any shortcode
+Extend your "Webspace" products with an INVOICE MODULE
 
-= Add your own shortcode class =
+* generate PDF invoices from a WooCommerce Order
+* fully cusdtomizable Invoice PDF (90% through ISPConfig3 settings)
+* auto-generate invoices on paypal payment
+* display invoices in customers "My Account" frontend 
+* automated recurring payment reminders to customers
 
-To add your own registration form you can simple do the following:
+= Build your own registration form =
 
 * copy one of the existing files (`ispconfig_register_client.php` or `ispconfig_register_free.php`)
 * change the php class name to "IspconfigYourClass" for example
@@ -32,7 +38,7 @@ To add your own registration form you can simple do the following:
 * customize the file with your needs.
 * use the shortcode `[ispconfig class=IspconfigYourClass]` to display its content
 
-PLEASE NOTE:
+**PLEASE NOTE**
 
 The autoload function uses CamelCase style to include the php classes. So, `IspconfigYourClass` will be converted to `ispconfig_your_class.php`
 
@@ -44,13 +50,17 @@ The autoload function uses CamelCase style to include the php classes. So, `Ispc
 
 = Configuration =
 
-Before you can start it is neccessary to setup the remote SOAP server and user credentials.
+*SOAP Setup*
 
-* Open the ISPConfig website with your favorite browser and login as admin.
+In ISPConfig3
+
+* Open the ISPConfig Control Panel with your favorite browser and login as administrator.
 * Navigate to `System -> User Management -> Remote User`
 * Add a new remote user with a secure password
 
-In Wordpress, once you activated the wp-ispconfig3 plugin you need to setup the `WP-ISPConfig3 -> Settings` 
+In Wordpress
+
+once you have activated the wp-ispconfig3 plugin, please navigate to the `WP-ISPConfig 3 -> Settings` menu and setup the SOAP information
 
 `SOAP Username: remoteuser`
 `SOAP Password: remoteuserpass`
@@ -59,9 +69,10 @@ In Wordpress, once you activated the wp-ispconfig3 plugin you need to setup the 
 
 == Screenshots ==
 
-1. Register a new customer <br /> ![Register a new customer](img/screenshot-1.png "Register a new customer") 
-2. Register a new free customer <br /> ![Register a new free customer](img/screenshot-2.png "Register a new free customer") 
-3. Plugin settings <br /> ![Display plugin settings](img/screenshot-3.png "Display plugin settings")
+1. ISPConfig SOAP settings in wordpress
+2. Registration form (client edition) 
+3. Registration form (free edition) 
+4. FREE PREMIUM: Invoice list
 
 == License ==
 
@@ -72,6 +83,10 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with WP Nofollow More Links. If not, see <http://www.gnu.org/licenses/>.
 
 == Changelog ==
+
+= v1.1.0 =
+* several improvements and code optimization
+* PREMIUM: invoice module becomes available for FREE
 
 = v1.0.4 =
 * improved options property
