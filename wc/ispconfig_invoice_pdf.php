@@ -52,8 +52,10 @@ class IspconfigInvoicePdf {
         $ls = new Cpdf_LineStyle(1, 'butt', 'miter');
         
         // Logo
-        $logo = $pdf->NewAppearance();
-        $logo->AddImage('right',790, WPISPCONFIG3_PLUGIN_DIR . '/' . WPISPConfig3::$OPTIONS['wc_pdf_logo'], 280);
+        if(file_exists(WPISPCONFIG3_PLUGIN_DIR . '/' . WPISPConfig3::$OPTIONS['wc_pdf_logo'])) {
+            $logo = $pdf->NewAppearance();
+            $logo->AddImage('right',790, WPISPCONFIG3_PLUGIN_DIR . '/' . WPISPConfig3::$OPTIONS['wc_pdf_logo'], 280);
+        }
                 
         // billing info
         $billing_text = $pdf->NewAppearance(['uy'=> 650, 'addlx' => 20, 'ly' => 520, 'ux'=> 300]);
