@@ -119,6 +119,15 @@ msgstr "Menge"
 msgid "Net"
 msgstr "Netto"
 
+msgid "Tax"
+msgstr "MwSt."
+
+msgid "Summary"
+msgstr "Summe"
+
+msgid "Total"
+msgstr "Total"
+
 msgid "Working hours"
 msgstr "Arbeitsstunden"
 
