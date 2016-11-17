@@ -84,6 +84,9 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+= v1.1.1 =
+* fixed issue loading options
+
 = v1.1.0 =
 * several improvements and code optimization
 * PREMIUM: invoice module becomes available for FREE
