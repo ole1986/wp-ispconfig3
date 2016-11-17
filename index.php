@@ -229,18 +229,21 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             foreach ($xargs['input_attr'] as $k => $v)
                 $attrStr.= ' '.$k.'="'.$v.'"';
 
+            if(isset(self::$OPTIONS[$name]))
+                $optValue = self::$OPTIONS[$name];
+            else
+                $optValue = '';
+
             if($type == 'text' || $type == 'password')
-                echo '<input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.self::$OPTIONS[$name].'"'.$attrStr.' />';
+                echo '<input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.$optValue.'"'.$attrStr.' />';
             else if($type == 'textarea') {
-                $msg = isset(self::$OPTIONS[$name])?self::$OPTIONS[$name]:'';
-                echo '<textarea name="'.$name.'" style="width:25em;height: 150px" '.$attrStr.'>'  . strip_tags($msg) . '</textarea>';
+                echo '<textarea name="'.$name.'" style="width:25em;height: 150px" '.$attrStr.'>'  . strip_tags($optValue) . '</textarea>';
             }
             else if($type == 'checkbox')
-                echo '<input type="'.$type.'" name="'.$name.'" value="1"' . ((isset(self::$OPTIONS[$name]) && self::$OPTIONS[$name])?'checked':'') .''.$attrStr.' />';
+                echo '<input type="'.$type.'" name="'.$name.'" value="1"' . (($optValue == '1')?'checked':'') .''.$attrStr.' />';
             else if($type == 'rte') {
                 echo '<div '.$attrStr.'>';
-                $msg = isset(self::$OPTIONS[$name])?self::$OPTIONS[$name]:'';
-                wp_editor($msg, $name, ['teeny' => true, 'editor_height'=>200, 'media_buttons' => false]);
+                wp_editor($optValue, $name, ['teeny' => true, 'editor_height'=>200, 'media_buttons' => false]);
                 echo '</div>'; 
             }           
             echo '</' . $xargs['container'] .'>';
