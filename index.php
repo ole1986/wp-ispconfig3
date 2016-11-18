@@ -20,10 +20,6 @@ if ( ! defined( 'WPISPCONFIG3_PLUGIN_URL' ) ) {
 	define( 'WPISPCONFIG3_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 }
 
-if ( ! defined( 'WPISPCONFIG3_VERSION' ) ) {
-	define( 'WPISPCONFIG3_VERSION', '1.0.5' );
-}
-
 // autoload php files starting with "ispconfig_register_[...].php" when class is used
 spl_autoload_register(function($class) { 
     $cls = strtolower(preg_replace(['/([a-z\d])([A-Z])/', '/([^_])([A-Z][a-z])/'], "$1_$2", $class));

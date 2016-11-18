@@ -61,7 +61,7 @@ class IspconfigWcBackend extends IspconfigRegister {
   }
     
     public function load_js(){
-        wp_enqueue_script( 'my_custom_script', WPISPCONFIG3_PLUGIN_URL . 'js/ispconfig-admin.js' );
+        wp_enqueue_script( 'my_custom_script', WPISPCONFIG3_PLUGIN_URL . 'js/ispconfig-admin.js?_' . time() );
     }
 
     /**
