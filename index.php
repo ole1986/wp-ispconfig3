@@ -103,7 +103,7 @@ if(!class_exists( 'WPISPConfig3' ) ) {
          */
         public function wpdocs_theme_name_scripts(){
             wp_enqueue_style( 'style-name', WPISPCONFIG3_PLUGIN_URL . 'style/ispconfig.css' );
-            wp_enqueue_script('ispconfig-script', WPISPCONFIG3_PLUGIN_URL . 'js/ispconfig.js');
+            wp_enqueue_script('ispconfig-script', WPISPCONFIG3_PLUGIN_URL . 'js/ispconfig.js?_' . time());
         }
         
         /**
