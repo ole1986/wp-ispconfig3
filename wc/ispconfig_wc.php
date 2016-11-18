@@ -85,8 +85,10 @@ class IspconfigWc extends IspconfigWcBackend {
             add_action('woocommerce_account_invoices_endpoint', array($this, 'wc_invoice_content'));
         }
         
-        // ORDER-PAYED: When Order has been paid (can also happen manually as ADMIN)
+        // ORDER-PAID: When Order has been paid (can also happen manually as ADMIN)
         add_filter('woocommerce_payment_complete', array( $this, 'wc_payment_complete' ) );
+        // INVOICE-PAID: When the invoice has been paid through "My account"
+        add_action( 'valid-paypal-standard-ipn-request', array( $this, 'wc_payment_paypal_ipn' ), 10, 1 );
     }
         
     /**
@@ -116,8 +118,6 @@ class IspconfigWc extends IspconfigWcBackend {
             $this->showPaymentForInvoice(intval($_GET['invoice']));
             return;
         }
-            
-
 
         $query = "SELECT i.*, u.user_login AS customer_name, u.user_email AS user_email, u.ID AS user_id, p.ID AS order_id, p.post_status, pm.meta_value AS ispconfig_period 
                     FROM {$wpdb->prefix}ispconfig_invoice AS i 
@@ -147,7 +147,7 @@ class IspconfigWc extends IspconfigWcBackend {
                         <?php if(($v['status'] & 2) == 0): ?>
                         <a href="<?php echo '?invoice='.$v['ID']; ?>" class="button view"><?php _e('Pay Now', 'wp-ispconfig3') ?></a>
                         <?php elseif(!empty($v['paid_date'])): ?>
-                        <strong><?php echo __('Paid at', 'wp-ispconfig3') . ' ' . strftime("%Y-%m-%d",strtotime($v['paid_date'])) ?> </strong>
+                        <strong><?php echo __('Paid at', 'wp-ispconfig3') . ' ' . strftime("%x",strtotime($v['paid_date'])) ?> </strong>
                         <?php else: ?>
                         <strong><?php _e('Paid', 'wp-ispconfig3') ?> </strong>
                         <?php endif; ?>
@@ -163,20 +163,49 @@ class IspconfigWc extends IspconfigWcBackend {
         $invoice = new IspconfigInvoice($invoiceID);
         $order = $invoice->order;
         ?>
-
-        <?php if($order->payment_method == 'bacs'): $bacs = new WC_Gateway_BACS(); ?>      
         <h3><?php  _e('Invoice', 'wp-ispconfig3'); ?> <?php echo $invoice->invoice_number ?></h3>
         Zahlung via <?php echo $order->payment_method_title ?>
+        <p><?php _e('Order', 'woocommerce') ?># <?php echo $invoice->invoice_number ?></p>
 
-        <p><?php _e('Order', 'woocommerce') ?># <?php echo $invoice->invoice_number ?></p> 
-        <?php $bacs->thankyou_page($order->id); ?>
-        <h3>Betrag: <?php echo $order->get_total() .' ' . $order->get_order_currency(); ?></h3>
+        <?php if($invoice->status & IspconfigInvoice::PAID): ?>
+        <h4 style="text-align:center;"><?php echo __('Paid at', 'wp-ispconfig3') . ' ' . strftime("%x",strtotime($invoice->paid_date)) ?></h4>
+        <?php return; endif; ?>
+
+        <?php if($order->payment_method == 'bacs'): $bacs = new WC_Gateway_BACS(); ?>      
+            <?php $bacs->thankyou_page($order->id); ?>
+            <h3>Betrag: <?php echo $order->get_total() .' ' . $order->get_order_currency(); ?></h3>
+        <?php elseif($order->payment_method == 'paypal'): 
+        
+            // overwrite order number to use invoice number instead
+            add_filter('woocommerce_order_number', function() use($invoice) { return $invoice->invoice_number; });
+            add_filter('woocommerce_paypal_args', function($args) use($invoice) { $args['custom'] = json_encode(array('invoice_id' => $invoice->ID) ); return $args; });
+
+            $paypal = new WC_Gateway_Paypal();
+            $result = $paypal->process_payment($order->id);
+            //include_once(WPISPCONFIG3_PLUGIN_DIR . '../woocommerce/includes/gateways/paypal/includes/class-wc-gateway-paypal-request.php');
+            //$paypal_request = new WC_Gateway_Paypal_Request( $paypal );
+        ?>
+            <div style="text-align: center;">
+                <a href="<?php echo get_site_url() . '/wp-admin/admin.php?invoice=' . $invoiceID; ?>" class="button view"><?php  _e('Show');  ?></a>
+                &nbsp;&nbsp;&nbsp;
+                <a href="<?php echo $result['redirect'] ?>" class="button button-primary"><?php _e('Pay Now', 'wp-ispconfig3') ?></a>
+            </div>
         <?php endif; ?>
-
-        <div style="text-align: center;">
-            <a href="<?php echo get_site_url() . '/wp-admin/admin.php?invoice=' . $invoiceID; ?>" class="button view"><?php  _e('Show');  ?></a>
-        </div>
         <?php
+    }
+
+    public function wc_payment_paypal_ipn($posted){
+        if ( ! empty( $posted['custom'] ) &&  ($custom=json_decode($posted['custom'])) && is_object($custom) && isset($custom->invoice_id) ) {
+            error_log("### WC_Gateway_Paypal called for IspconfigInvoice");
+            $invoice = new IspconfigInvoice( intval($custom->invoice_id) );
+            if(!empty($invoice->ID))
+            {
+                $invoice->Paid();
+                $invoice->Save();
+                error_log("### IspconfigInvoice({$invoice->ID}) saved");
+            }
+            exit;
+        }
     }
 
     /**
@@ -246,7 +275,7 @@ class IspconfigWc extends IspconfigWcBackend {
         $order = new WC_Order($order_id);
 
         $invoice = new IspconfigInvoice($order);
-        $invoice->document = IspconfigInvoicePdf::init()->BuildInvoice($invoice);
+        $invoice->makeNew();
         $invoice->Save();
         
         $this->registerFromOrder( $order );

@@ -3,22 +3,31 @@
  */
 function ISPConfigAdminClass(){
     var $ = jQuery;
-    var that = this;
+    var self = this;
 
     var init = function() {};
 
     /**
-     * PREMIUM: Update the due date of an invoice using ajax action
+     * Update the due date of an invoice using ajax action
      */
     var ajax_update_due_date = function(id, due_date){
         var data = {'action': 'update_invoice_due_date', 'invoice_id': id,'due_date': due_date};
         return jQuery.post(ajaxurl, data, null, 'json');
     };
 
-    /**
-     * PREMIUM: Edit due date through ajax
+    /** 
+     * confirm deletion
      */
-    that.WC_EditDueDate = function(obj){
+    this.ConfirmDelete = function(obj){
+        var invoice = $(obj).data('name');
+        var ok = confirm("Really delete invoice " + invoice + "?");
+        if(!ok) event.preventDefault();
+    };
+
+    /**
+     * Edit due date through ajax
+     */
+    this.EditDueDate = function(obj){
         var d = $(obj).text();
         var invoice_id = parseInt($(obj).data('id'));
 

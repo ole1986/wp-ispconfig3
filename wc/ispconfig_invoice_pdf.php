@@ -22,9 +22,6 @@ class IspconfigInvoicePdf {
      * @param {Array} $invoice-> list of extra data passed as array (E.g. invoice_number, created, due date, ...)
      */
     public function BuildInvoice($invoice, $isOffer = false, $stream = false){
-        $l = setlocale(LC_ALL, 'de_DE.UTF-8');
-        error_log("Locale: $l");
-
         $order = $invoice->order;
 
         $isPaid = get_post_meta($order->id, '_paid_date', true);
@@ -71,12 +68,12 @@ class IspconfigInvoicePdf {
         // Rechnung info
         $billing_text = $pdf->NewAppearance(['uy'=> 650, 'lx' => 400, 'ly' => 520, 'addux' => -20]);
         $billing_text->SetFont('Helvetica', 10);
-        $billing_text->AddText(sprintf( WPISPConfig3::$OPTIONS['wc_pdf_info'], date('d.m.Y',strtotime($invoice->created))) );
+        $billing_text->AddText(sprintf( WPISPConfig3::$OPTIONS['wc_pdf_info'], strftime('%x',strtotime($invoice->created))) );
         
         if($isPaid && !$isOffer) {
             $billing_text->AddColor(1,0,0);
             $billing_text->SetFont('Helvetica', 12);
-            $billing_text->AddText("\n" . sprintf(WPISPConfig3::$OPTIONS['wc_pdf_paid'], date('d.m.Y',strtotime($isPaid)) ) );
+            $billing_text->AddText("\n" . sprintf(__('Paid at', 'wp-ispconfig3') . ' %s', strftime('%x',strtotime($isPaid)) ) );
         }
 
         // Zahlungsinfo und AGB

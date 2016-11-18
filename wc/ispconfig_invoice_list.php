@@ -13,12 +13,6 @@ class ISPConfigInvoiceList extends WP_List_Table {
     private $rows_per_page = 15;
     private $total_rows = 0;
 
-    public static $STATUS = [
-        1 => 'Submitted',
-        2 => 'Paid',
-        4 => 'Free #2'
-    ];
-
     public function __construct(){
         parent::__construct();
     }
@@ -67,9 +61,9 @@ class ISPConfigInvoiceList extends WP_List_Table {
             case 'created':
             case 'due_date':
             case 'paid_date':
-                return $item[ $column_name ];
+                return $item->$column_name;
             case 'status':
-                return $this->getStatus($item[$column_name]);
+                return IspconfigInvoice::GetStatus($item->$column_name);
             default:
                 return print_r( $item, true ) ; //Show the whole array for troubleshooting purposes
         }
@@ -77,46 +71,36 @@ class ISPConfigInvoiceList extends WP_List_Table {
 
     function column_status($item) {
         $actions = [
-            'sent' => sprintf('<a href="?page=%s&action=%s&id=%s">Mark Sent</a>', $_REQUEST['page'],'sent',$item['ID']),
-            'paid' => sprintf('<a href="?page=%s&action=%s&id=%s">Mark Paid</a>', $_REQUEST['page'],'paid',$item['ID'])
+            'sent' => sprintf('<a href="?page=%s&action=%s&id=%s">Mark Sent</a>', $_REQUEST['page'],'sent',$item->ID),
+            'paid' => sprintf('<a href="?page=%s&action=%s&id=%s">Mark Paid</a>', $_REQUEST['page'],'paid',$item->ID)
         ];
-        return sprintf('%s %s', $this->getStatus($item['status']), $this->row_actions($actions) );
-    }
-    
-    private function getStatus($s){
-        $s = intval($s);
-        $res = '';
-        foreach (self::$STATUS as $key => $value) {
-            if($s > 0 && ($key & $s)) 
-                $res .= $value . ' | ';
-        }
-        return rtrim($res, ' | ');
+        return sprintf('%s %s', IspconfigInvoice::GetStatus($item->status), $this->row_actions($actions) );
     }
 
     function column_order_id($item){
         $stat = wc_get_order_statuses();
         $recurr = '';
-        if(!empty($item[ 'ispconfig_period' ]))
-            $recurr = 'Recurring: ' . (($item[ 'ispconfig_period' ] == 'm')?'monthly':'yearly');
-        return '<a href="post.php?post='.$item[ 'order_id' ] . '&action=edit" >#' . $item[ 'order_id' ] . ' ('.$stat[$item['post_status']].')</a><br />' . $recurr;
+        if(!empty($item->ispconfig_period))
+            $recurr = 'Recurring: ' . (($item->ispconfig_period == 'm')?'monthly':'yearly');
+        return '<a href="post.php?post='.$item->order_id. '&action=edit" >#' . $item->order_id. ' ('.$stat[$item->post_status].')</a><br />' . $recurr;
     }
 
     function column_customer_name($item){
-        $res = sprintf('<a href="user-edit.php?user_id=%d">%s</a>', $item['user_id'], $item['customer_name']);
-        $res.="<br /> ". $item['user_email'];
+        $res = sprintf('<a href="user-edit.php?user_id=%d">%s</a>', $item->user_id, $item->customer_name);
+        $res.="<br /> ". $item->user_email;
         return $res;
     }
     
     function column_invoice_number($item) {
         $actions = [
-            'delete'    => sprintf('<a href="?page=%s&action=%s&id=%s">Delete</a>',$_REQUEST['page'],'delete',$item['ID']),
-            'quote' => sprintf('<a href="?invoice=%s&preview=1" target="_blank">Show Quote</a>', $item['ID']),
+            'delete'    => sprintf('<a href="?page=%s&action=%s&id=%s" onclick="ISPConfigAdmin.ConfirmDelete(this)" data-name="%s">Delete</a>',$_REQUEST['page'],'delete',$item->ID, $item->invoice_number),
+            'quote' => sprintf('<a href="?invoice=%s&preview=1" target="_blank">Show Quote</a>',$item->ID),
         ];
-        return sprintf('<a target="_blank" href="?invoice=%s">%s</a> %s', $item['ID'], $item['invoice_number'], $this->row_actions($actions) );
+        return sprintf('<a target="_blank" href="?invoice=%s">%s</a> %s', $item->ID, $item->invoice_number, $this->row_actions($actions) );
     }
 
     function column_due_date($item){
-        return '<a href="#" data-id="'.$item['ID'].'" onclick="ISPConfigAdmin.WC_EditDueDate(this);">'.$item['due_date'].'</a>';
+        return '<a href="#" data-id="'.$item->ID.'" onclick="ISPConfigAdmin.EditDueDate(this)">'.$item->due_date.'</a>';
     }
     
     public function prepare_items() {
@@ -131,19 +115,23 @@ class ISPConfigInvoiceList extends WP_List_Table {
                     FROM {$wpdb->prefix}".IspconfigInvoice::TABLE." AS i 
                     LEFT JOIN wp_users AS u ON u.ID = i.customer_id
                     LEFT JOIN wp_posts AS p ON p.ID = i.wc_order_id
-                    LEFT JOIN wp_postmeta AS pm ON (p.ID = pm.post_id AND pm.meta_key = 'ispconfig_period') WHERE 1=1";
+                    LEFT JOIN wp_postmeta AS pm ON (p.ID = pm.post_id AND pm.meta_key = 'ispconfig_period')
+                    WHERE deleted = 0";
 
         if(isset($_GET['page'], $_GET['action'],$_GET['id']) && $_GET['page'] == 'ispconfig_invoices') {
             $a = $_GET['action'];
+            $invoice = new IspconfigInvoice( intval($_GET['id']) );
             switch($a) {
                 case 'delete':
-                    $res = $wpdb->delete("{$wpdb->prefix}".IspconfigInvoice::TABLE, ['ID' => intval($_GET['id'])]);
+                    $invoice->Delete();
                     break;
                 case 'sent':
-                    $wpdb->query( $wpdb->prepare("UPDATE {$wpdb->prefix}".IspconfigInvoice::TABLE." SET status = (status | 1) WHERE ID = %s", $_GET['id'] ) );
+                    $invoice->Submitted();
+                    $invoice->Save();
                     break;
                 case 'paid':
-                    $wpdb->query( $wpdb->prepare("UPDATE {$wpdb->prefix}".IspconfigInvoice::TABLE." SET status = (status | 2), paid_date = '".date('Y-m-d H:i:s')."'  WHERE ID = %s", $_GET['id'] ) );
+                    $invoice->Paid();
+                    $invoice->Save();
                     break;
                 case 'filter':
                     if(!empty($_GET['id']))
@@ -157,7 +145,7 @@ class ISPConfigInvoiceList extends WP_List_Table {
         $this->applySorting($query);
         $this->applyPaging($query);
         
-        $this->items = $wpdb->get_results($query, ARRAY_A);
+        $this->items = $wpdb->get_results($query, OBJECT);
 
         $this->postPaging();
     }

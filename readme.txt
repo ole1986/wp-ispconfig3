@@ -84,6 +84,10 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+= v1.1.2 =
+* several translation fixes
+* added paypal instant payment on recurring invoices (through "My accout" -> "Invoices") 
+
 = v1.1.1 =
 * fixed issue loading options
 

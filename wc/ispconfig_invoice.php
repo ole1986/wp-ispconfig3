@@ -1,27 +1,73 @@
 <?php
 
 class IspconfigInvoice {
-
+    /**
+     * database table without WP prefix
+     */
     const TABLE = 'ispconfig_invoice';
 
+    const SUBMITTED = 1;
+    const PAID = 2;
+    /**
+     * Possible status flags 
+     */
+    public static $STATUS = [
+        1 => 'Submitted',
+        2 => 'Paid',
+        4 => 'Free #2'
+    ];
+
+    /**
+     * constructor call with various load options given in parameter $id
+     * @param {mixed} $id ID | WC_Order | stdClass 
+     */
     public function __construct($id = null){
+        $ok = false;
         if(!empty($id) && is_integer($id))
-            $this->load($id);
-        else if(!empty($id) && is_object($id))
-            $this->loadFromObject($id);
-            
-        $this->loadDefault();
+            $ok = $this->load($id);
+        else if(!empty($id) && is_object($id) && get_class($id) == 'WC_Order')
+            $ok = $this->loadFromOrder($id);
+        else if(!empty($id) && is_object($id) && get_class($id) == 'stdClass')
+            $ok = $this->loadFromStd($id);
+        
+        if(!$ok)
+            $this->makeNew();
     }
 
+    /**
+     * mark current invoice as paid
+     */
+    public function Paid($withDate = true){
+        $this->status |= 2;
+        if($withDate)
+            $this->paid_date = date('Y-m-d H:i:s');
+    }
+
+    /**
+     * mark current invoice as submitted
+     */
+    public function Submitted(){
+        $this->status |= 1;
+    }
+
+    /**
+     * dynamic property loader to lazy load objects
+     */
     public function __get($name){
         if($name == 'order' && !empty($this->wc_order_id))
             return new WC_Order($this->wc_order_id);
     }
 
+    /**
+     * fetch the associated WC_Order through dynamic property 'order'
+     */
     public function Order(){
         return $this->order;
     }
 
+    /**
+     * save the current invoice or overwrite when $this->ID is defined
+     */
     public function Save(){
         global $wpdb;
 
@@ -32,13 +78,13 @@ class IspconfigInvoice {
         }
 
         $item = get_object_vars($this);
-        unset($item['order']);
+        unset($item['ID'], $item['order'], $item['deleted'], $item['document']);
 
         $result = false;
-        if(!empty($this->ID))
+        if(!empty($this->ID)) {
             $result = $wpdb->update("{$wpdb->prefix}". self::TABLE, $item, ['ID' => $this->ID]);
-        else {
-            unset($item['ID']);
+        } else {
+            $item['document'] = IspconfigInvoicePdf::init()->BuildInvoice($this);
             $result = $wpdb->insert("{$wpdb->prefix}". self::TABLE, $item);
             $this->ID = $wpdb->insert_id;
         }
@@ -46,46 +92,81 @@ class IspconfigInvoice {
         return $result;
     }
 
+    /**
+     * mark the current invoice as deleted
+     */
+    public function Delete() {
+        global $wpdb;
+
+        if(!empty($this->ID))
+            $wpdb->query( $wpdb->prepare("UPDATE {$wpdb->prefix}".self::TABLE." SET deleted = 1 WHERE ID = %s", $this->ID ) );
+    }
+
     private function load($id){
         global $wpdb;
 
         $query = "SELECT * FROM {$wpdb->prefix}" . self::TABLE . " WHERE ID = %d LIMIT 1";
         $item = $wpdb->get_row($wpdb->prepare($query, $id), OBJECT);
-        
-        $this->invoice_number = date("Ymd-His") . '-R';
-        $this->offer_number = date("Ymd-His") . '-A';
 
         foreach (get_object_vars($item) as $key => $value) {
             $this->$key = $value;
         }
+
+        return (!empty($this->ID))?true:false;
     }
 
-    private function loadDefault(){
+    public function makeNew(){
+        unset($this->ID);
+        if(!empty($this->order) && is_object($this->order))
+        {
+            $this->invoice_number = date('Ym') . '-' . $this->order->id . '-R';
+            $this->offer_number = date('Ym') . '-' . $this->order->id . '-R';
+            $this->wc_order_id = $this->order->id;
+            $this->customer_id = $this->order->customer_user;
+        } else {
+            $this->invoice_number = date("Ymd-His") . '-R';
+            $this->offer_number = date("Ymd-His") . '-A';
+        }
         $this->created = date('Y-m-d H:i:s');
         $this->due_date = date('Y-m-d H:i:s', strtotime("+14 days"));
         $this->paid_date = null;
+        $this->status = 0;
     }
 
-    private function loadFromObject($order){
+    private function loadFromStd($std){
+        foreach(get_object_vars($std) as $k => $v){
+            $this->{$k} = $v;
+        }
+        return (!empty($this->ID))?true:false;
+    }
+
+    private function loadFromOrder($order){
         global $wpdb;
 
+        $this->order = $order;
+
         // get the latest actual from when WC_Order is defined
-        $query = "SELECT * FROM {$wpdb->prefix}" . self::TABLE . " WHERE wc_order_id = %d ORDER BY created DESC LIMIT 1";
+        $query = "SELECT * FROM {$wpdb->prefix}" . self::TABLE . " WHERE wc_order_id = %d AND deleted = 0 ORDER BY created DESC LIMIT 1";
         $item = $wpdb->get_row($wpdb->prepare($query, $order->id), OBJECT);
-        
+
         if($item != null) {
             foreach (get_object_vars($item) as $key => $value) {
                 $this->$key = $value;
             }
-        } else {
-            $this->invoice_number = date('Ym') . '-' . $order->id . '-R';
-            $this->offer_number = date('Ym') . '-' . $order->id . '-R';
-            $this->wc_order_id = $order->id;
-            $this->customer_id = $order->customer_user;
+            return true;
         }
 
-        $this->order = $order;
-        return true;
+        return false;
+    }
+
+    public static function GetStatus($s){
+        $s = intval($s);
+        $res = '';
+        foreach (self::$STATUS as $key => $value) {
+            if($s > 0 && ($key & $s)) 
+                $res .= $value . ' | ';
+        }
+        return rtrim($res, ' | ');
     }
 
     public static function install(){
@@ -93,7 +174,7 @@ class IspconfigInvoice {
 
         $charset_collate = $wpdb->get_charset_collate();
 
-        $sql = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}".IspconfigInvoice::TABLE." (
+        $sql = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}".self::TABLE." (
             ID mediumint(9) NOT NULL AUTO_INCREMENT,
             customer_id bigint(20) NOT NULL DEFAULT 0,
             wc_order_id bigint(20) NOT NULL,
@@ -104,6 +185,7 @@ class IspconfigInvoice {
             status smallint(6) NOT NULL DEFAULT 0,
             due_date datetime NULL,
             paid_date datetime NULL,
+            deleted BOOLEAN NOT NULL DEFAULT FALSE,
             UNIQUE KEY id (id)
         ) $charset_collate;";
 

@@ -80,7 +80,6 @@ class IspconfigWcBackend extends IspconfigRegister {
         WPISPConfig3::getField('wc_pdf_addressline', 'Address line');
         WPISPConfig3::getField('wc_pdf_condition', 'Conditions', 'textarea');
         WPISPConfig3::getField('wc_pdf_info', 'Info Block', 'textarea');
-        WPISPConfig3::getField('wc_pdf_paid', 'Paid Message');
         WPISPConfig3::getField('wc_pdf_block1', 'Block #1', 'rte', ['container' => 'div', 'input_attr' => ['style'=>'width: 350px;display:inline-block;'] ]);
         WPISPConfig3::getField('wc_pdf_block2', 'Block #2', 'rte', ['container' => 'div', 'input_attr' => ['style'=>'width: 350px;display:inline-block;'] ]);
         WPISPConfig3::getField('wc_pdf_block3', 'Block #3', 'rte', ['container' => 'div', 'input_attr' => ['style'=>'width: 350px;display:inline-block;'] ]);
@@ -180,9 +179,7 @@ class IspconfigWcBackend extends IspconfigRegister {
     public function SaveInvoiceFromOrder($order){
         error_log("SaveInvoiceFromOrder: " . print_r($order, true));
         $invoice = new IspconfigInvoice($order);
-        // below is used to always create new invoices
-        $invoice->ID = 0;
-        $invoice->document = IspconfigInvoicePdf::init()->BuildInvoice($invoice);
+        $invoice->makeNew();
 
         if($invoice->Save()){
             $order->add_order_note("Invoice ".$invoice->invoice_number." created");
@@ -340,6 +337,7 @@ class IspconfigWcBackend extends IspconfigRegister {
                     // send the real invoice
                     $order = new WC_Order($v->ID);
                     $invoice = new IspconfigInvoice($order);
+                    $invoice->makeNew();
 
                     add_action('phpmailer_init', function($phpmailer) use($invoice){
                         $phpmailer->clearAttachments();
