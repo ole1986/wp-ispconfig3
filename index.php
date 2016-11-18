@@ -8,8 +8,6 @@
  * Text Domain: wp-ispconfig3
  */
 # @charset utf-8
-
-//define ('WPLANG', 'de_DE');
 defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
 if ( ! defined( 'WPISPCONFIG3_PLUGIN_DIR' ) ) {

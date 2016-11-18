@@ -22,6 +22,7 @@ class IspconfigInvoicePdf {
      * @param {Array} $invoice-> list of extra data passed as array (E.g. invoice_number, created, due date, ...)
      */
     public function BuildInvoice($invoice, $isOffer = false, $stream = false){
+        setlocale(LC_ALL, get_locale());
         $order = $invoice->order;
 
         $isPaid = get_post_meta($order->id, '_paid_date', true);
