@@ -84,6 +84,10 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+= 1.1.3 =
+* display recurring status for auto-generated invoices
+* fixed issue creating recurring invoices with paid status 
+
 = v1.1.2 =
 * several translation fixes
 * added paypal instant payment on recurring invoices (through "My accout" -> "Invoices") 
