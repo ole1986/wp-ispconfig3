@@ -8,13 +8,14 @@ class IspconfigInvoice {
 
     const SUBMITTED = 1;
     const PAID = 2;
+    const RECURRING = 4;
     /**
      * Possible status flags 
      */
     public static $STATUS = [
         1 => 'Submitted',
         2 => 'Paid',
-        4 => 'Free #2'
+        4 => 'Recur.Task'
     ];
 
     /**
@@ -38,7 +39,7 @@ class IspconfigInvoice {
      * mark current invoice as paid
      */
     public function Paid($withDate = true){
-        $this->status |= 2;
+        $this->status |= self::PAID;
         if($withDate)
             $this->paid_date = date('Y-m-d H:i:s');
     }
@@ -47,7 +48,11 @@ class IspconfigInvoice {
      * mark current invoice as submitted
      */
     public function Submitted(){
-        $this->status |= 1;
+        $this->status |= self::SUBMITTED;
+    }
+
+    public function Recurring(){
+        $this->status |= self::RECURRING;
     }
 
     /**
@@ -78,13 +83,14 @@ class IspconfigInvoice {
         }
 
         $item = get_object_vars($this);
-        unset($item['ID'], $item['order'], $item['deleted'], $item['document']);
+        unset($item['ID'], $item['order'], $item['deleted']);
 
         $result = false;
         if(!empty($this->ID)) {
+            // do not update the document only the meta data
+            unset($item['document']);
             $result = $wpdb->update("{$wpdb->prefix}". self::TABLE, $item, ['ID' => $this->ID]);
         } else {
-            $item['document'] = IspconfigInvoicePdf::init()->BuildInvoice($this);
             $result = $wpdb->insert("{$wpdb->prefix}". self::TABLE, $item);
             $this->ID = $wpdb->insert_id;
         }
@@ -131,6 +137,19 @@ class IspconfigInvoice {
         $this->due_date = date('Y-m-d H:i:s', strtotime("+14 days"));
         $this->paid_date = null;
         $this->status = 0;
+
+        // (re)create the pdf
+        $this->document = IspconfigInvoicePdf::init()->BuildInvoice($this);
+    }
+
+    public function makeRecurring(){
+        $this->Recurring();
+        if(!empty($this->order) && is_object($this->order))
+        {
+            // reset the payment status for recurring invoices (customer has to pay first)
+            unset($this->order->_paid_date);
+        }
+        $this->makeNew();
     }
 
     private function loadFromStd($std){
@@ -144,6 +163,11 @@ class IspconfigInvoice {
         global $wpdb;
 
         $this->order = $order;
+
+        // load additional payment info
+        $this->order->_paid_date = get_post_meta($order->id, '_paid_date', true);
+        $this->order->ispconfig_period = get_post_meta($order->id, "ispconfig_period", true);
+
 
         // get the latest actual from when WC_Order is defined
         $query = "SELECT * FROM {$wpdb->prefix}" . self::TABLE . " WHERE wc_order_id = %d AND deleted = 0 ORDER BY created DESC LIMIT 1";

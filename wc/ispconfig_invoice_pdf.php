@@ -25,11 +25,7 @@ class IspconfigInvoicePdf {
         setlocale(LC_ALL, get_locale());
         $order = $invoice->order;
 
-        $isPaid = get_post_meta($order->id, '_paid_date', true);
-        
         $items = $order->get_items();
-
-        $payment_period = get_post_meta($order->id, "ispconfig_period", true);
 
         $billing_info = str_replace('<br/>', "\n", $order->get_formatted_billing_address());
                     
@@ -71,10 +67,10 @@ class IspconfigInvoicePdf {
         $billing_text->SetFont('Helvetica', 10);
         $billing_text->AddText(sprintf( WPISPConfig3::$OPTIONS['wc_pdf_info'], strftime('%x',strtotime($invoice->created))) );
         
-        if($isPaid && !$isOffer) {
+        if($order->_paid_date && !$isOffer) {
             $billing_text->AddColor(1,0,0);
             $billing_text->SetFont('Helvetica', 12);
-            $billing_text->AddText("\n" . sprintf(__('Paid at', 'wp-ispconfig3') . ' %s', strftime('%x',strtotime($isPaid)) ) );
+            $billing_text->AddText("\n" . sprintf(__('Paid at', 'wp-ispconfig3') . ' %s', strftime('%x',strtotime($order->_paid_date)) ) );
         }
 
         // Zahlungsinfo und AGB
@@ -129,11 +125,11 @@ class IspconfigInvoicePdf {
                 // if its an ISPCONFIG Template product
                 $current = new DateTime($invoice->created);
                 $next = clone $current;
-                if($payment_period == 'm') {
+                if($order->ispconfig_period == 'm') {
                     // overwrite the QTY to be 1 MONTH
                     $v['qty'] = 1;
                     $next->add(new DateInterval('P1M'));
-                } else if($payment_period == 'y') {
+                } else if($order->ispconfig_period == 'y') {
                     // overwrite the QTY to be 1 MONTH
                     $v['qty'] = 12;
                     $next->add(new DateInterval('P12M'));

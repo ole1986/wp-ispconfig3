@@ -337,7 +337,7 @@ class IspconfigWcBackend extends IspconfigRegister {
                     // send the real invoice
                     $order = new WC_Order($v->ID);
                     $invoice = new IspconfigInvoice($order);
-                    $invoice->makeNew();
+                    $invoice->makeRecurring();
 
                     add_action('phpmailer_init', function($phpmailer) use($invoice){
                         $phpmailer->clearAttachments();
@@ -352,13 +352,15 @@ class IspconfigWcBackend extends IspconfigRegister {
                     error_log("invoice_recur_reminder - Sending invoice ".$invoice->invoice_number." to: " . $recipient);
 
                     $success = wp_mail($recipient, 
-                            __('Invoice', 'wp-ispconfig3') . ' ' . $res['invoice_number'],
+                            __('Invoice', 'wp-ispconfig3') . ' ' . $invoice->invoice_number,
                             sprintf($messageBody, $invoice->invoice_number),
                             'From: '. WPISPConfig3::$OPTIONS['wc_mail_sender']);
                     
                     if($success)
                     {
-                        $invoice->status = 1;
+                        
+                        $invoice->Submitted();
+
                         $invoice->Save();
                         $order->add_order_note("Invoice ".$invoice->invoice_number." sent to: " . $recipient);
                         $reminders++;
