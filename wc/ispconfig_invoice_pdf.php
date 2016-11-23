@@ -110,9 +110,11 @@ class IspconfigInvoicePdf {
         $summary = 0;
         $summaryTax = 0;
         
-        // add the fees to positions
-        $items = array_merge($items, $order->get_fees());
         
+        // add the fees to positions
+        if($invoice->isFirst)
+            $items = array_merge($items, $order->get_fees());
+
         foreach($items as $v){         
             // check if product id is available and fetch the ISPCONFIG tempalte ID
             if(!empty($v['product_id'])) 

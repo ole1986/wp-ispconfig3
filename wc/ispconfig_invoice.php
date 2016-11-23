@@ -5,7 +5,6 @@ class IspconfigInvoice {
      * database table without WP prefix
      */
     const TABLE = 'ispconfig_invoice';
-
     const SUBMITTED = 1;
     const PAID = 2;
     const RECURRING = 4;
@@ -16,6 +15,22 @@ class IspconfigInvoice {
         1 => 'Submitted',
         2 => 'Paid',
         4 => 'Recur.Task'
+    ];
+
+    /**
+     * allowed db columns
+     */
+     protected static $columns = [
+         'customer_id' => 'bigint(20) NOT NULL DEFAULT 0',
+         'wc_order_id' => 'bigint(20) NOT NULL',
+         'offer_number'=> 'VARCHAR(50) NOT NULL',
+         'invoice_number' => 'VARCHAR(50) NOT NULL',
+         'document' => 'mediumblob NULL',
+         'created' => 'datetime NOT NULL DEFAULT \'0000-00-00 00:00:00\'',
+         'status' => 'smallint(6) NOT NULL DEFAULT 0',
+         'due_date' => 'datetime NULL',
+         'paid_date' => 'datetime NULL',
+         'deleted' => 'BOOLEAN NOT NULL DEFAULT FALSE'
     ];
 
     /**
@@ -82,13 +97,17 @@ class IspconfigInvoice {
             return false;
         }
 
-        $item = get_object_vars($this);
-        unset($item['ID'], $item['order'], $item['deleted']);
+        $item = [];
+        foreach(self::$columns as $k => $v){
+            if($k == 'deleted') continue;
+            if(!empty($this->ID) && $k == 'document') continue;
+            if(isset($this->$k))
+                $item[$k] = $this->$k;
+        }
 
         $result = false;
         if(!empty($this->ID)) {
             // do not update the document only the meta data
-            unset($item['document']);
             $result = $wpdb->update("{$wpdb->prefix}". self::TABLE, $item, ['ID' => $this->ID]);
         } else {
             $result = $wpdb->insert("{$wpdb->prefix}". self::TABLE, $item);
@@ -178,6 +197,8 @@ class IspconfigInvoice {
                 $this->$key = $value;
             }
             return true;
+        } else {
+            $this->isFirst = true;
         }
 
         return false;
@@ -199,19 +220,12 @@ class IspconfigInvoice {
         $charset_collate = $wpdb->get_charset_collate();
 
         $sql = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}".self::TABLE." (
-            ID mediumint(9) NOT NULL AUTO_INCREMENT,
-            customer_id bigint(20) NOT NULL DEFAULT 0,
-            wc_order_id bigint(20) NOT NULL,
-            offer_number VARCHAR(50) NOT NULL,
-            invoice_number varchar(50) NOT NULL,
-            document mediumblob NULL,
-            created datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-            status smallint(6) NOT NULL DEFAULT 0,
-            due_date datetime NULL,
-            paid_date datetime NULL,
-            deleted BOOLEAN NOT NULL DEFAULT FALSE,
-            UNIQUE KEY id (id)
-        ) $charset_collate;";
+            ID mediumint(9) NOT NULL AUTO_INCREMENT,";
+        foreach(self::$columns as $col => $dtype) {
+            $sql.= "$col $dtype,\n";
+        }
+
+        $sql.= "UNIQUE KEY id (id) ) $charset_collate;";
 
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         dbDelta( $sql );

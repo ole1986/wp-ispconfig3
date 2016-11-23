@@ -84,6 +84,9 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+= 1.1.4 =
+* support for one-time fee ono first invoice being created 
+
 = 1.1.3 =
 * display recurring status for auto-generated invoices
 * fixed issue creating recurring invoices with paid status 
