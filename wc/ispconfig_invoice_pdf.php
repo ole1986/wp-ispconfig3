@@ -115,31 +115,28 @@ class IspconfigInvoicePdf {
         if($invoice->isFirst)
             $items = array_merge($items, $order->get_fees());
 
-        foreach($items as $v){         
+        foreach($items as $v){
+            $product = null;
             // check if product id is available and fetch the ISPCONFIG tempalte ID
-            if(!empty($v['product_id'])) 
-                $templateID = get_post_meta($v['product_id'], '_ispconfig_template_id', true);
+            if(!empty($v['product_id']))
+                $product = wc_get_product($v['product_id']);
                 
-            //error_log(print_r($v, true));
             if(!isset($v['qty'])) $v['qty'] = 1;
 
-            if(!empty($templateID) && !empty($v['product_id'])) {
+            if($product instanceof WC_Product_Webspace) {
                 // if its an ISPCONFIG Template product
                 $current = new DateTime($invoice->created);
                 $next = clone $current;
-                if($order->ispconfig_period == 'm') {
-                    // overwrite the QTY to be 1 MONTH
-                    $v['qty'] = 1;
+                if($v['qty'] == 1) {
                     $next->add(new DateInterval('P1M'));
-                } else if($order->ispconfig_period == 'y') {
+                } else if($v['qty'] == 12) {
                     // overwrite the QTY to be 1 MONTH
-                    $v['qty'] = 12;
                     $next->add(new DateInterval('P12M'));
                 }
                 $qtyStr = number_format($v['qty'], 0, ',',' ') . ' Monat(e)';
                 if(!$isOffer)
                     $v['name'] .= "\n<strong>Zeitraum: " . $current->format('d.m.Y')." - ".$next->format('d.m.Y')."</strong>\n";
-            } else if(!empty($v['product_id']) && is_object_in_term( $v['product_id'], "product_type", 'hour' )) {
+            } else if($product instanceof WC_Product_Hour) {
                 // check if product type is "hour" to output hours instead of Qty
                 $qtyStr = number_format($v['qty'], 1, ',',' ');
 			    $qtyStr .= ' Std.';
