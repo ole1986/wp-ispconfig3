@@ -59,12 +59,12 @@ class IspconfigRegister {
     public function AJAX_ispconfig_whois_callback(){
         $dom = strtolower($_POST['domain']);
 
-        echo $this->isDomainAvailable($dom);
+        echo self::isDomainAvailable($dom);
         
         wp_die();
     }
     
-    protected function isDomainAvailable($dom) {
+    public static function isDomainAvailable($dom) {
         $result = shell_exec("whois $dom");
         
         if(preg_match("/^(No whois server is known|This TLD has no whois server)/m", $result))
@@ -371,7 +371,7 @@ class IspconfigRegister {
         if($input !== $input_confirm) throw new Exception( __("The password does not match", 'wp-ispconfig3'));
     }
     
-    protected function validateDomain($input){
+    public static function validateDomain($input){
         if (!preg_match("/^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,4}$/", $input))
             throw new Exception(__("The domain name is invalid", 'wp-ispconfig3'));
         return strtolower($input);
