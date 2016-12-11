@@ -34,31 +34,7 @@ class IspconfigWcBackend extends IspconfigRegister {
             // Schedules are executed as NON ADMIN
             add_action('invoice_reminder', [&$this, 'invoice_reminder']);
         }
-	  
-	  // trying new product type
-	  add_action( 'admin_footer', [$this, 'product_types_js'] );
-	  add_filter( 'product_type_selector', [$this,'product_types'] );
     }
-  
-  public function product_types( $types ){
-	// Key should be exactly the same as in the class product_type parameter
-	$types[ 'hour' ] = __( 'Working hours', 'wp-ispconfig3' );
-    $types[ 'webspace' ] = __( 'Webspace', 'wp-ispconfig3' );
-	return $types;
-  }
-  
-  public function product_types_js(){
-	if ( 'product' != get_post_type() ) return;
-
-	?><script type='text/javascript'>
-		jQuery( document ).ready( function() {
-			jQuery( '.options_group.pricing' ).addClass( 'show_if_hour' ).show();
-            jQuery( '.options_group.pricing' ).addClass( 'show_if_webspace' ).show();
-            jQuery( '.options_group.ispconfig' ).addClass( 'show_if_webspace' ).show();
-            jQuery( '.inventory_options' ).addClass( 'show_if_webspace' ).show();
-		});
-	</script><?php
-  }
     
     public function load_js(){
         wp_enqueue_script( 'my_custom_script', WPISPCONFIG3_PLUGIN_URL . 'js/ispconfig-admin.js?_' . time() );

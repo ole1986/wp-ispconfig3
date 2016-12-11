@@ -6,9 +6,12 @@ add_filter('woocommerce_cart_item_quantity', ['WC_Product_Webspace', 'Period'], 
 add_filter('woocommerce_update_cart_action_cart_updated', ['WC_Product_Webspace', 'CartUpdated']);
 add_filter('woocommerce_add_cart_item', ['WC_Product_Webspace', 'AddToCart'], 10, 3 );
 add_action('woocommerce_checkout_order_processed', ['WC_Product_Webspace', 'Checkout']);
-//add_action('woocommerce_after_cart_contents', ['WC_Product_Webspace', 'CartNotice']);
 
-class WC_Product_Webspace extends WC_Product_Simple {
+add_action( 'admin_footer', ['WC_Product_Webspace', 'jsRegister'] );
+add_filter( 'product_type_selector', ['WC_Product_Webspace','register'] );
+
+
+class WC_Product_Webspace extends WC_ISPConfigProduct {
     public static $DEFAULT_PERIOD = 'm';
 
     public static $OPTIONS;
@@ -22,8 +25,68 @@ class WC_Product_Webspace extends WC_Product_Simple {
         parent::__construct( $product );
     }
 
+    public static function register($types){
+        $types[ 'webspace' ] = __( 'Webspace', 'wp-ispconfig3' );
+	    return $types;
+    }
+
+    public static function jsRegister(){
+	if ( 'product' != get_post_type() ) return;
+
+	?><script type='text/javascript'>
+		jQuery( document ).ready( function() {
+            jQuery( '.options_group.pricing' ).addClass( 'show_if_webspace' ).show();
+            jQuery( '.options_group.ispconfig' ).addClass( 'show_if_webspace' ).show();
+            jQuery( '.inventory_options' ).addClass( 'show_if_webspace' ).show();
+		});
+	</script><?php
+  }
+
     public function getISPConfigTemplateID(){
         return get_post_meta($this->get_id(), '_ispconfig_template_id', true);
+    }
+
+    public function OnCheckout($checkout){
+        $templateID = $this->getISPConfigTemplateID();
+
+        error_log("Template: $templateID");
+
+        if($templateID >= 1 && $templateID <= 3) {   
+            woocommerce_form_field( 'order_domain', [
+            'type'              => 'text',
+            'label'             => 'Ihre Wunschdomain',
+            'placeholder'       => '',
+            'custom_attributes' => ['data-ispconfig-checkdomain'=>'1']
+            ], $checkout->get_value( 'order_domain' ));
+        }
+        
+        echo '<div id="domainMessage" class="ispconfig-msg" style="display:none;"></div>';
+        echo '<div><sup>Bitte beachten Sie das die Domainregistrierung innerhalb von 24 Stunden nach Zahlungseingang erfolgt</sup></div>';
+    }
+
+    public function OnCheckoutValidate(){
+        $templateID = $this->getISPConfigTemplateID();
+        
+        // all products require a DOMAIN to be entered
+        if($templateID >= 1 && $templateID <= 3) {
+            try{
+                $dom = $this->validateDomain( $_POST['order_domain'] );
+                $available = $this->isDomainAvailable($dom);
+                if($available == 0) {
+                    wc_add_notice( __("The domain is not available", 'wp-ispconfig3'), 'error');
+                } else if($available == -1) {
+                    wc_add_notice( __("The domain might not be available", 'wp-ispconfig3'), 'notice');
+                }
+            } catch(Exception $e){
+                wc_add_notice( $e->getMessage(), 'error');
+            }
+        }
+    }
+
+    public function OnCheckoutSubmit($order_id){
+        if ( ! empty( $_POST['order_domain'] ) ) {
+            update_post_meta( $order_id, 'Domain', sanitize_text_field( $_POST['order_domain'] ) );
+        }
     }
 
     public function get_price_html($price = ''){
@@ -57,19 +120,16 @@ class WC_Product_Webspace extends WC_Product_Simple {
         return $price . '&nbsp;' . __('per month', 'wp-ispconfig3');;
     }
 
-    public static function AddToCart($cart_data, $item_key){
-        // make sure ONLY ONE webspace product is in the cart
-        $items = WC()->cart->get_cart();
-        if(count($items) > 0) {
-            foreach($items as $key => $item) {
-                if(get_class($item['data']) == get_called_class())
-                    WC()->cart->remove_cart_item($key);
-            }
-        }
-        //WC()->cart->empty_cart();
+    public static function AddToCart($item, $item_key){
+        if(get_class($item['data']) != 'WC_Product_Webspace') return $item;
+
+        // empty cart when a webspace product is being added
+        // ONLY ONE webspace product is allowed in cart
+        WC()->cart->empty_cart();
+        //WC()->cart->add_to_cart( $item );
         // set the DEFAULT period to every new item
         WC()->session->set("period_{$item_key}", self::$DEFAULT_PERIOD);
-        return $cart_data; 
+        return $item; 
     }
 
     /**
@@ -77,6 +137,7 @@ class WC_Product_Webspace extends WC_Product_Simple {
      * Can be customized in $OPTIONS property  
      */
     public static function Period($item_qty, $item_key, $item){
+        if(get_class($item['data']) != 'WC_Product_Webspace') return;
         $period = WC()->session->get("period_{$item_key}");
         ?>
         <select style="width:70%;margin-right: 0.3em" name="period[<?php echo $item_key?>]" onchange="jQuery('input[name=\'update_cart\']').prop('disabled', false).trigger('click');">

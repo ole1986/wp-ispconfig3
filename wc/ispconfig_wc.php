@@ -44,6 +44,7 @@ class IspconfigWc extends IspconfigWcBackend {
         include_once WPISPCONFIG3_PLUGIN_WC_DIR . 'ispconfig_invoice.php';
         include_once WPISPCONFIG3_PLUGIN_WC_DIR . 'ispconfig_invoice_pdf.php';
         include_once WPISPCONFIG3_PLUGIN_WC_DIR . 'ispconfig_invoice_list.php';
+        include_once WPISPCONFIG3_PLUGIN_WC_DIR . 'ispconfig_wc_product.php';
         include_once WPISPCONFIG3_PLUGIN_WC_DIR . 'ispconfig_wc_product_hour.php';
         include_once WPISPCONFIG3_PLUGIN_WC_DIR . 'ispconfig_wc_product_webspace.php';
 
@@ -91,17 +92,6 @@ class IspconfigWc extends IspconfigWcBackend {
         add_action( 'valid-paypal-standard-ipn-request', array( $this, 'wc_payment_paypal_ipn' ), 10, 1 );
     }
         
-    /**
-     * CART: Verify the product selected Limit Template 
-     */
-    private function getTemplateIDFromCart(){
-        if(WC()->cart->is_empty()) return 0;
-        $items =  WC()->cart->get_cart();
-        $item = array_pop($items);
-        
-        return $item['data']->getISPConfigTemplateID();
-    }
-
     public function wc_invoice_menu($items){
         $result = array_slice($items, 0, 2);
         $result['invoices'] = __('Invoices', 'wp-ispconfig3');
@@ -221,29 +211,27 @@ class IspconfigWc extends IspconfigWcBackend {
      * CHECKOUT: Add an additional field for the domain name being entered by customer (incl. validation check)
      */
     public function wc_checkout_field( $checkout ) {
-        $templateID = $this->getTemplateIDFromCart();
-        
-        if($templateID >= 1 && $templateID <= 3) {
-            $this->registerAjax();
-    
-            woocommerce_form_field( 'order_domain', [
-            'type'              => 'text',
-            'label'             => 'Ihre Wunschdomain',
-            'placeholder'       => '',
-            'custom_attributes' => ['data-ispconfig-checkdomain'=>'1']
-            ], $checkout->get_value( 'order_domain' ));
+        $this->registerAjax();
+
+        if(WC()->cart->is_empty()) return 0;
+        $items =  WC()->cart->get_cart();
+
+        foreach($items as $p) {
+            if(is_subclass_of($p['data'], 'WC_ISPConfigProduct'))
+                $p['data']->OnCheckout($checkout);
         }
-        
-        echo '<div id="domainMessage" class="ispconfig-msg" style="display:none;"></div>';
-        echo '<div><sup>Bitte beachten Sie das die Domainregistrierung innerhalb von 24 Stunden nach Zahlungseingang erfolgt</sup></div>';
     }
     
     /**
      * CHECKOUT: Save the domain field entered by the customer
      */
     public function wc_checkout_field_update_order_meta( $order_id ) {
-        if ( ! empty( $_POST['order_domain'] ) ) {
-            update_post_meta( $order_id, 'Domain', sanitize_text_field( $_POST['order_domain'] ) );
+        if(WC()->cart->is_empty()) return 0;
+        $items =  WC()->cart->get_cart();
+
+        foreach($items as $p) {
+            if(is_subclass_of($p['data'], 'WC_ISPConfigProduct'))
+                $p['data']->OnCheckoutSubmit();
         }
     }
     
@@ -251,22 +239,13 @@ class IspconfigWc extends IspconfigWcBackend {
      * CHECKOUT: Validate the domain entered by the customer
      */
     public function wc_checkout_process(){
-        $templateID = $this->getTemplateIDFromCart();
-        
-        // all products require a DOMAIN to be entered
-        if($templateID >= 1 && $templateID <= 3) {
-            try{
-                $dom = $this->validateDomain( $_POST['order_domain'] );
-                $available = $this->isDomainAvailable($dom);
-                if($available == 0) {
-                    wc_add_notice( __("The domain is not available", 'wp-ispconfig3'), 'error');
-                } else if($available == -1) {
-                    wc_add_notice( __("The domain might not be available", 'wp-ispconfig3'), 'notice');
-                }
-            } catch(Exception $e){
-                wc_add_notice( $e->getMessage(), 'error');
-            }
-        }
+        if(WC()->cart->is_empty()) return 0;
+        $items =  WC()->cart->get_cart();
+
+        foreach($items as $p) {
+            if(is_subclass_of($p['data'], 'WC_ISPConfigProduct'))
+                $p['data']->OnCheckoutValidate();
+        }       
     }
 
     public function wc_payment_complete($order_id) {
