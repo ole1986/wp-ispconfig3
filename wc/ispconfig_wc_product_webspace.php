@@ -5,7 +5,6 @@ if(!class_exists('WC_Product_Simple')) return;
 add_filter('woocommerce_cart_item_quantity', ['WC_Product_Webspace', 'Period'], 10, 3);
 add_filter('woocommerce_update_cart_action_cart_updated', ['WC_Product_Webspace', 'CartUpdated']);
 add_filter('woocommerce_add_cart_item', ['WC_Product_Webspace', 'AddToCart'], 10, 3 );
-add_action('woocommerce_checkout_order_processed', ['WC_Product_Webspace', 'Checkout']);
 
 add_action( 'admin_footer', ['WC_Product_Webspace', 'jsRegister'] );
 add_filter( 'product_type_selector', ['WC_Product_Webspace','register'] );
@@ -40,7 +39,7 @@ class WC_Product_Webspace extends WC_ISPConfigProduct {
             jQuery( '.inventory_options' ).addClass( 'show_if_webspace' ).show();
 		});
 	</script><?php
-  }
+    }
 
     public function getISPConfigTemplateID(){
         return get_post_meta($this->get_id(), '_ispconfig_template_id', true);
@@ -70,8 +69,8 @@ class WC_Product_Webspace extends WC_ISPConfigProduct {
         // all products require a DOMAIN to be entered
         if($templateID >= 1 && $templateID <= 3) {
             try{
-                $dom = $this->validateDomain( $_POST['order_domain'] );
-                $available = $this->isDomainAvailable($dom);
+                $dom = IspconfigRegister::validateDomain( $_POST['order_domain'] );
+                $available = IspconfigRegister::isDomainAvailable($dom);
                 if($available == 0) {
                     wc_add_notice( __("The domain is not available", 'wp-ispconfig3'), 'error');
                 } else if($available == -1) {
@@ -83,9 +82,21 @@ class WC_Product_Webspace extends WC_ISPConfigProduct {
         }
     }
 
-    public function OnCheckoutSubmit($order_id){
+    public function OnCheckoutSubmit($order_id, $item_key, $item){
         if ( ! empty( $_POST['order_domain'] ) ) {
             update_post_meta( $order_id, 'Domain', sanitize_text_field( $_POST['order_domain'] ) );
+
+            //error_log("### WC_Product_Webspace -> OnCheckoutSubmit($order_id) called");
+            //error_log(print_r($this, true));
+
+            $templateID = $this->getISPConfigTemplateID();
+            // no ispconfig product found in order - so skip doing ispconfig related stuff
+            if(empty($templateID)) return;
+
+            if($item['quantity'] == 12) 
+                update_post_meta($order_id, 'ispconfig_period', 'y');
+            else
+                update_post_meta($order_id, 'ispconfig_period', 'm');
         }
     }
 
@@ -122,13 +133,9 @@ class WC_Product_Webspace extends WC_ISPConfigProduct {
 
     public static function AddToCart($item, $item_key){
         if(get_class($item['data']) != 'WC_Product_Webspace') return $item;
-
         // empty cart when a webspace product is being added
         // ONLY ONE webspace product is allowed in cart
         WC()->cart->empty_cart();
-        //WC()->cart->add_to_cart( $item );
-        // set the DEFAULT period to every new item
-        WC()->session->set("period_{$item_key}", self::$DEFAULT_PERIOD);
         return $item; 
     }
 
@@ -138,7 +145,9 @@ class WC_Product_Webspace extends WC_ISPConfigProduct {
      */
     public static function Period($item_qty, $item_key, $item){
         if(get_class($item['data']) != 'WC_Product_Webspace') return;
-        $period = WC()->session->get("period_{$item_key}");
+        
+        $period = ($item['quantity'] == 12)?'y':'m';
+        
         ?>
         <select style="width:70%;margin-right: 0.3em" name="period[<?php echo $item_key?>]" onchange="jQuery('input[name=\'update_cart\']').prop('disabled', false).trigger('click');">
         <?php foreach(self::$OPTIONS as $k => $v) { ?>
@@ -169,36 +178,7 @@ class WC_Product_Webspace extends WC_ISPConfigProduct {
             $qty = ($v == 'y')?12:1;
             // update the qty of the product
             WC()->cart->set_quantity( $item_key, $qty, false );
-            // save the current period for the product into session using the cart item key
-            WC()->session->set("period_{$item_key}", $v);
         }
         return $isUpdated;
-    }
-
-    /**
-     * Used to add the 'ispconfig_period' meta info for further checks.
-     * For example invoice generation
-     *
-     * This meta info is only set, when the product has an ispconfig template assigned 
-     */
-    public static function Checkout($order_id){
-        error_log("### WC_Product_Webspace -> Checkout($order_id) called");
-
-        // get all but actually interessted in only the first
-        $items = WC()->cart->get_cart();
-
-        if(count($items) <= 0) return;
-        $item = each($items);
-
-        $product = $item['value']['data'];
-        $period = WC()->session->get("period_" . $item['key']);
-
-        $templateID = $product->getISPConfigTemplateID();
-
-        // no ispconfig product found in order - so skip doing ispconfig related stuff
-        if(empty($templateID)) return;
-
-        update_post_meta($order_id, 'ispconfig_period', $period);
-        wc_clear_notices();
     }
 }

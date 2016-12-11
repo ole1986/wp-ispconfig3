@@ -78,7 +78,7 @@ class IspconfigWc extends IspconfigWcBackend {
             add_filter('woocommerce_checkout_fields' , array($this, 'wc_checkout_nocomments') );
             add_action('woocommerce_after_order_notes', array($this, 'wc_checkout_field') );
             add_action('woocommerce_checkout_process',  array($this, 'wc_checkout_process') );
-            add_action('woocommerce_checkout_update_order_meta', array($this, 'wc_checkout_field_update_order_meta') );
+            add_action('woocommerce_checkout_order_processed', array($this, 'wc_order_processed') );
 
             // display invoice menu entry in "MY Account" (customer)
             
@@ -225,13 +225,13 @@ class IspconfigWc extends IspconfigWcBackend {
     /**
      * CHECKOUT: Save the domain field entered by the customer
      */
-    public function wc_checkout_field_update_order_meta( $order_id ) {
+    public function wc_order_processed( $order_id ) {
         if(WC()->cart->is_empty()) return 0;
         $items =  WC()->cart->get_cart();
-
-        foreach($items as $p) {
-            if(is_subclass_of($p['data'], 'WC_ISPConfigProduct'))
-                $p['data']->OnCheckoutSubmit();
+        
+        foreach($items as $item_key => $item) {
+            if(is_subclass_of($item['data'], 'WC_ISPConfigProduct'))
+                $item['data']->OnCheckoutSubmit($order_id, $item_key,$item);
         }
     }
     
