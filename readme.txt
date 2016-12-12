@@ -84,6 +84,12 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+= 1.1.5 =
+* use abstraction class to manage the custom products
+* compatibility check on WP 4.7
+* make domain validation static
+* improved invoice creation
+
 = 1.1.4 =
 * support for one-time fee on first invoice creation 
 
