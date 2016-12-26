@@ -235,7 +235,7 @@ class IspconfigWcBackend extends IspconfigRegister {
         $res = $wpdb->get_results("SELECT i.*, u.display_name, u.user_login FROM {$wpdb->prefix}".IspconfigInvoice::TABLE." AS i 
                                 LEFT JOIN {$wpdb->posts} AS p ON (p.ID = i.wc_order_id)
                                 LEFT JOIN {$wpdb->users} AS u ON u.ID = i.customer_id
-                                WHERE i.status > 0 AND DATE(i.due_date) <= CURDATE() AND (p.post_status = 'wc-pending' OR p.post_status = 'wc-on-hold')", OBJECT);
+                                WHERE i.deleted = 0 AND (i.status & 2) = 0 AND DATE(i.due_date) <= CURDATE()", OBJECT);
             
         // remind admin when customer has not yet paid the invoices
         if(!empty($res)) {
@@ -253,7 +253,7 @@ class IspconfigWcBackend extends IspconfigRegister {
             // attach the pdf documents via string content
             add_action('phpmailer_init', function($phpmailer) use($res){
                 foreach($res as $v) {
-                    $phpmailer->AddStringAttachment($v->documents, $v->invoice_number . '.pdf');
+                    $phpmailer->AddStringAttachment($v->document, $v->invoice_number . '.pdf');
                 }
             });
 
@@ -263,8 +263,7 @@ class IspconfigWcBackend extends IspconfigRegister {
             $res = wp_mail(WPISPConfig3::$OPTIONS['wc_mail_reminder'], 
                         $subject,
                         $message,
-                        'From: '. WPISPConfig3::$OPTIONS['wc_mail_sender'],
-                        $attachments);
+                        'From: '. WPISPConfig3::$OPTIONS['wc_mail_sender']);
             error_log("wp_mail (using PHPMailer): " . $res);
         }
     }
