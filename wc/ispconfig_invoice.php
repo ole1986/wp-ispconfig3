@@ -142,18 +142,23 @@ class IspconfigInvoice {
 
     public function makeNew(){
         unset($this->ID);
+
+        $d = new DateTime();
+
         if(!empty($this->order) && is_object($this->order))
         {
-            $this->invoice_number = date('Ym') . '-' . $this->order->id . '-R';
-            $this->offer_number = date('Ym') . '-' . $this->order->id . '-R';
+            $this->invoice_number = $d->format('Ym') . '-' . $this->order->id . '-R';
+            $this->offer_number = $d->format('Ym') . '-' . $this->order->id . '-R';
             $this->wc_order_id = $this->order->id;
             $this->customer_id = $this->order->customer_user;
         } else {
-            $this->invoice_number = date("Ymd-His") . '-R';
-            $this->offer_number = date("Ymd-His") . '-A';
+            $this->invoice_number = $d->format('Ymd-His') . '-R';
+            $this->offer_number = $d->format('Ymd-His') . '-A';
         }
-        $this->created = date('Y-m-d H:i:s');
-        $this->due_date = date('Y-m-d H:i:s', strtotime("+14 days"));
+        $this->created = $d->format('Y-m-d H:i:s');
+        // due date
+        $d->add(new DateInterval('P14D'));
+        $this->due_date = $d->format('Y-m-d H:i:s');
         $this->paid_date = null;
         $this->status = 0;
 
