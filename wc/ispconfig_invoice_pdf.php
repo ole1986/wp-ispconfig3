@@ -110,10 +110,13 @@ class IspconfigInvoicePdf {
         $summary = 0;
         $summaryTax = 0;
         
-        
+        $fees = array_filter($order->get_fees(), function($item){ return ($item['line_total'] > 0); });
         // add the fees to positions
         if($invoice->isFirst)
-            $items = array_merge($items, $order->get_fees());
+            $items = array_merge($items, $fees);
+        // always add discount
+        $discount = array_filter($order->get_fees(), function($item){ return ($item['line_total'] < 0); });
+        $items = array_merge($items, $discount);
 
         foreach($items as $v){
             $product = null;
@@ -143,7 +146,7 @@ class IspconfigInvoicePdf {
 			} else {
 			    $qtyStr = number_format($v['qty'], 2, ',',' ');
 			}
-            
+
             $total = round($v['line_total'], 2);
             $tax = round($v['line_tax'], 2);
 
