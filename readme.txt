@@ -84,6 +84,11 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+= 1.1.6 =
+* calculate the discount properly of an order item
+* use modern (OOP) DateTime class from PHP 5.X
+* fixed: deleted flag becomes ambiguos in invoice list (multi site?!)
+
 = 1.1.5 =
 * use abstraction class to manage the custom products
 * compatibility check on WP 4.7
