@@ -116,7 +116,7 @@ class ISPConfigInvoiceList extends WP_List_Table {
                     LEFT JOIN wp_users AS u ON u.ID = i.customer_id
                     LEFT JOIN wp_posts AS p ON p.ID = i.wc_order_id
                     LEFT JOIN wp_postmeta AS pm ON (p.ID = pm.post_id AND pm.meta_key = 'ispconfig_period')
-                    WHERE deleted = 0";
+                    WHERE i.deleted = 0";
 
         if(isset($_GET['page'], $_GET['action'],$_GET['id']) && $_GET['page'] == 'ispconfig_invoices') {
             $a = $_GET['action'];
