@@ -11,11 +11,11 @@ abstract class WC_ISPConfigProduct extends WC_Product {
         return true;
     }
 
-    public function get_sold_individually() {
+    public function get_sold_individually($context = 'view') {
         return true;
     }
 
-    public function get_price(){
+    public function get_price($context = 'view'){
         return $this->get_regular_price();
     }
 
