@@ -3,17 +3,13 @@
  * This should be in its own separate file.
  */
 
-if(!class_exists('WC_Product_Simple')) return;
-
 add_action( 'admin_footer', ['WC_Product_Hour', 'jsRegister'] );
 add_filter( 'product_type_selector', ['WC_Product_Hour','register'] );
 
-class WC_Product_Hour extends WC_Product_Simple {
+class WC_Product_Hour extends WC_Product {
 
     public function __construct( $product ) {
-
         $this->product_type = 'hour';
-
         parent::__construct( $product );
     }
 

@@ -1,7 +1,5 @@
 <?php
 
-if(!class_exists('WC_Product_Simple')) return;
-
 add_filter('woocommerce_cart_item_quantity', ['WC_Product_Webspace', 'Period'], 10, 3);
 add_filter('woocommerce_update_cart_action_cart_updated', ['WC_Product_Webspace', 'CartUpdated']);
 add_filter('woocommerce_add_cart_item', ['WC_Product_Webspace', 'AddToCart'], 10, 3 );
@@ -18,9 +16,12 @@ class WC_Product_Webspace extends WC_ISPConfigProduct {
 
     public function __construct( $product ) {
         self::$OPTIONS = ['m' => __('monthly', 'wp-ispconfig3'), 'y' => __('yearly', 'wp-ispconfig3') ];
+
+        $this->supports[]   = 'ajax_add_to_cart';
         $this->product_type = "webspace";
         parent::__construct( $product );
     }
+
 
     public static function add_to_cart(){
          wc_get_template( 'single-product/add-to-cart/simple.php' );
@@ -101,34 +102,8 @@ class WC_Product_Webspace extends WC_ISPConfigProduct {
     }
 
     public function get_price_html($price = ''){
-        $display_price         = $this->get_display_price();
-        $display_regular_price = $this->get_display_price( $this->get_regular_price() );
-        if ( $this->get_price() > 0 ) {
-            if ( $this->is_on_sale() && $this->get_regular_price() ) {
-                $price .= $this->get_price_html_from_to( $display_regular_price, $display_price ) . $this->get_price_suffix();
-                $price = apply_filters( 'woocommerce_sale_price_html', $price, $this );
-            } else {
-                $price .= wc_price( $display_price ) . $this->get_price_suffix();
-                $price = apply_filters( 'woocommerce_price_html', $price, $this );
-            }
-        } elseif ( $this->get_price() === '' ) {
-            $price = apply_filters( 'woocommerce_empty_price_html', '', $this );
-            return $price;
-        } elseif ( $this->get_price() == 0 ) {
-            if ( $this->is_on_sale() && $this->get_regular_price() ) {
-                $price .= $this->get_price_html_from_to( $display_regular_price, __( 'Free!', 'woocommerce' ) );
-                $price = apply_filters( 'woocommerce_free_sale_price_html', $price, $this );
-                // skip the "per Month" suffix when its free
-                return $price;
-            } else {
-                $price = '<span class="amount">' . __( 'Free!', 'woocommerce' ) . '</span>';
-                $price = apply_filters( 'woocommerce_free_price_html', $price, $this );
-                // skip the "per Month" suffix when its free
-                return $price;
-            }
-        }
-        // return the price shown ing "per Month" where ever the price is displayed
-        return $price . '&nbsp;' . __('per month', 'wp-ispconfig3');;
+        $price = wc_price( wc_get_price_to_display( $this, array( 'price' => $this->get_regular_price() ) ) ) . '&nbsp;' . __('per month', 'wp-ispconfig3');
+        return apply_filters( 'woocommerce_get_price_html', $price, $this );
     }
 
     public static function AddToCart($item, $item_key){
