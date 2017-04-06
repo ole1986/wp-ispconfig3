@@ -27,6 +27,12 @@ class IspconfigInvoicePdf {
 
         $items = $order->get_items();
 
+        // if its first invoice, use shipping item as one-time fee
+        if($invoice->isFirst)
+            $items = array_merge($items, $order->get_items('shipping'));
+
+        //error_log(print_r($items, true));
+
         $billing_info = str_replace('<br/>', "\n", $order->get_formatted_billing_address());
                     
         Cpdf::$DEBUGLEVEL = Cpdf::DEBUG_MSG_ERR;
@@ -105,20 +111,17 @@ class IspconfigInvoicePdf {
         $table->AddCell("<strong>". __('Description', 'wp-ispconfig3') ."</strong>");
         $table->AddCell("<strong>". __('Qty', 'wp-ispconfig3') ."</strong>", 'right');
         $table->AddCell("<strong>". __('Net', 'wp-ispconfig3') ."</strong>", 'right');
-            
+
         $i = 1;
         $summary = 0;
         $summaryTax = 0;
         
-        $fees = array_filter($order->get_fees(), function($item){ return ($item['line_total'] > 0); });
-        // add the fees to positions
-        if($invoice->isFirst)
-            $items = array_merge($items, $fees);
-        // always add discount
-        $discount = array_filter($order->get_fees(), function($item){ return ($item['line_total'] < 0); });
-        $items = array_merge($items, $discount);
-
+        // add fees and possible discounts (if value is negative)
+        $fees = $order->get_fees();
+        $items = array_merge($items, $fees);
+        
         foreach($items as $v){
+            //error_log(var_export($v, true));
             $product = null;
             // check if product id is available and fetch the ISPCONFIG tempalte ID
             if(!empty($v['product_id']))
@@ -143,17 +146,29 @@ class IspconfigInvoicePdf {
                 // check if product type is "hour" to output hours instead of Qty
                 $qtyStr = number_format($v['qty'], 1, ',',' ');
 			    $qtyStr .= ' Std.';
+            } else if($v instanceof WC_Order_Item_Shipping) {
+                $qtyStr = number_format($v['qty'], 2, ',',' ');
+                $v['name'] = $v->get_meta('name', true);
 			} else {
 			    $qtyStr = number_format($v['qty'], 2, ',',' ');
 			}
 
-            $total = round($v['line_total'], 2);
-            $tax = round($v['line_tax'], 2);
+            $total = round($v['total'], 2);
+            $tax = round($v['total_tax'], 2);
 
             $table->AddCell("$i", null, [], ['top' => 5]);
             $table->AddCell($v['name'], null, [], ['top' => 5]);
             $table->AddCell($qtyStr, 'right', [], ['top' => 5]);
             $table->AddCell(number_format($total, 2, ',',' ') . ' ' . $order->get_order_currency(), 'right', [], ['top' => 5]);
+
+            // display discount
+            if(isset($v['subtotal']) && ($subtotal = round($v['subtotal'], 2)) > $total)
+            {
+                $table->AddCell("", null, [], ['top' => 5]);
+                $table->AddCell(" - " . __("Discount", 'wp-ispconfig3'), null, [], ['top' => 5]);
+                $table->AddCell("", 'right', [], ['top' => 5]);
+                $table->AddCell(number_format($total - $subtotal, 2, ',',' ') . ' ' . $order->get_order_currency(), 'right', [], ['top' => 5]);
+            }
             
             $summary += $total;
             $summaryTax += $tax;

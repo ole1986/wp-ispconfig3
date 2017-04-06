@@ -133,3 +133,6 @@ msgstr "Arbeitsstunden"
 
 msgid "Webspace"
 msgstr "Webspeicher"
+
+msgid "Discount"
+msgstr "Rabatt"
