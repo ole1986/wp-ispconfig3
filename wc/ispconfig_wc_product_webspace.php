@@ -2,12 +2,11 @@
 
 add_filter('woocommerce_cart_item_quantity', ['WC_Product_Webspace', 'Period'], 10, 3);
 add_filter('woocommerce_update_cart_action_cart_updated', ['WC_Product_Webspace', 'CartUpdated']);
-add_filter('woocommerce_add_cart_item', ['WC_Product_Webspace', 'AddToCart'], 10, 3 );
-//add_action('woocommerce_webspace_add_to_cart',  ['WC_Product_Webspace','add_to_cart']);
+add_action('woocommerce_webspace_add_to_cart', ['WC_ISPConfigProduct', 'add_to_cart'], 30);
 
 add_action( 'admin_footer', ['WC_Product_Webspace', 'jsRegister'] );
-add_filter( 'product_type_selector', ['WC_Product_Webspace','register'] );
 
+add_filter( 'product_type_selector', ['WC_Product_Webspace','register'] );
 
 class WC_Product_Webspace extends WC_ISPConfigProduct {
     public static $OPTIONS;
@@ -20,11 +19,6 @@ class WC_Product_Webspace extends WC_ISPConfigProduct {
         $this->supports[]   = 'ajax_add_to_cart';
         $this->product_type = "webspace";
         parent::__construct( $product );
-    }
-
-
-    public static function add_to_cart(){
-         wc_get_template( 'single-product/add-to-cart/simple.php' );
     }
 
     public static function register($types){

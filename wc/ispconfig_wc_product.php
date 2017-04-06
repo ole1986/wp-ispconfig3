@@ -7,6 +7,10 @@ abstract class WC_ISPConfigProduct extends WC_Product {
     abstract public function OnCheckoutValidate();
     abstract public function OnCheckoutSubmit($order_id, $item_key, $item);
 
+    public static function add_to_cart() {
+        wc_get_template( 'single-product/add-to-cart/simple.php' );
+    }
+
     public function is_purchasable() {
         return true;
     }
