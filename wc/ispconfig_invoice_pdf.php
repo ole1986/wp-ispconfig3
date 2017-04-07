@@ -146,9 +146,6 @@ class IspconfigInvoicePdf {
                 // check if product type is "hour" to output hours instead of Qty
                 $qtyStr = number_format($v['qty'], 1, ',',' ');
 			    $qtyStr .= ' Std.';
-            } else if($v instanceof WC_Order_Item_Shipping) {
-                $qtyStr = number_format($v['qty'], 2, ',',' ');
-                $v['name'] = $v->get_meta('name', true);
 			} else {
 			    $qtyStr = number_format($v['qty'], 2, ',',' ');
 			}
