@@ -84,6 +84,8 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+= 1.1.9 =
+* fixed: Pdf creation failed in WooCommerce 3.0
 
 = 1.1.8 =
 * fixed shipping title
