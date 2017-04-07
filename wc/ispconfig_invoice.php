@@ -147,9 +147,9 @@ class IspconfigInvoice {
 
         if(!empty($this->order) && is_object($this->order))
         {
-            $this->invoice_number = $d->format('Ym') . '-' . $this->order->id . '-R';
-            $this->offer_number = $d->format('Ym') . '-' . $this->order->id . '-R';
-            $this->wc_order_id = $this->order->id;
+            $this->invoice_number = $d->format('Ym') . '-' . $this->order->get_id() . '-R';
+            $this->offer_number = $d->format('Ym') . '-' . $this->order->get_id() . '-R';
+            $this->wc_order_id = $this->order->get_id();
             $this->customer_id = $this->order->customer_user;
         } else {
             $this->invoice_number = $d->format('Ymd-His') . '-R';
@@ -189,13 +189,13 @@ class IspconfigInvoice {
         $this->order = $order;
 
         // load additional payment info
-        $this->order->_paid_date = get_post_meta($order->id, '_paid_date', true);
-        $this->order->ispconfig_period = get_post_meta($order->id, "ispconfig_period", true);
+        $this->order->_paid_date = get_post_meta($order->get_id(), '_paid_date', true);
+        $this->order->ispconfig_period = get_post_meta($order->get_id(), "ispconfig_period", true);
 
 
         // get the latest actual from when WC_Order is defined
         $query = "SELECT * FROM {$wpdb->prefix}" . self::TABLE . " WHERE wc_order_id = %d AND deleted = 0 ORDER BY created DESC LIMIT 1";
-        $item = $wpdb->get_row($wpdb->prepare($query, $order->id), OBJECT);
+        $item = $wpdb->get_row($wpdb->prepare($query, $order->get_id()), OBJECT);
 
         if($item != null) {
             foreach (get_object_vars($item) as $key => $value) {

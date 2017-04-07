@@ -73,10 +73,10 @@ class IspconfigInvoicePdf {
         $billing_text->SetFont('Helvetica', 10);
         $billing_text->AddText(sprintf( WPISPConfig3::$OPTIONS['wc_pdf_info'], strftime('%x',strtotime($invoice->created))) );
         
-        if($order->_paid_date && !$isOffer) {
+        if($order->get_date_paid() && !$isOffer) {
             $billing_text->AddColor(1,0,0);
             $billing_text->SetFont('Helvetica', 12);
-            $billing_text->AddText("\n" . sprintf(__('Paid at', 'wp-ispconfig3') . ' %s', strftime('%x',strtotime($order->_paid_date)) ) );
+            $billing_text->AddText("\n" . sprintf(__('Paid at', 'wp-ispconfig3') . ' %s', strftime('%x',strtotime($order->get_date_paid())) ) );
         }
 
         // Zahlungsinfo und AGB
@@ -156,7 +156,7 @@ class IspconfigInvoicePdf {
             $table->AddCell("$i", null, [], ['top' => 5]);
             $table->AddCell($v['name'], null, [], ['top' => 5]);
             $table->AddCell($qtyStr, 'right', [], ['top' => 5]);
-            $table->AddCell(number_format($total, 2, ',',' ') . ' ' . $order->get_order_currency(), 'right', [], ['top' => 5]);
+            $table->AddCell(number_format($total, 2, ',',' ') . ' ' . $order->get_currency(), 'right', [], ['top' => 5]);
 
             // display discount
             if(isset($v['subtotal']) && ($subtotal = round($v['subtotal'], 2)) > $total)
@@ -164,7 +164,7 @@ class IspconfigInvoicePdf {
                 $table->AddCell("", null, [], ['top' => 5]);
                 $table->AddCell(" - " . __("Discount", 'wp-ispconfig3'), null, [], ['top' => 5]);
                 $table->AddCell("", 'right', [], ['top' => 5]);
-                $table->AddCell(number_format($total - $subtotal, 2, ',',' ') . ' ' . $order->get_order_currency(), 'right', [], ['top' => 5]);
+                $table->AddCell(number_format($total - $subtotal, 2, ',',' ') . ' ' . $order->get_currency(), 'right', [], ['top' => 5]);
             }
             
             $summary += $total;
@@ -184,17 +184,17 @@ class IspconfigInvoicePdf {
         $table->AddCell("", null, [], ['top' => 5]);
         $table->AddCell("", null, [], ['top' => 5]);
         $table->AddCell("<strong>".__('Summary', 'wp-ispconfig3')."</strong>", 'right', [], ['top' => 15]);
-        $table->AddCell("<strong>".number_format($summary, 2,',',' '). ' ' . $order->get_order_currency()."</strong>", 'right', [], ['top' => 15]);
+        $table->AddCell("<strong>".number_format($summary, 2,',',' '). ' ' . $order->get_currency()."</strong>", 'right', [], ['top' => 15]);
 
         $table->AddCell("", null, [], ['top' => 5]);
         $table->AddCell("", null, [], ['top' => 5]);
         $table->AddCell("<strong>+ 19% ".__('Tax', 'wp-ispconfig3')."</strong>", 'right', [], ['top' => 5]);
-        $table->AddCell("<strong>".number_format($summaryTax, 2,',',' '). ' ' . $order->get_order_currency() ."</strong>", 'right', [], ['top' => 5]);
+        $table->AddCell("<strong>".number_format($summaryTax, 2,',',' '). ' ' . $order->get_currency() ."</strong>", 'right', [], ['top' => 5]);
         
         $table->AddCell("", null, [], ['top' => 5]);
         $table->AddCell("", null, [], ['top' => 5]);
         $table->AddCell("<strong>".__('Total', 'wp-ispconfig3')."</strong>", 'right', [], ['top' => 15]);
-        $table->AddCell("<strong>".number_format($summary + $summaryTax, 2,',',' '). ' ' . $order->get_order_currency()."</strong>", 'right', [], ['top' => 15]);
+        $table->AddCell("<strong>".number_format($summary + $summaryTax, 2,',',' '). ' ' . $order->get_currency()."</strong>", 'right', [], ['top' => 15]);
         
         $table->EndTable();
         
@@ -224,7 +224,7 @@ class IspconfigInvoicePdf {
         if(!$invoice->ID) die("Invoice not found");
 
         // invoice has been defined but user does not have the cap to display it
-        if($invoice->customer_id != $current_user->ID && !current_user_can('ispconfig_invoice')) die("You are not allowed to view invoices: Cap 'ispconfig_invoice' not set");
+        if($invoice->customer_id != $current_user->get_id() && !current_user_can('ispconfig_invoice')) die("You are not allowed to view invoices: Cap 'ispconfig_invoice' not set");
         
         if(isset($_GET['preview'])) {
             //$order = new WC_Order($res['wc_order_id']);
