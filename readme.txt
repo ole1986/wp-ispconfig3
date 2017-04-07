@@ -84,6 +84,11 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+
+= 1.1.8 =
+* fixed shipping title
+* PLEASE NOTE: Shipping method is used as ONE-TIME FEE (for server, etc..)
+
 = 1.1.7 =
 * fixed issue selecting product type in WC 3.0
 * compatible with WooCommerce 3.0
