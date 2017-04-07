@@ -84,6 +84,11 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+= 1.1.7 =
+* fixed issue selecting product type in WC 3.0
+* compatible with WooCommerce 3.0
+* make use of the WC shipping item
+
 = 1.1.6 =
 * calculate the discount properly of an order item
 * use modern (OOP) DateTime class from PHP 5.X
