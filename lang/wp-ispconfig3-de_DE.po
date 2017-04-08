@@ -104,6 +104,12 @@ msgstr "Fällig am"
 msgid "Paid"
 msgstr "Bezahlt"
 
+msgid "Sent"
+msgstr "Gesendet"
+
+msgid "Canceled"
+msgstr "Abgebrochen"
+
 msgid "Offer"
 msgstr "Angebot"
 

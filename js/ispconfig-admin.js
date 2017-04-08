@@ -5,6 +5,8 @@ function ISPConfigAdminClass(){
     var $ = jQuery;
     var self = this;
 
+    var init = function() {};
+
     var jsonRequest = function(data){
         $.extend(data, {action: 'ispconfig_backend'});
         return jQuery.post(ajaxurl, data, null, 'json');
@@ -33,42 +35,69 @@ function ISPConfigAdminClass(){
         var d = $(obj).text();
         var invoice_id = parseInt($(obj).data('id'));
 
-        var $c = $(obj).clone();
-        var $td = $(obj).parent('td');
+        $(obj).hide();
 
         var container = openDateInput(d, function(newDate){
             jsonRequest({ invoice_id: invoice_id, due_date: newDate }).done(function (resp) {
-                $(obj).text(resp);
+                if (resp == "0") {
+                    alert('Nothing updated');
+                } else {
+                    $(obj).text(newDate);
+                }
                 $(obj).show();
             });
         }, function(){
             $(obj).show();
         });
 
+        $(obj).after(container);
+    }
 
-        var $input = $('<input type="text" style="width: 150px;" value="'+d+'" />');
-        var $btnSave = $('<a />', {href: '#',text: 'Save'})
-        var $btnCancel = $('<a />', {style:'margin-left: 1em;',href: '#',text: 'Cancel'})
+    this.EditPaidDate = function(obj){
+        var d = $(obj).text();
+        var invoice_id = parseInt($(obj).data('id'));
 
-        $td.html('');
+        $(obj).hide();
 
         var container = openDateInput(d, function (newDate) {
             jsonRequest({ invoice_id: invoice_id, paid_date: newDate }).done(function (resp) {
-                $(obj).text(resp);
+                if (resp == "0") {
+                    alert('Nothing updated');
+                } else {
+                    $(obj).text(newDate);
+                }
                 $(obj).show();
             });
+        }, function () {
+            $(obj).show();
         });
 
-        $btnCancel.click(closeEdit);
-
-        $td.append($input);
-        $td.append($btnSave);
-        $td.append($btnCancel);
+        $(obj).after(container);
     }
 
-    var _constructor = function(){
-        
-    }();
+    var openDateInput = function(defaultValue, onSaveCallback, onCancelCallback) {
+        var container = $('<div />');
+
+        var $input = $('<input type="text" style="width: 150px;" />');
+        $input.val(defaultValue);
+
+        var btnSave = $('<a />', { href: '#', text: 'Save' }).click(function() {
+            onSaveCallback($input.val());
+            container.remove();
+        });
+        var btnCancel = $('<a />', { style: 'margin-left: 1em;', href: '#', text: 'Cancel' }).click(function() { 
+            container.remove();
+            onCancelCallback();
+        });
+
+        container.append($input);
+        container.append($('<br />'));
+        container.append(btnSave);
+        container.append(btnCancel);
+        return container;
+    };
+
+    init();
 }
 
 jQuery(function(){

@@ -135,12 +135,12 @@ class IspconfigWc extends IspconfigWcBackend {
                     <td><?php echo $v['order_id'] ?></td>
                     <td><?php echo strftime("%Y-%m-%d", strtotime($v['created'])) ?></td>
                     <td>
-                        <?php if(($v['status'] & 2) == 0): ?>
-                        <a href="<?php echo '?invoice='.$v['ID']; ?>" class="button view"><?php _e('Pay Now', 'wp-ispconfig3') ?></a>
-                        <?php elseif(!empty($v['paid_date'])): ?>
-                        <strong><?php echo __('Paid at', 'wp-ispconfig3') . ' ' . strftime("%x",strtotime($v['paid_date'])) ?> </strong>
-                        <?php else: ?>
-                        <strong><?php _e('Paid', 'wp-ispconfig3') ?> </strong>
+                        <?php if($v['status'] == IspconfigInvoice::CANCELED): ?>
+                            <?php _e('Canceled', 'wp-ispconfig3') ?>
+                        <?php elseif(($v['status'] & IspconfigInvoice::PAID) == 0): ?>
+                            <a href="<?php echo '?invoice='.$v['ID']; ?>" class="button view"><?php _e('Pay Now', 'wp-ispconfig3') ?></a>
+                        <?php elseif(($v['status'] & IspconfigInvoice::PAID) != 0): ?>
+                            <strong><?php echo __('Paid at', 'wp-ispconfig3') . ' ' . strftime("%x",strtotime($v['paid_date'])) ?> </strong>
                         <?php endif; ?>
                     </td>
                 </tr>

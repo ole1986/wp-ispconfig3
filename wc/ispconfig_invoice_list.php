@@ -71,10 +71,11 @@ class ISPConfigInvoiceList extends WP_List_Table {
 
     function column_status($item) {
         $actions = [
-            'sent' => sprintf('<a href="?page=%s&action=%s&id=%s">Mark Sent</a>', $_REQUEST['page'],'sent',$item->ID),
-            'paid' => sprintf('<a href="?page=%s&action=%s&id=%s">Mark Paid</a>', $_REQUEST['page'],'paid',$item->ID)
+            'sent' => sprintf('<a href="?page=%s&action=%s&id=%s">'. __('Sent', 'wp-ispconfig3').'</a>', $_REQUEST['page'],'sent',$item->ID),
+            'paid' => sprintf('<a href="?page=%s&action=%s&id=%s">'. __('Paid', 'wp-ispconfig3').'</a>', $_REQUEST['page'],'paid',$item->ID),
+            'cancel' => sprintf('<a href="?page=%s&action=%s&id=%s">'. __('Canceled', 'wp-ispconfig3').'</a>', $_REQUEST['page'],'cancel',$item->ID),
         ];
-        return sprintf('%s %s', IspconfigInvoice::GetStatus($item->status), $this->row_actions($actions) );
+        return sprintf('%s %s', IspconfigInvoice::GetStatus($item->status, true), $this->row_actions($actions) );
     }
 
     function column_order_id($item){
@@ -100,7 +101,11 @@ class ISPConfigInvoiceList extends WP_List_Table {
     }
 
     function column_due_date($item){
-        return '<a href="#" data-id="'.$item->ID.'" onclick="ISPConfigAdmin.EditDueDate(this)">'.$item->due_date.'</a>';
+        return '<a href="javascript:void(0)" data-id="'.$item->ID.'" onclick="ISPConfigAdmin.EditDueDate(this)">'.$item->due_date.'</a>';
+    }
+
+    function column_paid_date($item) {
+        return '<a href="javascript:void(0)" data-id="'.$item->ID.'" onclick="ISPConfigAdmin.EditPaidDate(this)">'.$item->paid_date.'</a>';
     }
     
     public function prepare_items() {
@@ -131,6 +136,10 @@ class ISPConfigInvoiceList extends WP_List_Table {
                     break;
                 case 'paid':
                     $invoice->Paid();
+                    $invoice->Save();
+                    break;
+                case 'cancel':
+                    $invoice->Cancel();
                     $invoice->Save();
                     break;
                 case 'filter':

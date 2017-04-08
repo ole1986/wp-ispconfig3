@@ -8,13 +8,16 @@ class IspconfigInvoice {
     const SUBMITTED = 1;
     const PAID = 2;
     const RECURRING = 4;
+    const CANCELED = 128;
+
     /**
      * Possible status flags 
      */
     public static $STATUS = [
-        1 => 'Submitted',
+        1 => 'Sent',
         2 => 'Paid',
-        4 => 'Recur.Task'
+        4 => 'Recur.Task',
+        128 => 'Canceled'
     ];
 
     /**
@@ -68,6 +71,10 @@ class IspconfigInvoice {
 
     public function Recurring(){
         $this->status |= self::RECURRING;
+    }
+
+    public function Cancel(){
+        $this->status = self::CANCELED;
     }
 
     /**
@@ -209,12 +216,16 @@ class IspconfigInvoice {
         return false;
     }
 
-    public static function GetStatus($s){
+    public static function GetStatus($s, $lang = false){
         $s = intval($s);
         $res = '';
         foreach (self::$STATUS as $key => $value) {
-            if($s > 0 && ($key & $s)) 
-                $res .= $value . ' | ';
+            if($s > 0 && ($key & $s)) {
+                if($lang)
+                    $res .= __($value, 'wp-ispconfig3') . ' | ';
+                else
+                    $res .= $value . ' | ';
+            }
         }
         return rtrim($res, ' | ');
     }

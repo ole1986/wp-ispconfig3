@@ -9,7 +9,7 @@ class IspconfigWcBackend extends Ispconfig {
         parent::__construct();
         
         // enable changing the due date through ajax
-        add_action( 'wp_ajax_update_invoice_due_date', array(&$this,'update_invoice_due_date_callback') );
+        add_action( 'wp_ajax_ispconfig_backend', array(&$this, 'doAjax') );
 
         // the rest after this is for NON-AJAX requests
         if(defined('DOING_AJAX') && DOING_AJAX) return;
@@ -79,12 +79,20 @@ class IspconfigWcBackend extends Ispconfig {
         <?php
     }
 
-    public function update_invoice_due_date_callback(){
+    public function doAjax(){
         global $wpdb;
 
         $result = '';
         if(!empty($_POST['invoice_id'])) {
             $invoice = new IspconfigInvoice(intval($_POST['invoice_id']));
+
+            if(!empty($_POST['due_date']))
+                $invoice->due_date = $_POST['due_date'];
+            if(!empty($_POST['paid_date']))
+                $invoice->paid_date = $_POST['paid_date'];
+
+            $res = $invoice->Save();
+        }
 
             if(!empty($_POST['due_date']))
                 $invoice->due_date = $result = date('Y-m-d H:i:s', strtotime($_POST['due_date']));
