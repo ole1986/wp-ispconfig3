@@ -72,7 +72,9 @@ once you have activated the wp-ispconfig3 plugin, please navigate to the `WP-ISP
 1. ISPConfig SOAP settings in wordpress
 2. Registration form (client edition) 
 3. Registration form (free edition) 
-4. FREE PREMIUM: Invoice list
+4. Invoice list module
+5. Example on how to build a "webspace" product (animated)
+6. Complete list of settings (animated)
 
 == License ==
 
