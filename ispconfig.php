@@ -11,10 +11,10 @@ defined( 'ABSPATH' ) || exit;
  *
  * An Example can be found in the file: ispconfig_register_client.php
  */
-class IspconfigRegister {
+class Ispconfig {
     protected $soap;
     
-    protected $session_id;   
+    protected $session_id;
     protected $client_id;
     protected $domain_id;
     protected $shell_id;
@@ -54,7 +54,21 @@ class IspconfigRegister {
     public function AJAX_ispconfig_whois_callback(){
         $dom = strtolower($_POST['domain']);
 
-        echo self::isDomainAvailable($dom);
+        $ok = self::isDomainAvailable($dom);
+
+        $result = ['text' => '', 'class' => ''];
+
+        if($ok < 0) {
+            $result['text'] = __('The domain could not be verified', 'wp-ispconfig3');
+        } else if($ok == 0) {
+            $result['text'] = __('The domain is already registered', 'wp-ispconfig3');
+            $result['class'] = 'ispconfig-msg-error';
+        } else {
+            $result['class'] = 'ispconfig-msg-success';
+            $result['text'] = __('The domain is available', 'wp-ispconfig3');
+        }
+
+        echo json_encode($result);
         wp_die();
     }
     

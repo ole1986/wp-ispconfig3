@@ -136,3 +136,12 @@ msgstr "Webspeicher"
 
 msgid "Discount"
 msgstr "Rabatt"
+
+msgid "The domain is already registered"
+msgstr "Der Domainname ist bereits vergeben"
+
+msgid "The domain is available"
+msgstr "Die Domain ist verfügbar"
+
+msgid "The domain could not be verified"
+msgstr "Der Domainname konnte nicht verifiziert werden"

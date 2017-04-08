@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Example to register a new customer by using the abstraction class IspconfigRegister
  */
-class IspconfigRegisterClient extends IspconfigRegister {
+class IspconfigRegisterClient extends Ispconfig {
     public static $Self;
 
     public static function init() {

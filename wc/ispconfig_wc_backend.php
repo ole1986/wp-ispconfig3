@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) || exit;
 
 global $wpdb;
 
-class IspconfigWcBackend extends IspconfigRegister {
+class IspconfigWcBackend extends Ispconfig {
     public function __construct(){
         parent::__construct();
         

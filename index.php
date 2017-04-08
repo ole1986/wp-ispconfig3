@@ -18,6 +18,8 @@ if ( ! defined( 'WPISPCONFIG3_PLUGIN_URL' ) ) {
 	define( 'WPISPCONFIG3_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 }
 
+require_once 'ispconfig.php';
+
 // autoload php files starting with "ispconfig_register_[...].php" when class is used
 spl_autoload_register(function($class) { 
     $cls = strtolower(preg_replace(['/([a-z\d])([A-Z])/', '/([^_])([A-Z][a-z])/'], "$1_$2", $class));
@@ -86,8 +88,8 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             // action hook to load the scripts and style sheets (frontend)
             add_action('wp_enqueue_scripts', array($this, 'wpdocs_theme_name_scripts') );
             
-            // initialize the Ispconfig register class
-            new IspconfigRegister();
+            // initialize the Ispconfig class
+            new Ispconfig();
             
             // skip the rest if its a frontend request
             if ( ! is_admin() )	return;

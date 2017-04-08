@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Free registration form example
  */
-class IspconfigRegisterFree extends IspconfigRegister {
+class IspconfigRegisterFree extends Ispconfig {
     public static $Self;
     /**
      * Used to provide subdomain registration instead of domain registration in frontend using the below template ID

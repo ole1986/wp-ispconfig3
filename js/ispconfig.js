@@ -24,31 +24,19 @@ function ISPConfigClass() {
             jQuery('#subdomain').hide();
         }
     };
-    
-    /**
-     * Callback function from checkDomain
-     */
-    this.checkDomainCallback = function(response){
-        var msg = jQuery(domainMsgSelector);
-        msg.removeClass('ispconfig-msg-error ispconfig-msg-success');
-        if(response < 0) {
-            msg.text('Die Verfügbarkeit der Domain kann nicht verifiziert werden');
-        } else if (response == 0) {
-            msg.text('Der Domainname ist bereits vergeben');
-            msg.addClass('ispconfig-msg-error');
-        } else {
-            msg.text('Der Domainname ist verfügbar');
-            msg.addClass('ispconfig-msg-success');
-        }
-        msg.show();
-    };
-    
+        
     /**
      * Do an ajax request (which uses 'whois' in background) to verify if a domain has already been registered
      */
     this.checkDomain = function(domainName){
         // WP AJAX request defined in ispconfig-register.php
-        jQuery.post(ajaxurl, { action: 'ispconfig_whois', 'domain': domainName }, that.checkDomainCallback);
+        jQuery.post(ajaxurl, { action: 'ispconfig_whois', 'domain': domainName }, null, 'json').done(function(resp){
+            var msg = jQuery(domainMsgSelector);
+            msg.removeClass('ispconfig-msg-error ispconfig-msg-success');
+            msg.addClass(resp.class);
+            msg.text(resp.text);
+            msg.show();
+        });
     };
     
     var _constructor = function () {
