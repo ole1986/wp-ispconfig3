@@ -84,6 +84,10 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+= 1.1.10 =
+* moved domain part on top in checkout form (frontend)
+* code optimization
+
 = 1.1.9 =
 * fixed: Pdf creation failed in WooCommerce 3.0
 
