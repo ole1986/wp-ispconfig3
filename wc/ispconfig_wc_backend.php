@@ -85,15 +85,6 @@ class IspconfigWcBackend extends Ispconfig {
         $result = '';
         if(!empty($_POST['invoice_id'])) {
             $invoice = new IspconfigInvoice(intval($_POST['invoice_id']));
-
-            if(!empty($_POST['due_date']))
-                $invoice->due_date = $_POST['due_date'];
-            if(!empty($_POST['paid_date']))
-                $invoice->paid_date = $_POST['paid_date'];
-
-            $res = $invoice->Save();
-        }
-
             if(!empty($_POST['due_date']))
                 $invoice->due_date = $result = date('Y-m-d H:i:s', strtotime($_POST['due_date']));
             if(!empty($_POST['paid_date']))
