@@ -3,7 +3,7 @@
 defined( 'ABSPATH' ) || exit; 
 
 /**
- * Example to register a new customer by using the abstraction class IspconfigRegister
+ * Example to register a new customer by using the class Ispconfig
  */
 class IspconfigRegisterClient extends Ispconfig {
     public static $Self;
@@ -19,7 +19,7 @@ class IspconfigRegisterClient extends Ispconfig {
     }
     
     /**
-     * Called when user submits the data from register form - see IspconfigRegister::Display() for more details
+     * Called when user submits the data from register form - see Ispconfig::Display() for more details
      */
     protected function onPost(){
         if ( 'POST' !== $_SERVER[ 'REQUEST_METHOD' ] ) return;

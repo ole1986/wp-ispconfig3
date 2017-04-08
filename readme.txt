@@ -84,6 +84,9 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+= 1.1.11 =
+* hotfix: IspconfigRegister is no more
+
 = 1.1.10 =
 * moved domain part on top in checkout form (frontend)
 * code optimization

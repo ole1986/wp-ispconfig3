@@ -64,8 +64,8 @@ class WC_Product_Webspace extends WC_ISPConfigProduct {
         // all products require a DOMAIN to be entered
         if($templateID >= 1 && $templateID <= 3) {
             try{
-                $dom = IspconfigRegister::validateDomain( $_POST['order_domain'] );
-                $available = IspconfigRegister::isDomainAvailable($dom);
+                $dom = Ispconfig::validateDomain( $_POST['order_domain'] );
+                $available = Ispconfig::isDomainAvailable($dom);
                 if($available == 0) {
                     wc_add_notice( __("The domain is not available", 'wp-ispconfig3'), 'error');
                 } else if($available == -1) {
