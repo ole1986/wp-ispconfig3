@@ -127,8 +127,6 @@ class IspconfigRegisterFree extends IspconfigRegister {
             $opt = array_merge($defaultOptions, $opt);
         else 
             $opt = $defaultOptions;
-
-        $this->registerAjax(); 
         ?>
         <div class="wrap">
             <h2><?php if($opt['showtitle']) _e( $opt['title'], 'wp-ispconfig3' ); ?></h2>

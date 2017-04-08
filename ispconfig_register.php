@@ -46,21 +46,15 @@ class IspconfigRegister {
         if( is_admin() ) {
             add_action('wp_ajax_ispconfig_whois', [$this, 'AJAX_ispconfig_whois_callback'] );
             add_action('wp_ajax_nopriv_ispconfig_whois', [$this, 'AJAX_ispconfig_whois_callback']);
+        } else {
+            add_action('wp_head', function() { echo "<script>var ajaxurl = '" . admin_url('admin-ajax.php') . "'</script>"; });
         }
-    }
-    
-    public function registerAjax(){
-        echo "<script>";
-        // ajax used for whois request - AJAX_WhoisCallback is called
-        echo "var ispconfig_whois = function(domain, callback){ jQuery.post('". admin_url()  ."admin-ajax.php', {'action': 'ispconfig_whois', 'domain': domain}, callback); };";
-        echo "</script>";
     }
         
     public function AJAX_ispconfig_whois_callback(){
         $dom = strtolower($_POST['domain']);
 
         echo self::isDomainAvailable($dom);
-        
         wp_die();
     }
     

@@ -5,8 +5,10 @@ function ISPConfigAdminClass(){
     var $ = jQuery;
     var self = this;
 
-    var init = function() {};
-
+    var jsonRequest = function(data){
+        $.extend(data, {action: 'ispconfig_backend'});
+        return jQuery.post(ajaxurl, data, null, 'json');
+    };
     /**
      * Update the due date of an invoice using ajax action
      */
@@ -34,10 +36,14 @@ function ISPConfigAdminClass(){
         var $c = $(obj).clone();
         var $td = $(obj).parent('td');
 
-        var closeEdit = function(){
-            $td.html('');
-            $td.append($c);
-        };
+        var container = openDateInput(d, function(newDate){
+            jsonRequest({ invoice_id: invoice_id, due_date: newDate }).done(function (resp) {
+                $(obj).text(resp);
+                $(obj).show();
+            });
+        }, function(){
+            $(obj).show();
+        });
 
 
         var $input = $('<input type="text" style="width: 150px;" value="'+d+'" />');
@@ -46,14 +52,10 @@ function ISPConfigAdminClass(){
 
         $td.html('');
 
-        $btnSave.click(function(){
-            ajax_update_due_date( invoice_id, $input.val()).done(function(resp){
-                if(resp == "0") {
-                    alert('Nothing updated');
-                } else {
-                    $c.text( $input.val() );
-                }
-                closeEdit();
+        var container = openDateInput(d, function (newDate) {
+            jsonRequest({ invoice_id: invoice_id, paid_date: newDate }).done(function (resp) {
+                $(obj).text(resp);
+                $(obj).show();
             });
         });
 
@@ -64,7 +66,9 @@ function ISPConfigAdminClass(){
         $td.append($btnCancel);
     }
 
-    init();
+    var _constructor = function(){
+        
+    }();
 }
 
 jQuery(function(){

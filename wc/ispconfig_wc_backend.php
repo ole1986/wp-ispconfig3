@@ -82,14 +82,19 @@ class IspconfigWcBackend extends IspconfigRegister {
     public function update_invoice_due_date_callback(){
         global $wpdb;
 
-        $res = 0;
+        $result = '';
         if(!empty($_POST['invoice_id'])) {
             $invoice = new IspconfigInvoice(intval($_POST['invoice_id']));
-            $invoice->due_date = $_POST['due_date'];
-            $res = $invoice->Save();
-        } 
 
-        echo $res;
+            if(!empty($_POST['due_date']))
+                $invoice->due_date = $result = date('Y-m-d H:i:s', strtotime($_POST['due_date']));
+            if(!empty($_POST['paid_date']))
+                $invoice->paid_date = $result = date('Y-m-d H:i:s', strtotime($_POST['paid_date']));
+
+            $invoice->Save();
+        }
+
+        echo json_encode($result);
         wp_die();
     }
     

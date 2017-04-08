@@ -76,7 +76,7 @@ class IspconfigWc extends IspconfigWcBackend {
         if(!is_admin()) {
             // CHECKOUT: Add an additional field allowing the customer to enter a domain name
             add_filter('woocommerce_checkout_fields' , array($this, 'wc_checkout_nocomments') );
-            add_action('woocommerce_after_order_notes', array($this, 'wc_checkout_field') );
+            add_action('woocommerce_checkout_before_customer_details', array($this, 'wc_checkout_field') );
             add_action('woocommerce_checkout_process',  array($this, 'wc_checkout_process') );
             add_action('woocommerce_checkout_order_processed', array($this, 'wc_order_processed') );
 
@@ -210,11 +210,11 @@ class IspconfigWc extends IspconfigWcBackend {
     /**
      * CHECKOUT: Add an additional field for the domain name being entered by customer (incl. validation check)
      */
-    public function wc_checkout_field( $checkout ) {
-        $this->registerAjax();
-
+    public function wc_checkout_field() {
         if(WC()->cart->is_empty()) return 0;
         $items =  WC()->cart->get_cart();
+
+        $checkout = WC()->checkout();
 
         foreach($items as $p) {
             if(is_subclass_of($p['data'], 'WC_ISPConfigProduct'))

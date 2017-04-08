@@ -45,10 +45,10 @@ class WC_Product_Webspace extends WC_ISPConfigProduct {
     public function OnCheckout($checkout){
         $templateID = $this->getISPConfigTemplateID();
 
-        if($templateID >= 1 && $templateID <= 3) {   
+        if($templateID >= 1 && $templateID <= 3) { 
+            echo "<h3>Ihre Wunschdomain</h3>";
             woocommerce_form_field( 'order_domain', [
             'type'              => 'text',
-            'label'             => 'Ihre Wunschdomain',
             'placeholder'       => '',
             'custom_attributes' => ['data-ispconfig-checkdomain'=>'1']
             ], $checkout->get_value( 'order_domain' ));
