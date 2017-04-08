@@ -1,71 +1,43 @@
 /**
  * ISPConfig Admin class
  */
-function ISPConfigAdminClass(){
+function ISPConfigAdminClass() {
     var $ = jQuery;
     var self = this;
 
-    var init = function() {};
-
-    var jsonRequest = function(data){
-        $.extend(data, {action: 'ispconfig_backend'});
+    var jsonRequest = function (data) {
+        $.extend(data, { action: 'ispconfig_backend' });
         return jQuery.post(ajaxurl, data, null, 'json');
     };
     /**
      * Update the due date of an invoice using ajax action
      */
-    var ajax_update_due_date = function(id, due_date){
-        var data = {'action': 'update_invoice_due_date', 'invoice_id': id,'due_date': due_date};
+    var ajax_update_due_date = function (id, due_date) {
+        var data = { 'action': 'update_invoice_due_date', 'invoice_id': id, 'due_date': due_date };
         return jQuery.post(ajaxurl, data, null, 'json');
     };
 
     /** 
      * confirm deletion
      */
-    this.ConfirmDelete = function(obj){
+    this.ConfirmDelete = function (obj) {
         var invoice = $(obj).data('name');
         var ok = confirm("Really delete invoice " + invoice + "?");
-        if(!ok) event.preventDefault();
+        if (!ok) event.preventDefault();
     };
 
     /**
      * Edit due date through ajax
      */
-    this.EditDueDate = function(obj){
-        var d = $(obj).text();
-        var invoice_id = parseInt($(obj).data('id'));
-
-        $(obj).hide();
-
-        var container = openDateInput(d, function(newDate){
-            jsonRequest({ invoice_id: invoice_id, due_date: newDate }).done(function (resp) {
-                if (resp == "0") {
-                    alert('Nothing updated');
-                } else {
-                    $(obj).text(newDate);
-                }
-                $(obj).show();
-            });
-        }, function(){
-            $(obj).show();
-        });
-
-        $(obj).after(container);
-    }
-
-    this.EditPaidDate = function(obj){
+    this.EditDueDate = function (obj) {
         var d = $(obj).text();
         var invoice_id = parseInt($(obj).data('id'));
 
         $(obj).hide();
 
         var container = openDateInput(d, function (newDate) {
-            jsonRequest({ invoice_id: invoice_id, paid_date: newDate }).done(function (resp) {
-                if (resp == "0") {
-                    alert('Nothing updated');
-                } else {
-                    $(obj).text(newDate);
-                }
+            jsonRequest({ invoice_id: invoice_id, due_date: newDate }).done(function (resp) {
+                $(obj).text(resp);
                 $(obj).show();
             });
         }, function () {
@@ -75,17 +47,35 @@ function ISPConfigAdminClass(){
         $(obj).after(container);
     }
 
-    var openDateInput = function(defaultValue, onSaveCallback, onCancelCallback) {
+    this.EditPaidDate = function (obj) {
+        var d = $(obj).text();
+        var invoice_id = parseInt($(obj).data('id'));
+
+        $(obj).hide();
+
+        var container = openDateInput(d, function (newDate) {
+            jsonRequest({ invoice_id: invoice_id, paid_date: newDate }).done(function (resp) {
+                $(obj).text(resp);
+                $(obj).show();
+            });
+        }, function () {
+            $(obj).show();
+        });
+
+        $(obj).after(container);
+    }
+
+    var openDateInput = function (defaultValue, onSaveCallback, onCancelCallback) {
         var container = $('<div />');
 
         var $input = $('<input type="text" style="width: 150px;" />');
         $input.val(defaultValue);
 
-        var btnSave = $('<a />', { href: '#', text: 'Save' }).click(function() {
+        var btnSave = $('<a />', { href: '#', text: 'Save' }).click(function () {
             onSaveCallback($input.val());
             container.remove();
         });
-        var btnCancel = $('<a />', { style: 'margin-left: 1em;', href: '#', text: 'Cancel' }).click(function() { 
+        var btnCancel = $('<a />', { style: 'margin-left: 1em;', href: '#', text: 'Cancel' }).click(function () {
             container.remove();
             onCancelCallback();
         });
@@ -97,9 +87,11 @@ function ISPConfigAdminClass(){
         return container;
     };
 
-    init();
+    var _constructor = function () {
+
+    }();
 }
 
-jQuery(function(){
-     var ISPConfigAdmin = window['ISPConfigAdmin'] = new ISPConfigAdminClass();
+jQuery(function () {
+    var ISPConfigAdmin = window['ISPConfigAdmin'] = new ISPConfigAdminClass();
 });
