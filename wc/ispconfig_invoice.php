@@ -157,7 +157,7 @@ class IspconfigInvoice {
             $this->invoice_number = $d->format('Ym') . '-' . $this->order->get_id() . '-R';
             $this->offer_number = $d->format('Ym') . '-' . $this->order->get_id() . '-R';
             $this->wc_order_id = $this->order->get_id();
-            $this->customer_id = $this->order->customer_user;
+            $this->customer_id = $this->order->get_customer_id();
         } else {
             $this->invoice_number = $d->format('Ymd-His') . '-R';
             $this->offer_number = $d->format('Ymd-His') . '-A';
