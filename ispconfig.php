@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
  * An Example can be found in the file: ispconfig_register_client.php
  */
 class Ispconfig {
-    protected $soap;
+    private $soap;
     
     protected $session_id;
     protected $client_id;
@@ -116,6 +116,9 @@ class Ispconfig {
      * SOAP: Get a list of arrays containing all Client/Reseller limit templates
      */
     public function GetClientTemplates() {
+        if(empty($this->session_id)) 
+            $this->session_id = $this->soap->login(WPISPConfig3::$OPTIONS['soapusername'], WPISPConfig3::$OPTIONS['soappassword']);
+
         return $this->soap->client_templates_get_all($this->session_id);
     }
     

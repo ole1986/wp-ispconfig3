@@ -2,6 +2,9 @@
 
 if(!class_exists('WC_Product')) return;
 
+
+add_filter( 'woocommerce_product_data_tabs', ['WC_ISPConfigProduct','hotfix_product_data_tabs'], 5);
+
 abstract class WC_ISPConfigProduct extends WC_Product {
     abstract public function OnCheckout($checkout);
     abstract public function OnCheckoutValidate();
@@ -9,6 +12,17 @@ abstract class WC_ISPConfigProduct extends WC_Product {
 
     public static function add_to_cart() {
         wc_get_template( 'single-product/add-to-cart/simple.php' );
+    }
+
+    public static function hotfix_product_data_tabs($product_data_tabs){
+        // HOTFIX: display the general pricing (even when switching back to simple products)
+        $generalClasses = &$product_data_tabs['general']['class'];
+        if(!in_array($generalClasses, 'show_if_simple'))
+            $generalClasses[] = 'show_if_simple';
+        if(!in_array($generalClasses, 'show_if_external'))
+            $generalClasses[] = 'show_if_external';
+        
+        return $product_data_tabs;
     }
 
     public function is_purchasable() {
@@ -21,7 +35,7 @@ abstract class WC_ISPConfigProduct extends WC_Product {
 
     public function get_price($context = 'view'){
         return $this->get_regular_price();
-    }
+    }   
 
     /**
      * Get the add to url used mainly in loops.

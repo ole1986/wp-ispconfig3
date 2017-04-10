@@ -39,8 +39,8 @@ class IspconfigRegisterFree extends Ispconfig {
         $this->forbiddenUserEx .= '|^mobile';
 
         // load the Client templates from ISPCONFIG
-        $this->session_id = $this->soap->login( WPISPConfig3::$OPTIONS['soapusername'], WPISPConfig3::$OPTIONS['soappassword']);
         $templates = $this->GetClientTemplates();
+
         foreach ($templates as $k => $v) {
             $this->products[$v['template_id']] = $v;
         }
@@ -94,9 +94,6 @@ class IspconfigRegisterFree extends Ispconfig {
             // give the free user a shell
             $this->AddShell(['username' => $opt['username'] . '_shell', 'username_prefix' => $opt['username'] . '_', 'password' => $_POST['password'] ] );
             
-            // Logout from ISPconfig
-            $this->soap->logout($this->session_id);
-            
             echo "<div class='ispconfig-msg ispconfig-msg-success'>" . sprintf(__('Your account %s has been created', 'wp-ispconfig3'), $opt['username']) ."</div>";
             
             // send confirmation mail
@@ -108,7 +105,6 @@ class IspconfigRegisterFree extends Ispconfig {
             echo "<div class='ispconfig-msg'>" . __('You can now login here', 'wp-ispconfig3') .": <a href=\"https://".$_SERVER['HTTP_HOST'].":8080/\">click</a></div>";
             
         } catch (SoapFault $e) {
-            //$this->soap->__getLastResponse();
             echo '<div class="ispconfig-msg ispconfig-msg-error">SOAP Error: '. $e->getMessage() . $e->getTraceAsString() .'</div>';
         } catch (Exception $e) {
             echo '<div class="ispconfig-msg ispconfig-msg-error">'. $e->getMessage() . "</div>";

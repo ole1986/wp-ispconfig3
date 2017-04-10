@@ -4,6 +4,11 @@ add_filter('woocommerce_cart_item_quantity', ['WC_Product_Webspace', 'Period'], 
 add_filter('woocommerce_update_cart_action_cart_updated', ['WC_Product_Webspace', 'CartUpdated']);
 add_action('woocommerce_webspace_add_to_cart', ['WC_ISPConfigProduct', 'add_to_cart'], 30);
 
+add_filter( 'woocommerce_product_data_tabs', ['WC_Product_Webspace','ispconfig_product_data_tab']);
+
+add_action( 'woocommerce_product_data_panels', ['WC_Product_Webspace','ispconfig_product_data_fields']);
+add_action('woocommerce_process_product_meta_webspace', ['WC_Product_Webspace', 'webspace_metadata_save'] );
+
 add_action( 'admin_footer', ['WC_Product_Webspace', 'jsRegister'] );
 
 add_filter( 'product_type_selector', ['WC_Product_Webspace','register'] );
@@ -12,12 +17,13 @@ class WC_Product_Webspace extends WC_ISPConfigProduct {
     public static $OPTIONS;
 
     public $sold_individually = true;
+    public $product_type = "webspace";
 
-    public function __construct( $product ) {
+    public function __construct( $product = 0 ) {
         self::$OPTIONS = ['m' => __('monthly', 'wp-ispconfig3'), 'y' => __('yearly', 'wp-ispconfig3') ];
 
         $this->supports[]   = 'ajax_add_to_cart';
-        $this->product_type = "webspace";
+        //$this->product_type = "webspace";
         parent::__construct( $product );
     }
 
@@ -27,15 +33,57 @@ class WC_Product_Webspace extends WC_ISPConfigProduct {
     }
 
     public static function jsRegister(){
-	if ( 'product' != get_post_type() ) return;
+        global $product_object;
+        ?>
+        <script type='text/javascript'>
+            jQuery( document ).ready( function() {
+                jQuery('.options_group.pricing' ).addClass( 'show_if_webspace' ).show();
+                <?php if($product_object instanceof self): ?>
+                jQuery('.general_options').show();
+                jQuery('.general_options > a').trigger('click');
+                <?php endif; ?>
+            });
+        </script>
+        <?php
+    }
 
-	?><script type='text/javascript'>
-		jQuery( document ).ready( function() {
-            jQuery( '.options_group.pricing' ).addClass( 'show_if_webspace' ).show();
-            jQuery( '.options_group.ispconfig' ).addClass( 'show_if_webspace' ).show();
-            jQuery( '.inventory_options' ).addClass( 'show_if_webspace' ).show();
-		});
-	</script><?php
+    public static function ispconfig_product_data_tab($product_data_tabs){
+        $product_data_tabs['general']['class'][] = 'show_if_webspace';
+        $product_data_tabs['linked_product']['class'][] = 'hide_if_webspace';
+        $product_data_tabs['attribute']['class'][] = 'hide_if_webspace';
+        $product_data_tabs['advanced']['class'][] = 'hide_if_webspace';
+
+        $product_data_tabs['ispconfig_tab'] = array(
+                'label' => __( 'ISPConfig 3', 'wp-ispconfig3' ),
+                'target' => 'ispconfig_data_tab',
+                'class' => 'show_if_webspace'
+            );
+        return $product_data_tabs;
+    }
+
+    public static function ispconfig_product_data_fields(){
+        echo '<div id="ispconfig_data_tab" class="panel woocommerce_options_panel">';
+        try {
+            $templates = IspconfigWc::$Self->GetClientTemplates();
+            
+            $options = [0 => 'None'];
+            foreach($templates as $v) {
+                $options[$v['template_id']] = $v['template_name'];
+            }
+            woocommerce_wp_select(['id' => '_ispconfig_template_id', 'label' => '<strong>Client Limit Template</strong>', 'options' => $options]);
+        } catch(SoapFault $e) {
+            echo "<div style='color:red; margin: 1em;'>ISPConfig SOAP Request failed: " . $e->getMessage() . '</div>';
+        }
+  
+        echo '</div>';
+    }
+
+    /**
+     * BACKEND: Used to save the template ID for later use (Cart/Order)
+     */
+    public static function webspace_metadata_save($post_id){
+        if(!empty($_POST['_ispconfig_template_id']))
+            update_post_meta($post_id, '_ispconfig_template_id', $_POST['_ispconfig_template_id']);
     }
 
     public function getISPConfigTemplateID(){
@@ -126,15 +174,6 @@ class WC_Product_Webspace extends WC_ISPConfigProduct {
         <?php
         return "";
     }
-
-    /*public static function CartNotice(){
-        wc_clear_notices();
-        $c = sizeof( WC()->cart->get_cart() );
-        if($c > 1) {
-            wc_add_notice("More then ONE webspace item is not fully supported", 'error'); 
-        }
-        wc_print_notices();
-    }*/
 
     /**
      * when the cart gets updated - E.g. the selection has changed

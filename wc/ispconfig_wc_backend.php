@@ -21,9 +21,6 @@ class IspconfigWcBackend extends Ispconfig {
             add_action('ispconfig_options', array($this, 'ispconfig_options'));
             add_action( 'admin_enqueue_scripts', [&$this, 'load_js'] );
             
-            // BACKEND: Extend the WooCommerce products with ISPConfig templates (as selections)
-            add_action('woocommerce_product_options_general_product_data', array($this, 'custom_product_data') );
-            add_action('woocommerce_process_product_meta', array($this, 'custom_product_data_save') );
             // BACKEND: Order action for invoices
             add_action( 'woocommerce_order_actions', array( $this, 'wc_order_meta_box_actions' ) );
             add_action( 'woocommerce_order_action_ispconfig_save_invoice', array( $this, 'SaveInvoiceFromOrder' ) );
@@ -95,37 +92,6 @@ class IspconfigWcBackend extends Ispconfig {
 
         echo json_encode($result);
         wp_die();
-    }
-    
-    /**
-     * BACKEND: Connect to ISPConfig through SOAP to display Client Limit templates in product list
-     */
-    public function custom_product_data(){
-        echo '<div class="options_group ispconfig"><h2>ISPConfig</h2>';
-        try {
-            $this->session_id = $this->soap->login(WPISPConfig3::$OPTIONS['soapusername'], WPISPConfig3::$OPTIONS['soappassword']);
-            $templates = $this->GetClientTemplates();
-            
-            $options = [0 => 'None'];
-            foreach($templates as $v) {
-                $options[$v['template_id']] = $v['template_name'];
-            }
-            woocommerce_wp_select(['id' => '_ispconfig_template_id', 'label' => '<strong>Client Limit Template</strong>', 'options' => $options]);
-            
-            $this->soap->logout($this->session_id);
-        } catch(SoapFault $e) {
-            echo "<div style='color:red; margin: 1em;'>ISPConfig SOAP Request failed: " . $e->getMessage() . '</div>';
-        }
-  
-        echo '</div>';
-    }
-    
-    /**
-     * BACKEND: Used to save the template ID for later use (Cart/Order)
-     */
-    public function custom_product_data_save($post_id){
-        if(!empty($_POST['_ispconfig_template_id']))
-            update_post_meta($post_id, '_ispconfig_template_id', $_POST['_ispconfig_template_id']);
     }
     
     /**

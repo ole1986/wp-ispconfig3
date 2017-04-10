@@ -303,10 +303,7 @@ class IspconfigWc extends IspconfigWcBackend {
                 $domain = "free{$order->id}." . WPISPConfig3::$OPTIONS['default_domain'];
                 $username = "free{$order->id}";
             }
-                
-            // connect to ISPCONFIG SOAP
-            $this->session_id = $this->soap->login(WPISPConfig3::$OPTIONS['soapusername'], WPISPConfig3::$OPTIONS['soappassword']);
-            
+
             // fetch all templates from ISPConfig 
             $limitTemplates = $this->GetClientTemplates();
             // filter for only the TemplateID defined in self::$TemplateID
@@ -349,8 +346,6 @@ class IspconfigWc extends IspconfigWcBackend {
             // ISPCONFIG SOAP: give the user a shell (only for non-free products)
             if($templateID != 4)
                 $this->AddShell(['username' => $opt['username'] . '_shell', 'username_prefix' => $opt['username'] . '_', 'password' => $password ] );
-            // ISPCONFIG SOAP: Logout from ISPconfig
-            $this->soap->logout($this->session_id);
             
             // send confirmation mail
             if(!empty(WPISPConfig3::$OPTIONS['confirm'])) {

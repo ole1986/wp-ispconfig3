@@ -25,8 +25,6 @@ class IspconfigRegisterClient extends Ispconfig {
         if ( 'POST' !== $_SERVER[ 'REQUEST_METHOD' ] ) return;
         
         try{
-            $this->session_id = $this->soap->login( WPISPConfig3::$OPTIONS['soapusername'], WPISPConfig3::$OPTIONS['soappassword']);
-            
             // at least chekc if the client limit template exists in ISPConfig
             $templates = $this->GetClientTemplates();
             $filtered = array_filter($templates, function($v){ return $v['template_id'] == $_POST['template']; });
@@ -51,9 +49,6 @@ class IspconfigRegisterClient extends Ispconfig {
             // add the first page for the customer
             $this->AddWebsite( ['domain' => $opt['domain'], 'password' => $_POST['password']] );
             
-            // Logout from ISPconfig
-            $this->soap->logout($this->session_id);
-                        
             echo "<div class='ispconfig-msg ispconfig-msg-success'>" . sprintf(__('Your account %s has been created', 'wp-ispconfig3'), $opt['username']) ."</div>";
             
             // send confirmation mail
