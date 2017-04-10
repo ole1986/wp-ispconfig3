@@ -86,6 +86,10 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+= 1.1.12 =
+* moved product option "ISPConfig 3" into its own tab
+* code optimization
+
 = 1.1.11 =
 * hotfix: IspconfigRegister is no more
 
