@@ -17,9 +17,9 @@ abstract class WC_ISPConfigProduct extends WC_Product {
     public static function hotfix_product_data_tabs($product_data_tabs){
         // HOTFIX: display the general pricing (even when switching back to simple products)
         $generalClasses = &$product_data_tabs['general']['class'];
-        if(!in_array($generalClasses, 'show_if_simple'))
+        if(!in_array('show_if_simple', $generalClasses))
             $generalClasses[] = 'show_if_simple';
-        if(!in_array($generalClasses, 'show_if_external'))
+        if(!in_array('show_if_external', $generalClasses))
             $generalClasses[] = 'show_if_external';
         
         return $product_data_tabs;
