@@ -75,6 +75,11 @@ function ISPConfigAdminClass() {
         $(obj).after(loading);
 
         jsonRequest({ order_id: order_id, period: value}).done(function(resp){
+            if (resp !== '')
+                $('.ispconfig_scheduler_info').show();
+            else
+                $('.ispconfig_scheduler_info').hide();
+
             $(obj).val(resp);
         }).fail(function(){
             alert('An error occured');

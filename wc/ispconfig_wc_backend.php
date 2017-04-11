@@ -58,7 +58,7 @@ class IspconfigWcBackend extends Ispconfig {
             <?php } ?>
             </select>
         </p>
-        <p>
+        <p class="ispconfig_scheduler_info <?php if(empty($period)) echo 'hidden'; ?>">
             <?php printf(__("A scheduler will submit the invoice to '%s'", 'wp-ispconfig3'), $customer_email); ?>
         </p>
         <p style="text-align: right">
