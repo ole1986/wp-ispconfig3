@@ -48,7 +48,7 @@ class IspconfigWc extends IspconfigWcBackend {
         include_once WPISPCONFIG3_PLUGIN_WC_DIR . 'ispconfig_wc_product_hour.php';
         include_once WPISPCONFIG3_PLUGIN_WC_DIR . 'ispconfig_wc_product_webspace.php';
 
-        add_rewrite_endpoint( 'invoices', EP_ROOT | EP_PAGES );
+        add_rewrite_endpoint( 'invoices', EP_PERMALINK | EP_PAGES );
 
         if(!self::$Self)
             self::$Self = new self();
@@ -60,11 +60,7 @@ class IspconfigWc extends IspconfigWcBackend {
             WPISPConfig3::$OPTIONS = array_merge(WPISPConfig3::$OPTIONS, self::$OPTIONS);
 
         parent::__construct();
-
-        // enable soap for this
-        $this->withSoap();
-        $this->withAjax();
-        
+       
         // contains any of the below word is forbidden in username
         $this->forbiddenUserEx = 'www|mail|ftp|smtp|imap|download|upload|image|service|offline|online|admin|root|username|webmail|blog|help|support';
         // exact words forbidden in username
@@ -274,7 +270,7 @@ class IspconfigWc extends IspconfigWcBackend {
             return;
         }
         
-        if($order->customer_user == 0) {
+        if($order->get_customer_id() == 0) {
             $order->add_order_note('<span style="color: red">ISPCONFIG ERROR: Guest account is not supported. User action required!</span>');
             return;
         }
@@ -287,7 +283,7 @@ class IspconfigWc extends IspconfigWcBackend {
         }
         
         try{
-            $userObj = get_user_by('ID', $order->customer_user);
+            $userObj = get_user_by('ID', $order->get_customer_id());
             $password = substr(str_shuffle('!@#$%*&abcdefghijklmnpqrstuwxyzABCDEFGHJKLMNPQRSTUWXYZ23456789'), 0, 12);
             
             $username = $userObj->get('user_login'); 
@@ -304,8 +300,8 @@ class IspconfigWc extends IspconfigWcBackend {
                 $username = "free{$order->id}";
             }
 
-            // fetch all templates from ISPConfig 
-            $limitTemplates = $this->GetClientTemplates();
+            // fetch all templates from ISPConfig
+            $limitTemplates = Ispconfig::$Self->withSoap()->GetClientTemplates();
             // filter for only the TemplateID defined in self::$TemplateID
             $limitTemplates = array_filter($limitTemplates, function($v, $k) use($templateID) { return ($templateID == $v['template_id']); }, ARRAY_FILTER_USE_BOTH);
             
@@ -334,30 +330,30 @@ class IspconfigWc extends IspconfigWcBackend {
                 }
             }
             
-            $this->GetClientByUser($opt['username']);
+            $client = Ispconfig::$Self->GetClientByUser($opt['username']);
             
             // TODO: skip this error when additional packages are being bought (like extra webspace or more email adresses, ...)
-            if(!empty($this->client)) throw new Exception("The user " . $opt['username'] . ' already exists in ISPConfig');
+            if(!empty($client)) throw new Exception("The user " . $opt['username'] . ' already exists in ISPConfig');
             
-            // ISPCONFIG SOAP: add the customer
-            $this->AddClient($opt);
-            // ISPCONFIG SOAP: add the webiste
-            $this->AddWebsite( $webOpt );
+            // ISPCONFIG SOAP: add the customer and website for the same client id
+            Ispconfig::$Self->AddClient($opt)->AddWebsite($webOpt);
+
             // ISPCONFIG SOAP: give the user a shell (only for non-free products)
             if($templateID != 4)
-                $this->AddShell(['username' => $opt['username'] . '_shell', 'username_prefix' => $opt['username'] . '_', 'password' => $password ] );
+                Ispconfig::$Self->AddShell(['username' => $opt['username'] . '_shell', 'username_prefix' => $opt['username'] . '_', 'password' => $password ] );
             
             // send confirmation mail
             if(!empty(WPISPConfig3::$OPTIONS['confirm'])) {
                 $opt['domain'] = $domain;
                 $this->SendConfirmation($opt);
             }
-                
             
             $order->add_order_note('<span style="color: green">ISPCONFIG: User '.$username.' added to ISPCONFIG. Limit Template: '. $foundTemplate['template_name'] .'</span>');
 
             wp_update_post( array( 'ID' => $order->id, 'post_status' => 'wc-on-hold' ) );
             
+            Ispconfig::$Self->closeSoap();
+
             return;
         } catch (SoapFault $e) {
             $order->add_order_note('<span style="color: red">ISPCONFIG SOAP ERROR (payment): ' . $e->getMessage() . '</span>');

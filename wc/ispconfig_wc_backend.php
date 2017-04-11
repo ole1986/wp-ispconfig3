@@ -4,9 +4,9 @@ defined( 'ABSPATH' ) || exit;
 
 global $wpdb;
 
-class IspconfigWcBackend extends Ispconfig {
+class IspconfigWcBackend {
     public function __construct(){
-        parent::__construct();
+        //parent::__construct();
         
         // enable changing the due date through ajax
         add_action( 'wp_ajax_ispconfig_backend', array(&$this, 'doAjax') );

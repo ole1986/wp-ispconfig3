@@ -64,13 +64,15 @@ class WC_Product_Webspace extends WC_ISPConfigProduct {
     public static function ispconfig_product_data_fields(){
         echo '<div id="ispconfig_data_tab" class="panel woocommerce_options_panel">';
         try {
-            $templates = IspconfigWc::$Self->GetClientTemplates();
-            
+            $templates = Ispconfig::$Self->withSoap()->GetClientTemplates();
+          
             $options = [0 => 'None'];
             foreach($templates as $v) {
                 $options[$v['template_id']] = $v['template_name'];
             }
             woocommerce_wp_select(['id' => '_ispconfig_template_id', 'label' => '<strong>Client Limit Template</strong>', 'options' => $options]);
+
+            Ispconfig::$Self->closeSoap();
         } catch(SoapFault $e) {
             echo "<div style='color:red; margin: 1em;'>ISPConfig SOAP Request failed: " . $e->getMessage() . '</div>';
         }
@@ -128,9 +130,6 @@ class WC_Product_Webspace extends WC_ISPConfigProduct {
     public function OnCheckoutSubmit($order_id, $item_key, $item){
         if ( ! empty( $_POST['order_domain'] ) ) {
             update_post_meta( $order_id, 'Domain', sanitize_text_field( $_POST['order_domain'] ) );
-
-            //error_log("### WC_Product_Webspace -> OnCheckoutSubmit($order_id) called");
-            //error_log(print_r($this, true));
 
             $templateID = $this->getISPConfigTemplateID();
             // no ispconfig product found in order - so skip doing ispconfig related stuff

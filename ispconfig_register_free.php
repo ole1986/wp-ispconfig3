@@ -5,8 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Free registration form example
  */
-class IspconfigRegisterFree extends Ispconfig {
-    public static $Self;
+class IspconfigRegisterFree {
     /**
      * Used to provide subdomain registration instead of domain registration in frontend using the below template ID
      */
@@ -18,32 +17,14 @@ class IspconfigRegisterFree extends Ispconfig {
      * List of Client Limit Template from ISPConfig 
      */
     public $products = [];
-    
-    public static function init() {
-        if(!self::$Self) self::$Self = new self();
-    }
-    
+       
     public function __construct(){
-        parent::__construct();
-
-        // used to active ajax request for this plugin
-        $this->withAjax();
-        // enable SOAP requests for ISPconfig
-        $this->withSoap();
-        
         // contains any of the below word is forbidden in username
         $this->forbiddenUserEx = 'www|mail|ftp|smtp|imap|download|upload|image|service|offline|online|admin|root|username|webmail|blog|help|support';
         // exact words forbidden in username
         $this->forbiddenUserEx .= '|^kb$|^wiki$|^api$|^static$|^dev$|^mysql$|^search$|^media$|^status$';
         // start with words forbidden in username
         $this->forbiddenUserEx .= '|^mobile';
-
-        // load the Client templates from ISPCONFIG
-        $templates = $this->GetClientTemplates();
-
-        foreach ($templates as $k => $v) {
-            $this->products[$v['template_id']] = $v;
-        }
     }
     
     /**
@@ -82,17 +63,15 @@ class IspconfigRegisterFree extends Ispconfig {
                     'password' => $_POST['password']
             ];
             
-            $this->GetClientByUser($opt['username']);
+            $client = Ispconfig::$Self->GetClientByUser($opt['username']);
             
-            if(!empty($this->client_id)) throw new Exception('The user you have entered already exists');
+            if(!empty($client)) throw new Exception('The user you have entered already exists');
             
             // add the customer
-            $this->AddClient($opt);
-            
-            $this->AddWebsite( ['domain' => $opt['domain'], 'password' => $_POST['password'],  'hd_quota' => $foundTemplate['limit_web_quota'], 'traffic_quota' => $foundTemplate['limit_traffic_quota'] ] );
+            Ispconfig::$Self->AddClient($opt)->AddWebsite( ['domain' => $opt['domain'], 'password' => $_POST['password'],  'hd_quota' => $foundTemplate['limit_web_quota'], 'traffic_quota' => $foundTemplate['limit_traffic_quota'] ] );
             
             // give the free user a shell
-            $this->AddShell(['username' => $opt['username'] . '_shell', 'username_prefix' => $opt['username'] . '_', 'password' => $_POST['password'] ] );
+            Ispconfig::$Self->AddShell(['username' => $opt['username'] . '_shell', 'username_prefix' => $opt['username'] . '_', 'password' => $_POST['password'] ] );
             
             echo "<div class='ispconfig-msg ispconfig-msg-success'>" . sprintf(__('Your account %s has been created', 'wp-ispconfig3'), $opt['username']) ."</div>";
             
@@ -119,6 +98,12 @@ class IspconfigRegisterFree extends Ispconfig {
     public function Display($opt = null){
         $defaultOptions = ['title' => 'WP-ISPConfig3', 'button' => 'Click to create Client', 'subtitle' => 'New Client (incl. Website and Domain)','showtitle' => true];
         
+        // load the Client templates from ISPCONFIG
+        $templates = Ispconfig::$Self->withSoap()->GetClientTemplates();
+        foreach ($templates as $k => $v) {
+            $this->products[$v['template_id']] = $v;
+        }
+
         if(is_array($opt))
             $opt = array_merge($defaultOptions, $opt);
         else 

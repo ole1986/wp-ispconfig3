@@ -12,18 +12,23 @@ defined( 'ABSPATH' ) || exit;
  * An Example can be found in the file: ispconfig_register_client.php
  */
 class Ispconfig {
+    public static $Self;
+
     private $soap;
-    
-    protected $session_id;
+    private $session_id;
+
     protected $client_id;
     protected $domain_id;
-    protected $shell_id;
+
+    private $reseller_id = 0;
     
-    private $random_id = 0;
-        
+    public static function init(){
+        self::$Self = new self();
+    }
+
     public function __construct(){
-        if ( ! is_admin() )
-            $this->withShortcode();
+        $this->withShortcode();
+        $this->withAjax();
     }
     
     /**
@@ -31,14 +36,25 @@ class Ispconfig {
      */
     public function withSoap(){
         $this->soap = new SoapClient(null, ['location' => WPISPConfig3::$OPTIONS['soap_location'] , 'uri' => WPISPConfig3::$OPTIONS['soap_uri'], 'trace' => 1, 'exceptions' => 1]);
+        $this->session_id = $this->soap->login(WPISPConfig3::$OPTIONS['soapusername'], WPISPConfig3::$OPTIONS['soappassword']);
+        return $this;
+    }
+
+    public function closeSoap(){
+        if(!empty($this->session_id)) {
+            $this->soap->logout($this->session_id);
+            unset($this->session_id);
+        }
+        unset($this->soap);
     }
     
     /** 
      * Enable shortcode for the calling class
      */
     public function withShortcode(){
-        add_shortcode( 'ispconfig', array($this,'shortcode') );
-        $this->withAjax();
+        if ( ! is_admin() )
+            add_shortcode( 'ispconfig', array($this,'shortcode') );
+        
     }
     
     public function withAjax(){
@@ -106,9 +122,9 @@ class Ispconfig {
      */
     public function GetClientByUser($username){
         try{
-            $this->client_id = $this->soap->client_get_by_username($this->session_id, $username);
+            return $this->soap->client_get_by_username($this->session_id, $username);
         } catch(SoapFault $e) {
-
+            
         }
     }
     
@@ -116,10 +132,13 @@ class Ispconfig {
      * SOAP: Get a list of arrays containing all Client/Reseller limit templates
      */
     public function GetClientTemplates() {
-        if(empty($this->session_id)) 
-            $this->session_id = $this->soap->login(WPISPConfig3::$OPTIONS['soapusername'], WPISPConfig3::$OPTIONS['soappassword']);
-
         return $this->soap->client_templates_get_all($this->session_id);
+    }
+
+    public function GetClientSites($user_name){
+        $client = $this->GetClientByUser($user_name);
+
+        return $this->soap->client_get_sites_by_user($this->session_id, $client['userid'], $client['default_group']);
     }
     
     /**
@@ -196,7 +215,8 @@ class Ispconfig {
         if(!filter_var($options['email'], FILTER_VALIDATE_EMAIL)) throw new Exception("Error invalid email");
         
         // SOAP REQUEST TO INSERT INTO ISPCONFIG
-        $this->client_id = $this->soap->client_add($this->session_id, $this->random_id, $options);
+        $this->client_id = $this->soap->client_add($this->session_id, $this->reseller_id, $options);
+        return $this;
     }
     
     /**
@@ -205,7 +225,7 @@ class Ispconfig {
     public function AddWebsite($options){
         $defaultOptions = array(
             'server_id'	=> '1',
-            'domain' => $domain,
+            'domain' => '',
             'ip_address' => '*',
             'http_port' => '80',
             'https_port' => '443',
@@ -236,7 +256,7 @@ class Ispconfig {
             'ssl_cert' => '',
             'ssl_bundle' => '',
             'ssl_action' => '',
-            'stats_password' => $password,
+            'stats_password' => '',
             'stats_type' => 'webalizer',
             'allow_override' => 'All',
             'apache_directives' => '',
@@ -276,7 +296,7 @@ class Ispconfig {
         );
         
         $options = array_merge($defaultOptions, $options);
-        
+      
         $this->shell_id = $this->soap->sites_shell_user_add($this->session_id, $this->client_id, $options);
         return $this->shell_id;
     }

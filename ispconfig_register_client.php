@@ -5,17 +5,11 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Example to register a new customer by using the class Ispconfig
  */
-class IspconfigRegisterClient extends Ispconfig {
+class IspconfigRegisterClient {
     public static $Self;
 
     public static function init() {
         if(!self::$Self) self::$Self = new self();
-    }
-
-    public function __construct(){
-        parent::__construct();
-        // enable SOAP requests for this class
-        $this->withSoap();
     }
     
     /**
@@ -26,7 +20,8 @@ class IspconfigRegisterClient extends Ispconfig {
         
         try{
             // at least chekc if the client limit template exists in ISPConfig
-            $templates = $this->GetClientTemplates();
+            $templates = Ispconfig::$Self->withSoap()->GetClientTemplates();
+
             $filtered = array_filter($templates, function($v){ return $v['template_id'] == $_POST['template']; });
             if(empty($filtered)) throw new Exception('No Limit template found for ID ' . $_POST['template']);
 
@@ -39,15 +34,13 @@ class IspconfigRegisterClient extends Ispconfig {
                     'template_master' => $_POST['template']
             ];
             
-            $this->GetClientByUser($opt['username']);
+            $client = Ispconfig::$Self->GetClientByUser($opt['username']);
             
-            if(!empty($this->client_id)) throw new Exception('The user already exist. Please choice a different name');
+            if(!empty($client)) throw new Exception('The user already exist. Please choice a different name');
             
             // add the customer
-            $this->AddClient($opt);
-            
-            // add the first page for the customer
-            $this->AddWebsite( ['domain' => $opt['domain'], 'password' => $_POST['password']] );
+            Ispconfig::$Self->AddClient($opt)
+                            ->AddWebsite( ['domain' => $opt['domain'], 'password' => $_POST['password']] );
             
             echo "<div class='ispconfig-msg ispconfig-msg-success'>" . sprintf(__('Your account %s has been created', 'wp-ispconfig3'), $opt['username']) ."</div>";
             
@@ -59,6 +52,8 @@ class IspconfigRegisterClient extends Ispconfig {
             
             echo "<div class='ispconfig-msg'>" . __('You can now login here', 'wp-ispconfig3') .": <a href=\"https://".$_SERVER['HTTP_HOST'].":8080/\">click</a></div>";
             
+            Ispconfig::$Self->closeSoap();
+
         } catch (SoapFault $e) {
             //WPISPConfig3::soap->__getLastResponse();
             echo '<div class="ispconfig-msg ispconfig-msg-error">SOAP Error: '.$e->getMessage() .'</div>';

@@ -79,17 +79,24 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             // load the options from database and make available in WPISPConfig3::$OPTIONS
             $this->load_options();
 
+            // initialize the Ispconfig class
+            Ispconfig::init();
+
             // load the ISPConfig3 invoicing module (PREMIUM)
             if (file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php')) {
                 require_once( WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php');
                 IspconfigWc::init();
             }
+            if (file_exists(WPISPCONFIG3_PLUGIN_DIR . 'manage/ispconfig_website.php'))
+            {
+                require_once( WPISPCONFIG3_PLUGIN_DIR . 'manage/ispconfig_website.php');
+                IspconfigWebsite::init();
+            }
             
             // action hook to load the scripts and style sheets (frontend)
             add_action('wp_enqueue_scripts', array($this, 'wpdocs_theme_name_scripts') );
             
-            // initialize the Ispconfig class
-            new Ispconfig();
+
             
             // skip the rest if its a frontend request
             if ( ! is_admin() )	return;
@@ -119,8 +126,13 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             add_submenu_page('ispconfig3_menu', __('Settings'), __('Settings'), 'edit_themes', 'ispconfig_settings',  array($this, 'DisplaySettings') );
             // if woocommerce and invoicing module for ISPConfig is avialble, load it and display invoices menu entry
             
-            if (file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php')) {
+            if (file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php'))
+            {
                 add_submenu_page('ispconfig3_menu', __('Invoices', 'wp-ispconfig3'), __('Invoices', 'wp-ispconfig3'), 'edit_themes', 'ispconfig_invoices',  array('IspconfigWcBackend', 'DisplayInvoices') );
+            }
+            if (file_exists(WPISPCONFIG3_PLUGIN_DIR . 'manage/ispconfig_website.php'))
+            {
+                add_submenu_page('ispconfig3_menu', __('Websites', 'wp-ispconfig3'), __('Websites', 'wp-ispconfig3'), 'edit_themes', 'ispconfig_websites',  array('IspconfigWebsite', 'DisplayWebsites') );
             }
         }
         
