@@ -113,7 +113,7 @@ class IspconfigWc extends IspconfigWcBackend {
                     FROM {$wpdb->prefix}ispconfig_invoice AS i 
                     LEFT JOIN wp_users AS u ON u.ID = i.customer_id
                     LEFT JOIN wp_posts AS p ON p.ID = i.wc_order_id
-                    LEFT JOIN wp_postmeta AS pm ON (p.ID = pm.post_id AND pm.meta_key = 'ispconfig_period')
+                    LEFT JOIN wp_postmeta AS pm ON (p.ID = pm.post_id AND pm.meta_key = '_ispconfig_period')
                     WHERE i.customer_id = {$current_user->ID} AND i.deleted = 0
                     ORDER BY i.created DESC";
 

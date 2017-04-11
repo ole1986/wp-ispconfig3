@@ -2,7 +2,7 @@
 /*
  * Plugin Name: WP-ISPConfig3
  * Description: ISPConfig3 plugin allows you to register customers through wordpress frontend using shortcodes.
- * Version: 1.1.12
+ * Version: 1.1.13
  * Author: ole1986 <ole.k@web.de>
  * Author URI: https://github.com/ole1986/wp-ispconfig3
  * Text Domain: wp-ispconfig3
@@ -145,30 +145,31 @@ if(!class_exists( 'WPISPConfig3' ) ) {
          * Display the settings for ISPConfig (and modules - using action hook 'ispconfig_options') 
          */
         public function DisplaySettings(){
-            //$this->load_options();
             $this->onUpdateSettings();
                        
             $cfg = self::$OPTIONS;
             ?>
             <div class="wrap">
-                <h2><?php _e( 'WP-ISPConfig 3 Settings', 'wp-ispconfig3' );?></h2>
+                <h2><?php _e('WP-ISPConfig 3 Settings', 'wp-ispconfig3' );?></h2>
                 <form method="post" action="">
                 <div id="poststuff" class="metabox-holder has-right-sidebar">
                     <div id="post-body">
                         <div id="post-body-content">
-                            <div id="normal-sortables" class="meta-box-sortables ui-sortable">
-                                <div class="postbox inside">
-                                    <h3><?php _e( 'SOAP Settings', 'wp-ispconfig3' );?></h3>
-                                    <div class="inside" style="display: table;margin: 10px 0;">
-                                        <?php 
+                            <ul id="ispconfig-tabs" class="category-tabs">
+                                <li class="tabs"><a href="#ispconfig-general"><?php _e('General', 'wp-ispconfig3') ?></a></li>
+                                <?php do_action('ispconfig_option_tabs') ?>
+                            </ul>
+                            <div class="postbox inside">
+                                <div id="ispconfig-general" class="inside tabs-panel" style="display: block;">
+                                    <h3><?php _e('General', 'wp-ispconfig3') ?></h3>
+                                    <h4><?php _e( 'SOAP Settings', 'wp-ispconfig3') ?></h4>
+                                     <?php 
                                         self::getField('soapusername', 'SOAP Username:');
                                         self::getField('soappassword', 'SOAP Password:', 'password');
                                         self::getField('soap_location', 'SOAP Location:');
                                         self::getField('soap_uri', 'SOAP URI:');
-                                        ?>
-                                    </div>
-                                    <h3>Account creation</h3>
-                                    <div class="inside">
+                                    ?>
+                                    <h4>Account creation</h4>
                                     <?php
                                         self::getField('confirm', 'Send Confirmation','checkbox');
                                         self::getField('confirm_subject', 'Confirmation subject');
@@ -176,13 +177,13 @@ if(!class_exists( 'WPISPConfig3' ) ) {
                                         self::getField('default_domain', 'Default Domain');
                                         self::getField('sender_name', 'Sender name');
                                     ?>
-                                    </div>
-                                    <?php do_action('ispconfig_options'); ?>
-                                    <div class="inside">
+                                </div>
+                                <?php do_action('ispconfig_options'); ?>
+
+                                <div class="inside">
                                     <p></p>
                                     <p><input type="submit" class="button-primary" name="submit" value="<?php _e('Save');?>" /></p>
-                                    <p></p>									
-                                    </div>
+                                    <p></p>
                                 </div>
                             </div>
                         </div>

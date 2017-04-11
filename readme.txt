@@ -86,6 +86,9 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+= 1.1.13 =
+* quicker access to major functions using meta box (in order) and tabs (in settings)
+
 = 1.1.12 =
 * moved product option "ISPConfig 3" into its own tab
 * code optimization

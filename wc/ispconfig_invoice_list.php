@@ -82,7 +82,7 @@ class ISPConfigInvoiceList extends WP_List_Table {
         $stat = wc_get_order_statuses();
         $recurr = '';
         if(!empty($item->ispconfig_period))
-            $recurr = 'Recurring: ' . (($item->ispconfig_period == 'm')?'monthly':'yearly');
+            $recurr = __('Payment period', 'wp-ispconfig3') .': ' . __(IspconfigInvoice::$PERIOD[$item->ispconfig_period], 'wp-ispconfig3');
         return '<a href="post.php?post='.$item->order_id. '&action=edit" >#' . $item->order_id. ' ('.$stat[$item->post_status].')</a><br />' . $recurr;
     }
 
@@ -120,7 +120,7 @@ class ISPConfigInvoiceList extends WP_List_Table {
                     FROM {$wpdb->prefix}".IspconfigInvoice::TABLE." AS i 
                     LEFT JOIN wp_users AS u ON u.ID = i.customer_id
                     LEFT JOIN wp_posts AS p ON p.ID = i.wc_order_id
-                    LEFT JOIN wp_postmeta AS pm ON (p.ID = pm.post_id AND pm.meta_key = 'ispconfig_period')
+                    LEFT JOIN wp_postmeta AS pm ON (p.ID = pm.post_id AND pm.meta_key = '_ispconfig_period')
                     WHERE i.deleted = 0";
 
         if(isset($_GET['page'], $_GET['action'],$_GET['id']) && $_GET['page'] == 'ispconfig_invoices') {

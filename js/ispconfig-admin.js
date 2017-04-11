@@ -65,6 +65,44 @@ function ISPConfigAdminClass() {
         $(obj).after(container);
     }
 
+    this.UpdatePeriod = function(obj){
+        var order_id = parseInt($(obj).data('id'));
+        var value = $(obj).val();
+
+        var loading = $('<img />');
+        loading.attr('src', '/wp-admin/images/loading.gif');
+
+        $(obj).after(loading);
+
+        jsonRequest({ order_id: order_id, period: value}).done(function(resp){
+            $(obj).val(resp);
+        }).fail(function(){
+            alert('An error occured');
+        }).always(function () { loading.remove(); });
+    }
+
+    this.RunReminder = function(){
+        var loading = $('<img />');
+        loading.attr('src', '/wp-admin/images/loading.gif');
+
+        jsonRequest({ payment_reminder: true}).done(function(resp){
+            if(resp < -1) {
+                alert("Invalid email address");
+                return;
+            }
+            if(resp < 0) {
+                alert("Payment reminder disabled");
+                return;
+            }
+
+            if (resp <= 0) {
+                alert("Payment reminder executed (no email)");
+                return;
+            }
+            alert("Payment reminder executed");
+        }).always(function () { loading.remove(); });
+    }
+
     var openDateInput = function (defaultValue, onSaveCallback, onCancelCallback) {
         var container = $('<div />');
 
@@ -87,8 +125,30 @@ function ISPConfigAdminClass() {
         return container;
     };
 
-    var _constructor = function () {
+    var hideTabs = function(){
+        $('#ispconfig-tabs a').each(function () {
+            var other_id = $(this).attr('href');
+            $(other_id).hide();
+        })
+        $('#ispconfig-tabs > li').removeClass('tabs');
+    };
 
+    var initTabs = function(){
+        $('#ispconfig-tabs a').click(function(event){
+            event.preventDefault();
+
+            var id = $(this).attr('href');
+            hideTabs();           
+            $(this).closest('li').addClass('tabs');
+            $(id).show();
+        })
+
+        hideTabs();
+        $('#ispconfig-tabs a:first').trigger('click');
+    };
+
+    var _constructor = function () {
+        initTabs();
     }();
 }
 

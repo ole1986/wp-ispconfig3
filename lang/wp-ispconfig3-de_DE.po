@@ -74,6 +74,15 @@ msgstr "Die Email Adresse stimmt nicht überein"
 msgid "Payments shall be made in advance:"
 msgstr "Die Zahlung erfolgt im Voraus:"
 
+msgid "A scheduler will submit the invoice to '%s'"
+msgstr "Ein Aufgabenplaner versendet die Rechnung an '%s'"
+
+msgid "General"
+msgstr "Allgemein"
+
+msgid "Task Scheduler"
+msgstr "Aufgabenplaner"
+
 msgid "yearly"
 msgstr "jährlich"
 
@@ -94,6 +103,9 @@ msgstr "Rechnungen"
 
 msgid "Pay Now"
 msgstr "Bezahlen"
+
+msgid "Payment period"
+msgstr "Zahlungsinterval"
 
 msgid "Paid at"
 msgstr "Bezahlt am"

@@ -20,6 +20,11 @@ class IspconfigInvoice {
         128 => 'Canceled'
     ];
 
+    public static $PERIOD = [
+        'm' => 'monthly',
+        'y' => 'yearly'
+    ];
+
     /**
      * allowed db columns
      */
@@ -196,8 +201,9 @@ class IspconfigInvoice {
         $this->order = $order;
 
         // load additional payment info
-        $this->order->_paid_date = get_post_meta($order->get_id(), '_paid_date', true);
-        $this->order->ispconfig_period = get_post_meta($order->get_id(), "ispconfig_period", true);
+        //$this->order->_paid_date = get_post_meta($order->get_id(), '_paid_date', true);
+
+        $this->order->_ispconfig_period = get_post_meta($order->get_id(), "_ispconfig_period", true);
 
 
         // get the latest actual from when WC_Order is defined
@@ -242,6 +248,13 @@ class IspconfigInvoice {
         }
 
         $sql.= "UNIQUE KEY id (id) ) $charset_collate;";
+
+        // update the ispconfig_period meta data to be hidden
+        $version = get_option('_ispconfig_invoice_version', 0);
+        if($version <= 0)
+            $sql.= "UPDATE wp_postmeta SET meta_key = '_ispconfig_period' WHERE meta_key = 'ispconfig_period';";
+        
+        update_option('_ispconfig_invoice_version', 1);
 
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         dbDelta( $sql );

@@ -18,60 +18,141 @@ class IspconfigWcBackend extends Ispconfig {
             // used to trigger on invoice creation located in ispconfig_create_pdf.php
             IspconfigInvoicePdf::init()->Trigger();
             // OPTIONS: Extend the ISPConfig options with some addition properties using 'ispconfig_options' hook
-            add_action('ispconfig_options', array($this, 'ispconfig_options'));
-            add_action( 'admin_enqueue_scripts', [&$this, 'load_js'] );
-            
-            // BACKEND: Order action for invoices
-            add_action( 'woocommerce_order_actions', array( $this, 'wc_order_meta_box_actions' ) );
-            add_action( 'woocommerce_order_action_ispconfig_save_invoice', array( $this, 'SaveInvoiceFromOrder' ) );
-            add_action( 'woocommerce_order_action_ispconfig_preview_invoice', array( $this, 'PreviewInvoiceFromOrder' ) );
-            add_action( 'woocommerce_order_action_ispconfig_save_offer', array( $this, 'SaveOfferFromOrder' ) );
-            add_action( 'woocommerce_order_action_ispconfig_preview_offer', array( $this, 'PreviewOfferFromOrder' ) );
+            add_action('ispconfig_option_tabs', [$this, 'ispconfig_option_tabs']);
+            add_action('ispconfig_options', [$this, 'ispconfig_options']);
+
+            add_action( 'admin_enqueue_scripts', [$this, 'load_js'] );
+
+            add_action('add_meta_boxes', [$this, 'ispconfig_invoice_box'] );
+            add_action('post_updated', [$this, 'ispconfig_invoice_submit']);           
         } else {
             // Schedules are executed as NON ADMIN
             add_action('invoice_reminder', [&$this, 'invoice_reminder']);
         }
     }
-    
+
+    public function ispconfig_invoice_box(){
+        add_meta_box( 'ispconfig-invoice-box', 'ISPConfig 3', [$this, 'ispconfig_invoice_box_callback'], 'shop_order', 'side', 'high' );
+    }
+
+    public function ispconfig_invoice_box_callback() {
+        global $post_id, $post;
+
+        $domain = get_post_meta($post_id, 'Domain', true);
+
+        $period = get_post_meta($post_id, '_ispconfig_period', true);
+
+        $customer_email = get_post_meta($post_id, '_billing_email', true, '');
+
+        ?>
+        <p>
+            <label class="post-attributes-label">Domain: </label>
+            <?php echo $domain ?>
+        </p>
+        <p>
+            <label class="post-attributes-label" for="ispconfig_period"><?php _e('Payment period', 'wp-ispconfig3') ?>:</label>
+            <select id="ispconfig_period" data-id="<?php echo $post_id ?>" onchange="ISPConfigAdmin.UpdatePeriod(this)">
+                <option value="">Off</option>
+            <?php foreach(IspconfigInvoice::$PERIOD as $k => $v) { ?>
+                <option value="<?php echo $k ?>" <?php echo ($k == $period)?'selected': '' ?> ><?php _e($v, 'wp-ispconfig3') ?></option>
+            <?php } ?>
+            </select>
+        </p>
+        <p>
+            <?php printf(__("A scheduler will submit the invoice to '%s'", 'wp-ispconfig3'), $customer_email); ?>
+        </p>
+        <p style="text-align: right">
+            <button type="submit" name="ispconfig_invoice_action" class="button" value="preview">
+                <?php printf(__('Preview %s'), '') ?>
+            </button>
+            <button type="submit" name="ispconfig_invoice_action" class="button" value="offer">
+                <?php _e('Offer', 'wp-ispconfig3') ?>
+            </button>
+            <button type="submit" name="ispconfig_invoice_action" class="button button-primary" value="invoice">
+                <?php _e( 'Invoice', 'wp-ispconfig3') ?>
+            </button>
+        </p>
+        <?php
+    }
+
+    public function ispconfig_invoice_submit($post_id){
+        global $post;
+
+        if(!isset($_REQUEST['ispconfig_invoice_action'])) return;
+        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
+
+        remove_action( 'post_updated', [$this, 'ispconfig_invoice_submit']);
+
+        if( ! ( wp_is_post_revision( $post_id) || wp_is_post_autosave( $post_id ) ) ) {
+            $order = new WC_Order($post);
+
+            switch($_REQUEST['ispconfig_invoice_action'])
+            {
+                case 'preview':
+                    $this->PreviewInvoiceFromOrder($order);
+                    break;
+                case 'offer':
+                    $this->PreviewOfferFromOrder($order);
+                    break;
+                case 'invoice':
+                    $this->SaveInvoiceFromOrder($order);
+                    
+                    break;
+            }
+        }
+    }
+
     public function load_js(){
         wp_enqueue_script( 'my_custom_script', WPISPCONFIG3_PLUGIN_URL . 'js/ispconfig-admin.js?_' . time() );
+    }
+
+    public function ispconfig_option_tabs(){
+        echo '<li class="hide-if-no-js"><a href="#ispconfig-invoice">'. __('Invoices', 'wp-ispconfig3') .'</a></li>';
+        echo '<li class="hide-if-no-js"><a href="#ispconfig-scheduler">'. __('Task Scheduler', 'wp-ispconfig3') .'</a></li>';
     }
 
     /**
      * BACKEND: Additional setting for WooCommerce transactions
      */
     public function ispconfig_options(){
-        if(!self::IsWooCommerceAvailable())
-            echo "<div class='inside' style='color: red; font-size: 110%; font-weight: bold;'>PLEASE NOTE: WooCommerce is not available</div>";
+        if(!self::IsWooCommerceAvailable()) {
+            echo "<div class='inside' style='color: red; font-size: 110%; font-weight: bold;margin-top:1em;'>WooCommerce is not available</div>";
+            return;
+        }
         ?>
-        <h3>WooCommerce</h3>
-        <div class="inside">
-        <h4>Invoice PDF</h4>
-        <?php
-        WPISPConfig3::getField('wc_pdf_title', 'Document Title');
-        WPISPConfig3::getField('wc_pdf_logo', 'Logo Image');
-        WPISPConfig3::getField('wc_pdf_addressline', 'Address line');
-        WPISPConfig3::getField('wc_pdf_condition', 'Conditions', 'textarea');
-        WPISPConfig3::getField('wc_pdf_info', 'Info Block', 'textarea');
-        WPISPConfig3::getField('wc_pdf_block1', 'Block #1', 'rte', ['container' => 'div', 'input_attr' => ['style'=>'width: 350px;display:inline-block;'] ]);
-        WPISPConfig3::getField('wc_pdf_block2', 'Block #2', 'rte', ['container' => 'div', 'input_attr' => ['style'=>'width: 350px;display:inline-block;'] ]);
-        WPISPConfig3::getField('wc_pdf_block3', 'Block #3', 'rte', ['container' => 'div', 'input_attr' => ['style'=>'width: 350px;display:inline-block;'] ]);
-        ?>
+        <div id="ispconfig-invoice" class="inside tabs-panel" style="display: none;">
+            <h3><?php _e('Invoices', 'wp-ispconfig3') ?></h3>
+            <?php
+            WPISPConfig3::getField('wc_pdf_title', 'Document Title');
+            WPISPConfig3::getField('wc_pdf_logo', 'Logo Image');
+            WPISPConfig3::getField('wc_pdf_addressline', 'Address line');
+            WPISPConfig3::getField('wc_pdf_condition', 'Conditions', 'textarea');
+            WPISPConfig3::getField('wc_pdf_info', 'Info Block', 'textarea');
+            WPISPConfig3::getField('wc_pdf_block1', 'Block #1', 'rte', ['container' => 'div', 'input_attr' => ['style'=>'width: 350px;display:inline-block;'] ]);
+            WPISPConfig3::getField('wc_pdf_block2', 'Block #2', 'rte', ['container' => 'div', 'input_attr' => ['style'=>'width: 350px;display:inline-block;'] ]);
+            WPISPConfig3::getField('wc_pdf_block3', 'Block #3', 'rte', ['container' => 'div', 'input_attr' => ['style'=>'width: 350px;display:inline-block;'] ]);
+            ?>
         </div>
-        <div class="inside">
-        <h4>Scheduled Tasks</h4>
-        <?php
-        WPISPConfig3::getField('wc_mail_reminder', 'Admin Email<br />(for payment reminders)');
-        WPISPConfig3::getField('wc_mail_sender', 'Sender Email<br />(customer see this)');
+        <div id="ispconfig-scheduler" class="inside tabs-panel" style="display: none;">
+            <h3><?php _e('Task Scheduler', 'wp-ispconfig3') ?></h3>
+            <?php if( wp_get_schedule( 'invoice_reminder' )): ?>
+                <div class="notice notice-success"><p>The scheduled task is properly installed and running</p></div>
+            <?php else: ?>
+                <div class="notice notice-error"><p>The scheduled task is NOT INSTALLED - Try to reactivate the plugin</p></div>
+            <?php endif; ?>
+            <a href="javascript:void(0)" onclick="ISPConfigAdmin.RunReminder()" class="button">Run Payment Reminder</a>
+            <?php
+            WPISPConfig3::getField('wc_mail_reminder', 'Admin Email<br />(for payment reminders)');
+            WPISPConfig3::getField('wc_mail_sender', 'Sender Email<br />(customer see this)');
 
-        WPISPConfig3::getField('wc_payment_reminder', 'Payment Reminder<br />(' . WPISPConfig3::$OPTIONS['wc_mail_reminder'] . ')','checkbox');
-        WPISPConfig3::getField('wc_payment_message', 'Reminder Message<br />(for admins only)','textarea');
+            WPISPConfig3::getField('wc_payment_reminder', 'Payment Reminder<br />(' . WPISPConfig3::$OPTIONS['wc_mail_reminder'] . ')','checkbox');
+            WPISPConfig3::getField('wc_payment_message', 'Reminder Message<br />(for admins only)','textarea');
 
-        WPISPConfig3::getField('wc_recur_reminder', 'Recurring Reminder<br />(for customers)','checkbox');
-        WPISPConfig3::getField('wc_recur_test', 'Test Recurring<br />(use admin email instead)','checkbox');
-        WPISPConfig3::getField('wc_recur_message', 'Recurring Message<br />(for customers)', 'textarea');
-        ?>
-        <input type="hidden" name="wc_enable" value="1" />
+            WPISPConfig3::getField('wc_recur_reminder', 'Recurring Reminder<br />(for customers)','checkbox');
+            WPISPConfig3::getField('wc_recur_test', 'Test Recurring<br />(use admin email instead)','checkbox');
+            WPISPConfig3::getField('wc_recur_message', 'Recurring Message<br />(for customers)', 'textarea');
+            ?>
+            <input type="hidden" name="wc_enable" value="1" />
         </div>
         <?php
     }
@@ -88,22 +169,21 @@ class IspconfigWcBackend extends Ispconfig {
                 $invoice->paid_date = $result = date('Y-m-d H:i:s', strtotime($_POST['paid_date']));
 
             $invoice->Save();
+        } else if(!empty($_POST['order_id']) && isset($_POST['period'])) {
+            if(!empty($_POST['period']))
+                update_post_meta( intval($_POST['order_id']), '_ispconfig_period', $_POST['period']);
+            else
+                delete_post_meta( intval($_POST['order_id']), '_ispconfig_period');
+
+            $result = $_POST['period'];
+        } else if(!empty($_POST['payment_reminder'])) {
+            $result = $this->payment_reminder();
         }
 
         echo json_encode($result);
         wp_die();
     }
-    
-    /**
-     * BACKEND: Add an additional action for orders to ...
-     */
-    public function wc_order_meta_box_actions($actions){
-        $actions['ispconfig_save_invoice'] = __('ISPCONFIG: Save Invoice','wp-ispconfig3');
-        $actions['ispconfig_preview_invoice'] = __('ISPCONFIG: Preview Invoice','wp-ispconfig3');
-        $actions['ispconfig_preview_offer'] = __('ISPCONFIG: Preview Offer','wp-ispconfig3');
-        return $actions;
-    }
-    
+
     public function PreviewOfferFromOrder($order){
         $invoice = new IspconfigInvoice($order);
         // display invoice as stream and die
@@ -120,10 +200,12 @@ class IspconfigWcBackend extends Ispconfig {
     }
 
     /**
-     * BACKEND: Fires the action previously added in 'wc_order_meta_box_actions'
+     * BACKEND: Save and invoice base from the order
      */
     public function SaveInvoiceFromOrder($order){
-        error_log("SaveInvoiceFromOrder: " . print_r($order, true));
+        error_log("SaveInvoiceFromOrder");
+        error_log( print_r(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5), true));
+
         $invoice = new IspconfigInvoice($order);
         $invoice->makeNew();
 
@@ -149,7 +231,7 @@ class IspconfigWcBackend extends Ispconfig {
         $invList->prepare_items();
         ?>
         <div class='wrap'>
-            <h1>Invoices</h1>
+            <h1><?php _e('Invoices', 'wp-ispconfig3') ?></h1>
             <h2></h2>
             <form action="" method="GET">
                 <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
@@ -190,17 +272,11 @@ class IspconfigWcBackend extends Ispconfig {
     private function payment_reminder(){
         global $wpdb;
 
-        if(WPISPConfig3::$OPTIONS['wc_payment_reminder'] != '1') {
-            error_log("invoice_payment_reminder DISABLED");
-            return;
-        }
+        if(WPISPConfig3::$OPTIONS['wc_payment_reminder'] != '1')
+            return -1;
 
-        if(!filter_var(WPISPConfig3::$OPTIONS['wc_mail_reminder'], FILTER_VALIDATE_EMAIL)) {
-            error_log("invoice_payment_reminder INVALID EMAIL");
-            return;
-        }
-
-        error_log("invoice_payment_reminder started");
+        if(!filter_var(WPISPConfig3::$OPTIONS['wc_mail_reminder'], FILTER_VALIDATE_EMAIL))
+            return -2;
 
         $res = $wpdb->get_results("SELECT i.*, u.display_name, u.user_login FROM {$wpdb->prefix}".IspconfigInvoice::TABLE." AS i 
                                 LEFT JOIN {$wpdb->posts} AS p ON (p.ID = i.wc_order_id)
@@ -230,12 +306,13 @@ class IspconfigWcBackend extends Ispconfig {
             $message = sprintf(WPISPConfig3::$OPTIONS['wc_payment_message'], $content);
 
             error_log("invoice_payment_reminder - Sending reminder to: " . WPISPConfig3::$OPTIONS['wc_mail_reminder']);
-            $res = wp_mail(WPISPConfig3::$OPTIONS['wc_mail_reminder'], 
+            $ok = wp_mail(WPISPConfig3::$OPTIONS['wc_mail_reminder'], 
                         $subject,
                         $message,
                         'From: '. WPISPConfig3::$OPTIONS['wc_mail_sender']);
-            error_log("wp_mail (using PHPMailer): " . $res);
+            return $ok;
         }
+        return 0;
     }
 
     /**
@@ -253,7 +330,7 @@ class IspconfigWcBackend extends Ispconfig {
 
         $res = $wpdb->get_results("SELECT p.ID,p.post_date_gmt, pm.meta_value AS payment_period FROM {$wpdb->posts} p 
                                 LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id 
-                                WHERE pm.meta_key = 'ispconfig_period' AND p.post_status = 'wc-completed'", OBJECT);
+                                WHERE pm.meta_key = '_ispconfig_period' AND p.post_status = 'wc-completed'", OBJECT);
         
         // remind admin about new recurring invoices
         if(!empty($res)) {

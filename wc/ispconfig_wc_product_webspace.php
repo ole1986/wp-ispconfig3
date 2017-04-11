@@ -137,9 +137,9 @@ class WC_Product_Webspace extends WC_ISPConfigProduct {
             if(empty($templateID)) return;
 
             if($item['quantity'] == 12) 
-                update_post_meta($order_id, 'ispconfig_period', 'y');
+                update_post_meta($order_id, '_ispconfig_period', 'y');
             else
-                update_post_meta($order_id, 'ispconfig_period', 'm');
+                update_post_meta($order_id, '_ispconfig_period', 'm');
         }
     }
 
