@@ -198,7 +198,7 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             $xargs = [  'container' => 'p', 
                         'required' => false,
                         'attr' => [], 
-                        'label_attr' => ['style' => 'width: 160px; display:inline-block;vertical-align:top;'], 
+                        'label_attr' => ['style' => 'width: 200px; display:inline-block;vertical-align:top;'], 
                         'input_attr' => []
                     ];
 

@@ -81,9 +81,9 @@ function ISPConfigAdminClass() {
         }).always(function () { loading.remove(); });
     }
 
-    this.RunReminder = function(){
-        var loading = $('<img />');
-        loading.attr('src', '/wp-admin/images/loading.gif');
+    this.RunReminder = function(obj){
+        var tmp = $(obj).text();
+        $(obj).text('Loading...');
 
         jsonRequest({ payment_reminder: true}).done(function(resp){
             if(resp < -1) {
@@ -100,8 +100,26 @@ function ISPConfigAdminClass() {
                 return;
             }
             alert("Payment reminder executed");
-        }).always(function () { loading.remove(); });
+        }).always(function () { $(obj).text(tmp); });
     }
+
+    this.RunRecurrReminder = function(obj){
+        var tmp = $(obj).text();
+        $(obj).text('Loading...');
+
+        jsonRequest({ recurr_reminder: true }).done(function(resp){
+            if(resp < -1)
+            {
+                alert("Please select 'Test Recurring' first.");
+                return;
+            }
+            if (resp < 0) {
+                alert("Recurring reminder is disabled");
+                return;
+            }
+            alert("Recurring reminder executed");
+        }).always(function () { $(obj).text(tmp); });
+    };
 
     var openDateInput = function (defaultValue, onSaveCallback, onCancelCallback) {
         var container = $('<div />');

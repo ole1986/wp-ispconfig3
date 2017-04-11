@@ -140,17 +140,18 @@ class IspconfigWcBackend extends Ispconfig {
             <?php else: ?>
                 <div class="notice notice-error"><p>The scheduled task is NOT INSTALLED - Try to reactivate the plugin</p></div>
             <?php endif; ?>
-            <a href="javascript:void(0)" onclick="ISPConfigAdmin.RunReminder()" class="button">Run Payment Reminder</a>
+            <p><a href="javascript:void(0)" onclick="ISPConfigAdmin.RunReminder(this)" class="button">Run Payment Reminder</a></p>
+            <p><a href="javascript:void(0)" onclick="ISPConfigAdmin.RunRecurrReminder(this)" class="button">Test Recurr Reminder</a></p>
             <?php
-            WPISPConfig3::getField('wc_mail_reminder', 'Admin Email<br />(for payment reminders)');
-            WPISPConfig3::getField('wc_mail_sender', 'Sender Email<br />(customer see this)');
+            WPISPConfig3::getField('wc_mail_reminder', '<strong>Admin Email</strong><br />used for payment reminders and testing purposes');
+            WPISPConfig3::getField('wc_mail_sender', '<strong>Sender Email</strong><br />Customer will see this address');
 
-            WPISPConfig3::getField('wc_payment_reminder', 'Payment Reminder<br />(' . WPISPConfig3::$OPTIONS['wc_mail_reminder'] . ')','checkbox');
-            WPISPConfig3::getField('wc_payment_message', 'Reminder Message<br />(for admins only)','textarea');
+            WPISPConfig3::getField('wc_payment_reminder', '<strong>Payment Reminder</strong><br />(' . WPISPConfig3::$OPTIONS['wc_mail_reminder'] . ')','checkbox');
+            WPISPConfig3::getField('wc_payment_message', '<strong>Reminder Message</strong><br />send payment reminders to admin email','textarea');
 
-            WPISPConfig3::getField('wc_recur_reminder', 'Recurring Reminder<br />(for customers)','checkbox');
-            WPISPConfig3::getField('wc_recur_test', 'Test Recurring<br />(use admin email instead)','checkbox');
-            WPISPConfig3::getField('wc_recur_message', 'Recurring Message<br />(for customers)', 'textarea');
+            WPISPConfig3::getField('wc_recur_reminder', '<strong>Recurring Reminder</strong><br />send invoices to customer based on the payment period','checkbox');
+            WPISPConfig3::getField('wc_recur_test', '<strong>Test Recurring</strong><br />replace all recipients with the admin email','checkbox');
+            WPISPConfig3::getField('wc_recur_message', '<strong>Recurring Message</strong><br />Customer will see this message and invoice is attached to', 'textarea');
             ?>
             <input type="hidden" name="wc_enable" value="1" />
         </div>
@@ -178,6 +179,11 @@ class IspconfigWcBackend extends Ispconfig {
             $result = $_POST['period'];
         } else if(!empty($_POST['payment_reminder'])) {
             $result = $this->payment_reminder();
+        } else if(!empty($_POST['recurr_reminder'])) {
+            if(!empty(WPISPConfig3::$OPTIONS['wc_recur_test']))
+                $result = $this->payment_recur_reminder();
+            else
+                $result = -2;
         }
 
         echo json_encode($result);
@@ -321,16 +327,14 @@ class IspconfigWcBackend extends Ispconfig {
     private function payment_recur_reminder(){
         global $wpdb;
 
-        if(WPISPConfig3::$OPTIONS['wc_recur_reminder'] != '1') {
+        if(empty(WPISPConfig3::$OPTIONS['wc_recur_reminder'])) {
             error_log("invoice_recur_reminder DISABLED");
-            return;
+            return -1;
         }
-
-        error_log("invoice_recur_reminder started");
 
         $res = $wpdb->get_results("SELECT p.ID,p.post_date_gmt, pm.meta_value AS payment_period FROM {$wpdb->posts} p 
                                 LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id 
-                                WHERE pm.meta_key = '_ispconfig_period' AND p.post_status = 'wc-completed'", OBJECT);
+                                WHERE p.post_type = 'shop_order' AND p.post_status = 'wc-completed' AND pm.meta_key = '_ispconfig_period'", OBJECT);
         
         // remind admin about new recurring invoices
         if(!empty($res)) {
@@ -390,6 +394,7 @@ class IspconfigWcBackend extends Ispconfig {
                 }
             }
         }
+        return 0;
     }
 
     public static function install(){
