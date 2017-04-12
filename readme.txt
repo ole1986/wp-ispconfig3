@@ -86,6 +86,12 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+= 1.1.14 = 
+* serveral SOAP reqeust improvements (session close issues)
+* added features to view websites and databases from customers in Wordpress
+* properly include product meta data into invoices
+* added button to test recurring reminders
+
 = 1.1.13 =
 * quicker access to major functions using meta box (in order) and tabs (in settings)
 
