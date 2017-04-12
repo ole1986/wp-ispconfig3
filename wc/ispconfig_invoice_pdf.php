@@ -121,7 +121,6 @@ class IspconfigInvoicePdf {
         $items = array_merge($items, $fees);
         
         foreach($items as $v){
-            //error_log(var_export($v, true));
             $product = null;
             // check if product id is available and fetch the ISPCONFIG tempalte ID
             if(!empty($v['product_id']))
@@ -170,12 +169,15 @@ class IspconfigInvoicePdf {
             $summary += $total;
             $summaryTax += $tax;
 
-            if(!empty($v['hint']))
-            {
-                $table->AddCell('');
-                $table->AddCell($v['hint']);
-                $table->AddCell('');
-                $table->AddCell('');
+            if($v instanceof WC_Order_Item_Product) {
+                $meta = $v->get_meta_data();
+                if(!empty($meta)) {
+                    $table->AddCell('');
+                    $mdcontent = "\n" . implode('',array_map(function($m){ return "<strong>".$m->key."</strong>\n".$m->value; }, $meta));
+                    $table->AddCell($mdcontent);
+                    $table->AddCell('');
+                    $table->AddCell('');
+                } 
             }
 
             $i++;
