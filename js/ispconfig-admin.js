@@ -5,19 +5,13 @@ function ISPConfigAdminClass() {
     var $ = jQuery;
     var self = this;
 
-    var jsonRequest = function (data) {
-        $.extend(data, { action: 'ispconfig_backend' });
-        return jQuery.post(ajaxurl, data, null, 'json');
-    };
-    /**
-     * Update the due date of an invoice using ajax action
-     */
-    var ajax_update_due_date = function (id, due_date) {
-        var data = { 'action': 'update_invoice_due_date', 'invoice_id': id, 'due_date': due_date };
+    var jsonRequest = function (data, action) {
+        if(!action) action = 'ispconfig_backend';
+        $.extend(data, { action: action });
         return jQuery.post(ajaxurl, data, null, 'json');
     };
 
-    /** 
+     /** 
      * confirm deletion
      */
     this.ConfirmDelete = function (obj) {
@@ -124,6 +118,17 @@ function ISPConfigAdminClass() {
             }
             alert("Recurring reminder executed");
         }).always(function () { $(obj).text(tmp); });
+    };
+
+    this.WebsiteStatus = function(obj, status){
+        var website_id = parseInt($(obj).data('id'));
+
+        if (status == 'inactive' && !confirm("Change to status to inactive cause the website to be unavailable.\nDo you really want to continue?"))
+            return;
+        
+        $(obj).hide();
+
+        jsonRequest({ website_id: website_id, status: status }, 'ispconfig_website').always(function () { document.location.reload(true); });
     };
 
     var openDateInput = function (defaultValue, onSaveCallback, onCancelCallback) {

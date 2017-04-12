@@ -140,6 +140,15 @@ class Ispconfig {
 
         return $this->soap->client_get_sites_by_user($this->session_id, $client['userid'], $client['default_group']);
     }
+
+    public function GetClientDatabases($user_name) {
+        $client = $this->GetClientByUser($user_name);
+        return $this->soap->sites_database_get_all_by_user($this->session_id, $client['client_id']);
+    }
+
+    public function SetSiteStatus($id, $status = 'active'){
+        return $this->soap->sites_web_domain_set_status($this->session_id, intval($id), $status);
+    }
     
     /**
      * SOAP: Add a new client into ISPConfig

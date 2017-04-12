@@ -43,7 +43,21 @@ class IspconfigWebsiteList extends WP_List_Table {
     }
     
     function column_default( $item, $column_name ) {
-        return $item->$column_name;
+        switch($column_name) {
+            case 'domain':
+                return '<a href="http://'.$item->$column_name.'" target="_blank">'.$item->$column_name.'</a>';
+            default:
+                return $item->$column_name;
+        }
+    }
+
+    function column_active($item){
+        if($item->active === 'y')
+            $actions = [ 'deactivate' => '<a href="javascript:void(0)" data-id="'.$item->domain_id.'" onclick="ISPConfigAdmin.WebsiteStatus(this,\'inactive\')" target="_blank">Deactivate</a>' ];
+        else
+            $actions = [ 'activate' => '<a href="javascript:void(0)" data-id="'.$item->domain_id.'" onclick="ISPConfigAdmin.WebsiteStatus(this,\'active\')" target="_blank">Activate</a>' ];
+        
+        return sprintf('%s %s', ($item->active) ? 'Yes' : 'No', $this->row_actions($actions) );
     }
     
     public function prepare_items() {
@@ -55,10 +69,8 @@ class IspconfigWebsiteList extends WP_List_Table {
         if(!empty($_GET['user_login']))
         {
             $sites = Ispconfig::$Self->withSoap()->GetClientSites($_GET['user_login']);
-            $items = json_decode(json_encode((object) $sites), FALSE);
-            $this->items = $items;
+            $this->items = json_decode(json_encode((object) $sites), FALSE);
+            Ispconfig::$Self->closeSoap();
         }
-
-        Ispconfig::$Self->closeSoap();
     }
 }

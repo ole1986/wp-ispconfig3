@@ -6,8 +6,6 @@ global $wpdb;
 
 class IspconfigWcBackend {
     public function __construct(){
-        //parent::__construct();
-        
         // enable changing the due date through ajax
         add_action( 'wp_ajax_ispconfig_backend', array(&$this, 'doAjax') );
 
@@ -242,8 +240,8 @@ class IspconfigWcBackend {
             <form action="" method="GET">
                 <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
                 <input type="hidden" name="action" value="filter" />
-                Filter Customer:
-                <select name="id">
+                <label class="post-attributes-label" for="user_login">Filter Customer:</label>
+                <select name="id" style="min-width: 200px">
                     <option value="">[any]</option>
                 <?php  
                 $users = get_users(['role' => 'customer']);

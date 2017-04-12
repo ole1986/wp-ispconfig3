@@ -92,11 +92,14 @@ if(!class_exists( 'WPISPConfig3' ) ) {
                 require_once( WPISPCONFIG3_PLUGIN_DIR . 'manage/ispconfig_website.php');
                 IspconfigWebsite::init();
             }
+            if (file_exists(WPISPCONFIG3_PLUGIN_DIR . 'manage/ispconfig_database.php'))
+            {
+                require_once( WPISPCONFIG3_PLUGIN_DIR . 'manage/ispconfig_database.php');
+                IspconfigDatabase::init();
+            }
             
             // action hook to load the scripts and style sheets (frontend)
             add_action('wp_enqueue_scripts', array($this, 'wpdocs_theme_name_scripts') );
-            
-
             
             // skip the rest if its a frontend request
             if ( ! is_admin() )	return;
@@ -133,6 +136,10 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             if (file_exists(WPISPCONFIG3_PLUGIN_DIR . 'manage/ispconfig_website.php'))
             {
                 add_submenu_page('ispconfig3_menu', __('Websites', 'wp-ispconfig3'), __('Websites', 'wp-ispconfig3'), 'edit_themes', 'ispconfig_websites',  array('IspconfigWebsite', 'DisplayWebsites') );
+            }
+            if (file_exists(WPISPCONFIG3_PLUGIN_DIR . 'manage/ispconfig_database.php'))
+            {
+                add_submenu_page('ispconfig3_menu', __('Databases', 'wp-ispconfig3'), __('Databases', 'wp-ispconfig3'), 'edit_themes', 'ispconfig_databases',  array('IspconfigDatabase', 'DisplayDatabases') );
             }
         }
         
