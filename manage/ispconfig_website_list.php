@@ -57,7 +57,7 @@ class IspconfigWebsiteList extends WP_List_Table {
         else
             $actions = [ 'activate' => '<a href="javascript:void(0)" data-id="'.$item->domain_id.'" onclick="ISPConfigAdmin.WebsiteStatus(this,\'active\')" target="_blank">Activate</a>' ];
         
-        return sprintf('%s %s', ($item->active) ? 'Yes' : 'No', $this->row_actions($actions) );
+        return sprintf('%s %s', ($item->active == 'y') ? 'Yes' : 'No', $this->row_actions($actions) );
     }
     
     public function prepare_items() {
