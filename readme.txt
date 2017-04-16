@@ -86,6 +86,10 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+= 1.1.15 =
+* fixed: active status does not change when deactive websites
+* updated pdf library fixing possible issues with png images
+
 = 1.1.14 = 
 * serveral SOAP reqeust improvements (session close issues)
 * added features to view websites and databases from customers in Wordpress
