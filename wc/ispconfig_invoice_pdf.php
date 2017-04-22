@@ -54,7 +54,7 @@ class IspconfigInvoicePdf {
         // Logo
         if(file_exists(WPISPCONFIG3_PLUGIN_DIR . '/' . WPISPConfig3::$OPTIONS['wc_pdf_logo'])) {
             $logo = $pdf->NewAppearance();
-            $logo->AddImage('right',790, WPISPCONFIG3_PLUGIN_DIR . '/' . WPISPConfig3::$OPTIONS['wc_pdf_logo'], 280);
+            $logo->AddImage('right',-30, WPISPCONFIG3_PLUGIN_DIR . '/' . WPISPConfig3::$OPTIONS['wc_pdf_logo'], 280);
         }
                 
         // billing info
