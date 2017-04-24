@@ -155,6 +155,10 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+
+= 1.1.17 =
+* hotfix: corrected static method error and class inheritance
+
 = 1.1.16 =
 * updated pdf library
 * updated readme.txt
