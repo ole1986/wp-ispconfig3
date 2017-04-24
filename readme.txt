@@ -155,6 +155,10 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+= 1.1.16 =
+* updated pdf library
+* updated readme.txt
+
 = 1.1.15 =
 * fixed: active status does not change when deactive websites
 * updated pdf library fixing possible issues with png images
