@@ -6,6 +6,7 @@ defined( 'ABSPATH' ) || exit;
  * Free registration form example
  */
 class IspconfigRegisterFree {
+    public static $Self;
     /**
      * Used to provide subdomain registration instead of domain registration in frontend using the below template ID
      */
@@ -17,7 +18,11 @@ class IspconfigRegisterFree {
      * List of Client Limit Template from ISPConfig 
      */
     public $products = [];
-       
+    
+    public static function init(){
+        self::$Self = new self();
+    }
+
     public function __construct(){
         // contains any of the below word is forbidden in username
         $this->forbiddenUserEx = 'www|mail|ftp|smtp|imap|download|upload|image|service|offline|online|admin|root|username|webmail|blog|help|support';
