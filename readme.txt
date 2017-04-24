@@ -19,8 +19,7 @@ The ISPConfig 3 plugin allows you to create clients, websites, shell users into 
 * use registration forms to create sites, accounts, etc. (shortcode: [ispconfig class=IspconfigRegisterClient] or [ispconfig class=IspconfigRegisterFree])
 * quickly build a registration form yourself with a single PHP file (details below)
 * extend you WooCommerce shoping cart with "Webspace" products
-
-**FREE PREMIUM: INVOICE MODULE** (WooCommerce plugin required)
+* Incuding "INVOICE MODULE" (WooCommerce required)
 
 Extend your "Webspace" products with an INVOICE MODULE
 
@@ -30,17 +29,7 @@ Extend your "Webspace" products with an INVOICE MODULE
 * display invoices in customers "My Account" frontend 
 * automated recurring payment reminders to customers
 
-= Build your own registration form =
-
-* copy one of the existing files (`ispconfig_register_client.php` or `ispconfig_register_free.php`)
-* change the php class name to "IspconfigYourClass" for example
-* rename the file to "ispconfig_your_class.php".
-* customize the file with your needs.
-* use the shortcode `[ispconfig class=IspconfigYourClass]` to display its content
-
-**PLEASE NOTE**
-
-The autoload function uses CamelCase style to include the php classes. So, `IspconfigYourClass` will be converted to `ispconfig_your_class.php`
+**Check out the Installation instruction for more details**
 
 == Installation ==
 
@@ -48,24 +37,104 @@ The autoload function uses CamelCase style to include the php classes. So, `Ispc
 * Press Install followed by activate
 * Setup the plugin as mentioned below in the Configuration section 
 
-= Configuration =
+**Configuration**
 
-*SOAP Setup*
+It is required to configure the plugin in the ISPConfig Panel as well as in the plugin settings (wordpress).
 
-In ISPConfig3
+= ISPConfig3 Control panel =
 
 * Open the ISPConfig Control Panel with your favorite browser and login as administrator.
 * Navigate to `System -> User Management -> Remote User`
 * Add a new remote user with a secure password
 
-In Wordpress
+= Plugin settings =
 
-once you have activated the wp-ispconfig3 plugin, please navigate to the `WP-ISPConfig 3 -> Settings` menu and setup the SOAP information
+* Log into your wordpress page as administrator and switch to the backend
+* Active the plugin (if not done yet)
+* Open `WP-ISPConfig 3 -> Settings` from the backend
+* Fill in ISPConfig information as following (replace localhost with the host the REST API is running)
 
 `SOAP Username: remoteuser`
 `SOAP Password: remoteuserpass`
 `SOAP Location: http://localhost:8080/remote/index.php`
 `SOAP URI: http://localhost:8080/remote/`
+
+**Customize the plugin**
+
+You can extend the plugin with your own registration form by using PHP only inside the plugin folder (E.g. wp-content/plugins/wp-ispconfig3/).
+
+*Experience with PHP OOP is recommended*
+
+The simpliest way to build your on registration form is to copy one of the existing shortcode classes (either "ispconfig_register_client.php" or "ispconfig_register_free.php").
+In this examples we will use the "ispconfig_register_client.php".
+
+* Copy the "ispconfig_register_client.php" into "ispconfig_register_custom.php"
+* Open the "ispconfig_register_custom.php" and rename the class name in line 8 to "IspconfigRegisterCustom"
+* Replace or amend the method "Display($opt = null)" with your needs
+* Replace or amend the method "onPost()" to manage the page post request
+* Place a page using the shortcode "[ispconfig class=IspconfigRegisterCustom]" to display the form
+
+Below is a minimal version to register a client user with a website.
+
+
+`
+class IspconfigRegisterCustom {
+    public static $Self;
+
+    public static function init() {
+        if(!self::$Self) self::$Self = new self();
+    }
+    
+    /**
+     * Called when user submits the data from register form - see Ispconfig::Display() for more details
+     */
+    protected function onPost(){
+        if ( 'POST' !== $_SERVER[ 'REQUEST_METHOD' ] ) return;
+        
+        $opt = ['username' => $_POST['username'], 'password' => $_POST['password'], 'domain'   => $_POST['domain']];
+
+        try{
+            $client = Ispconfig::$Self->withSoap();
+            // check if the client name already exist in ISPConfig           
+            $client = Ispconfig::$Self->GetClientByUser($opt['username']);
+            if(!empty($client)) throw new Exception('The user already exist. Please choice a different name');
+
+            // add the customer
+            Ispconfig::$Self->AddClient($opt)
+                            ->AddWebsite( ['domain' => $opt['domain'], 'password' => $opt['password']] );
+            
+            echo "<div class='ispconfig-msg ispconfig-msg-success'>" . sprintf(__('Your account %s has been created', 'wp-ispconfig3'), $opt['username']) ."</div>";
+
+            Ispconfig::$Self->closeSoap();
+        } catch (SoapFault $e) {
+            //WPISPConfig3::soap->__getLastResponse();
+            echo '<div class="ispconfig-msg ispconfig-msg-error">SOAP Error: '.$e->getMessage() .'</div>';
+        } catch (Exception $e) {
+            echo '<div class="ispconfig-msg ispconfig-msg-error">Exception: '.$e->getMessage() . "</div>";
+        }
+    }
+    
+    /**
+     * Use the shortcode "[ispconfig class=IspconfigRegisterCustom]" to display the form
+     */
+    public function Display($opt = null){
+        
+        ?>
+        <div class="wrap">
+            <?php $this->onPost(); ?>
+            <form method="post" class="ispconfig" action="">
+            <?php
+                WPISPConfig3::getField('username', 'User:', 'text', ['container' => 'div']);
+                WPISPConfig3::getField('password', 'Pass:', 'text', ['container' => 'div']);
+                WPISPConfig3::getField('domain', 'Domain:', 'text', ['container' => 'div']);
+            ?>
+            <p><input type="submit" class="button-primary" name="submit" value="Submit" /></p>
+            </form>
+        </div>
+        <?php
+    }
+}
+`
 
 == Screenshots ==
 
