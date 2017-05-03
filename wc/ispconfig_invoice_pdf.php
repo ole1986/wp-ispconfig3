@@ -226,7 +226,8 @@ class IspconfigInvoicePdf {
         if(!$invoice->ID) die("Invoice not found");
 
         // invoice has been defined but user does not have the cap to display it
-        if($invoice->customer_id != $current_user->get_id() && !current_user_can('ispconfig_invoice')) die("You are not allowed to view invoices: Cap 'ispconfig_invoice' not set");
+        if(!current_user_can('ispconfig_invoice')) die("You are not allowed to view invoices: Cap 'ispconfig_invoice' not set");
+        if(!current_user_can('manage_options') && $invoice->customer_id != $current_user->ID) die("You are not allowed to open this invoice (Customer: {$invoice->customer_id} / ID: {$invoice->ID})");
         
         if(isset($_GET['preview'])) {
             //$order = new WC_Order($res['wc_order_id']);
