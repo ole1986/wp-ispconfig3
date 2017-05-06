@@ -158,6 +158,8 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+= 1.1.18 =
+* fixed security issue allowing customers open other invoices 
 
 = 1.1.17 =
 * hotfix: corrected static method error and class inheritance
