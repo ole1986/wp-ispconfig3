@@ -255,7 +255,7 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             else if($type == 'textarea') 
                 echo '<textarea name="'.$name.'" style="width:25em;height: 150px" '.$attrStr.'>'  . strip_tags($optValue) . '</textarea>';
             else if($type == 'checkbox')
-                echo '<input type="'.$type.'" name="'.$name.'" value="1"' . (($optValue == '1')?'checked':'') .''.$attrStr.' />';
+                echo '<input type="'.$type.'" name="'.$name.'" value="1"' . (($optValue == '1')?'checked':'') .' />';
             else if($type == 'rte') {
                 echo '<div '.$attrStr.'>';
                 wp_editor($optValue, $name, ['teeny' => true, 'editor_height'=>200, 'media_buttons' => false]);

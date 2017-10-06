@@ -138,8 +138,14 @@ class IspconfigWcBackend {
             <?php else: ?>
                 <div class="notice notice-error"><p>The scheduled task is NOT INSTALLED - Try to reactivate the plugin</p></div>
             <?php endif; ?>
-            <p><a href="javascript:void(0)" onclick="ISPConfigAdmin.RunReminder(this)" class="button">Run Payment Reminder</a></p>
-            <p><a href="javascript:void(0)" onclick="ISPConfigAdmin.RunRecurrReminder(this)" class="button">Test Recurr Reminder</a></p>
+            <p>
+                <a href="javascript:void(0)" onclick="ISPConfigAdmin.RunReminder(this)" class="button">Run Payment Reminder</a><br />
+                Execute the payment reminder being sent to <strong>Admin Email</strong>.<br />This reminder usually occurs DAILY whenever an invoice is due.
+            </p>
+            <p>
+                <a href="javascript:void(0)" onclick="ISPConfigAdmin.RunRecurrReminder(this)" class="button">Test Recurr Reminder</a><br />
+                Test the recurring reminder (which is usually send to customer)<br />by overwriting the recipient addresses to <strong>Admin Email</strong>
+            </p>
             <?php
             WPISPConfig3::getField('wc_mail_reminder', '<strong>Admin Email</strong><br />used for payment reminders and testing purposes');
             WPISPConfig3::getField('wc_mail_sender', '<strong>Sender Email</strong><br />Customer will see this address');
