@@ -2,7 +2,7 @@
 /*
  * Plugin Name: WP-ISPConfig3
  * Description: ISPConfig3 plugin allows you to register customers through wordpress frontend using shortcodes.
- * Version: 1.1.18
+ * Version: 1.1.19
  * Author: ole1986 <ole.k@web.de>
  * Author URI: https://github.com/ole1986/wp-ispconfig3
  * Text Domain: wp-ispconfig3
@@ -217,8 +217,8 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             $xargs = [  'container' => 'p', 
                         'required' => false,
                         'attr' => [], 
-                        'label_attr' => ['style' => 'width: 200px; display:inline-block;vertical-align:top;'], 
-                        'input_attr' => []
+                        'label_attr' => ['style' => 'width: 160px; display:inline-block;vertical-align:top;'], 
+                        'input_attr' => ['style' => 'width: 340px']
                     ];
 
             if($type == null) $type = 'text';
@@ -250,11 +250,10 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             else
                 $optValue = '';
 
-            if($type == 'text' || $type == 'password')
+            if($type == 'text' || $type == 'password' || $type == 'email')
                 echo '<input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.$optValue.'"'.$attrStr.' />';
-            else if($type == 'textarea') {
+            else if($type == 'textarea') 
                 echo '<textarea name="'.$name.'" style="width:25em;height: 150px" '.$attrStr.'>'  . strip_tags($optValue) . '</textarea>';
-            }
             else if($type == 'checkbox')
                 echo '<input type="'.$type.'" name="'.$name.'" value="1"' . (($optValue == '1')?'checked':'') .''.$attrStr.' />';
             else if($type == 'rte') {

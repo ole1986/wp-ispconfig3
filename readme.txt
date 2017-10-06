@@ -3,7 +3,7 @@ Contributors: ole1986
 Tags:  host, ISPConfig, hosting, remote, manager, admin, panel, control, wordpress, post, plugin, interface, server
 Donate link: https://www.paypal.com/cgi-bin/webscr?item_name=Donation+WP-ISPConfig3&cmd=_donations&business=ole.k@web.de
 Requires at least: 3.1
-Tested up to: 4.7
+Tested up to: 4.8
 Stable tag: trunk
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -157,6 +157,10 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with WP Nofollow More Links. If not, see <http://www.gnu.org/licenses/>.
 
 == Changelog ==
+
+= 1.1.19 =
+* checked compatibility with WP 4.8 and WC 3.1.2
+* updated pdf library (encryption issue)
 
 = 1.1.18 =
 * fixed security issue allowing customers open other invoices 

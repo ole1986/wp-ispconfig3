@@ -136,9 +136,7 @@ class IspconfigRegisterFree extends Ispconfig {
                                                     $s = (isset($_GET['product']) && $_GET['product'] == $k)?'selected':'';
                                                     $free = ($k == self::$FreeTemplateID)?'data-isfree="1"':'';
                                                     echo '<option value="'.$k.'" '.$s.' '.$free.'>'.$v['template_name'].'</option>';
-                                                }
-                                                
-                                                    
+                                                }   
                                             ?>
                                         </select>
                                     </div>
@@ -149,23 +147,20 @@ class IspconfigRegisterFree extends Ispconfig {
                                     <div id="subdomain" style="margin-left: 0.3em;margin-bottom: 0.5em;font-weight: bold;">
                                         <label>Subdomain:</label><span style="font-weight: normal;">http://</span><span id="domain_part">username</span><span style="font-weight: normal;">.<?php echo WPISPConfig3::$OPTIONS['default_domain']; ?></span>
                                     </div>
-                                    <div>
+                                    <div style="margin-left: .2em">
                                     <?php
-                                        $attr = ['style' => 'display:inline-block'];
-                                        $attr2 = ['style' => 'display:inline-block;margin-left:0.4em'];
-
-                                        WPISPConfig3::getField('client', 'Full name:',null, ['container' => 'div','attr'=> $attr,'required' => true]);
-                                        WPISPConfig3::getField('company', 'Company:', null, ['container' => 'div', 'attr'=> $attr2 ]);
-                                        WPISPConfig3::getField('street', 'Street', null, ['container' => 'div','attr'=> $attr, 'required' => true]);
+                                        WPISPConfig3::getField('client', 'Full name:',null, ['container' => 'div','required' => true]);
+                                        WPISPConfig3::getField('company', 'Company:', null, ['container' => 'div']);
+                                        WPISPConfig3::getField('street', 'Street', null, ['container' => 'div', 'required' => true]);
                                         echo "<div style='height:1px'>&nbsp;</div>";
-                                        WPISPConfig3::getField('zipcode', 'Postal code', null, ['container' => 'div', 'attr'=> $attr]);
-                                        WPISPConfig3::getField('city', 'City', null, ['container' => 'div','attr'=> $attr2, 'required' => true]);
-                                        WPISPConfig3::getField('email', 'e-Mail:', null, ['container' => 'div','attr'=> $attr, 'required' => true]);
-                                        WPISPConfig3::getField('email_confirm', 'e-Mail confirm:', null, ['container' => 'div', 'attr'=> $attr2, 'required' => true]);
+                                        WPISPConfig3::getField('zipcode', 'Postal code', null, ['container' => 'div']);
+                                        WPISPConfig3::getField('city', 'City', null, ['container' => 'div', 'required' => true]);
+                                        WPISPConfig3::getField('email', 'e-Mail:', 'email', ['container' => 'div', 'required' => true]);
+                                        WPISPConfig3::getField('email_confirm', 'e-Mail confirm:', 'email', ['container' => 'div',  'required' => true]);
                                         WPISPConfig3::getField('username', 'Username:', null, ['container' => 'div', 'required' => true, 'input_attr' => ['maxLength' => 20, 'data-ispconfig-subdomain' => '1']]);
                                         echo "<div style='height:1px'>&nbsp;</div>";
-                                        WPISPConfig3::getField('password', 'Password:', 'password', ['container' => 'div','attr'=> $attr, 'required' => true]);
-                                        WPISPConfig3::getField('password_confirm', 'Password confirm:', 'password', ['container' => 'div','attr'=> $attr2, 'required' => true]);
+                                        WPISPConfig3::getField('password', 'Password:', 'password', ['container' => 'div', 'required' => true]);
+                                        WPISPConfig3::getField('password_confirm', 'Password confirm:', 'password', ['container' => 'div', 'required' => true]);
                                     ?>
                                 </div>
                                 <div>&nbsp;</div>
