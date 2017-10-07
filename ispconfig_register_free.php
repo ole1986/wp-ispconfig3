@@ -89,7 +89,7 @@ class IspconfigRegisterFree extends Ispconfig {
             echo "<div class='ispconfig-msg'>" . __('You can now login here', 'wp-ispconfig3') .": <a href=\"https://".$_SERVER['HTTP_HOST'].":8080/\">click</a></div>";
             
         } catch (SoapFault $e) {
-            echo '<div class="ispconfig-msg ispconfig-msg-error">SOAP Error: '. $e->getMessage() . $e->getTraceAsString() .'</div>';
+            echo '<div class="ispconfig-msg ispconfig-msg-error">SOAP Error: '. $e->getMessage() .'</div>';
         } catch (Exception $e) {
             echo '<div class="ispconfig-msg ispconfig-msg-error">'. $e->getMessage() . "</div>";
             $_POST['password'] = $_POST['password_confirm'] = '';
