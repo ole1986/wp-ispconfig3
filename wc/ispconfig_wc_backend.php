@@ -105,8 +105,11 @@ class IspconfigWcBackend {
     }
 
     public function ispconfig_option_tabs(){
-        echo '<li class="hide-if-no-js"><a href="#ispconfig-invoice">'. __('Invoices', 'wp-ispconfig3') .'</a></li>';
-        echo '<li class="hide-if-no-js"><a href="#ispconfig-scheduler">'. __('Task Scheduler', 'wp-ispconfig3') .'</a></li>';
+        ?>
+        <li class="hide-if-no-js"><a href="#ispconfig-invoice"><?php _e('Invoices', 'wp-ispconfig3')?></a></li>
+        <li class="hide-if-no-js"><a href="#ispconfig-scheduler"><?php _e('Task Scheduler', 'wp-ispconfig3') ?></a></li>
+        <li class="hide-if-no-js"><a href="#ispconfig-template"><?php _e('Templates', 'wp-ispconfig3') ?></a></li>
+        <?php
     }
 
     /**
@@ -119,7 +122,7 @@ class IspconfigWcBackend {
         }
         ?>
         <div id="ispconfig-invoice" class="inside tabs-panel" style="display: none;">
-            <h3><?php _e('Invoices', 'wp-ispconfig3') ?></h3>
+            <h3><?php _e('Invoice template (PDF)', 'wp-ispconfig3') ?></h3>
             <?php
             WPISPConfig3::getField('wc_pdf_title', 'Document Title');
             WPISPConfig3::getField('wc_pdf_logo', 'Logo Image');
@@ -132,7 +135,7 @@ class IspconfigWcBackend {
             ?>
         </div>
         <div id="ispconfig-scheduler" class="inside tabs-panel" style="display: none;">
-            <h3><?php _e('Task Scheduler', 'wp-ispconfig3') ?></h3>
+            <h3><?php _e('Run commands', 'wp-ispconfig3') ?></h3>
             <?php if( wp_get_schedule( 'invoice_reminder' )): ?>
                 <div class="notice notice-success"><p>The scheduled task is properly installed and running</p></div>
             <?php else: ?>
@@ -143,19 +146,45 @@ class IspconfigWcBackend {
                 Execute the payment reminder being sent to <strong>Admin Email</strong>.<br />This reminder usually occurs DAILY whenever an invoice is due.
             </p>
             <p>
-                <a href="javascript:void(0)" onclick="ISPConfigAdmin.RunRecurrReminder(this)" class="button">Test Recurr Reminder</a><br />
-                Test the recurring reminder (which is usually send to customer)<br />by overwriting the recipient addresses to <strong>Admin Email</strong>
+                <a href="javascript:void(0)" onclick="ISPConfigAdmin.RunRecurr(this)" class="button">Test Recurr Payment</a><br />
+                Test the recurring payments (which is usually send to customer)<br />by overwriting the recipient addresses to <strong>Admin Email</strong>
             </p>
+            <p>
+                <a href="javascript:void(0)" onclick="ISPConfigAdmin.RunRecurrReminder(this)" class="button">Run Recurr Reminder</a><br />
+                Run the recurring reminder now
+            </p>
+            <h3><?php _e('Sender info', 'wp-ispconfig3') ?></h3>
             <?php
             WPISPConfig3::getField('wc_mail_reminder', '<strong>Admin Email</strong><br />used for payment reminders and testing purposes');
             WPISPConfig3::getField('wc_mail_sender', '<strong>Sender Email</strong><br />Customer will see this address');
-
-            WPISPConfig3::getField('wc_payment_reminder', '<strong>Payment Reminder</strong><br />(' . WPISPConfig3::$OPTIONS['wc_mail_reminder'] . ')','checkbox');
-            WPISPConfig3::getField('wc_payment_message', '<strong>Reminder Message</strong><br />send payment reminders to admin email','textarea');
-
-            WPISPConfig3::getField('wc_recur_reminder', '<strong>Recurring Reminder</strong><br />send invoices to customer based on the payment period','checkbox');
-            WPISPConfig3::getField('wc_recur_test', '<strong>Test Recurring</strong><br />replace all recipients with the admin email','checkbox');
-            WPISPConfig3::getField('wc_recur_message', '<strong>Recurring Message</strong><br />Customer will see this message and invoice is attached to', 'textarea');
+            ?>
+            <h3><?php _e('Payments', 'wp-ispconfig3') ?></h3>
+            <?php
+            WPISPConfig3::getField('wc_payment_reminder', '<strong>'. __('Payment report', 'wp-ispconfig3') .'</strong><br />send a daily report of unpaid invoices to "Admin Email"','checkbox');
+            WPISPConfig3::getField('wc_recur', '<strong>' . __('Recurring payments', 'wp-ispconfig3').'</strong><br />Submit every invoice to the customer based on the recurring payment period','checkbox');
+            WPISPConfig3::getField('wc_recur_test', '<span style="color: red; font-weight: bold">Test Recurring</span><br />replace the recipient email with the admin email to test recurring PAYMENTS and REMINDERS','checkbox');
+            WPISPConfig3::getField('wc_recur_reminder', '<strong>'. __('Payment reminder', 'wp-ispconfig3').'</strong><br />Send payment reminders to customer when invoice is due','checkbox');
+            WPISPConfig3::getField('wc_recur_reminder_age', '<strong>' . __('First reminder (days)', 'wp-ispconfig3') . '</strong><br />The number of days (after due date) when a reminder should be sent to customer');
+            WPISPConfig3::getField('wc_recur_reminder_interval', '<strong>'. __('Reminder interval', 'wp-ispconfig3') .'</strong><br />The number of days (after first occurence) a reminder should be resent to customer');
+            WPISPConfig3::getField('wc_recur_reminder_max', '<strong>'. __('Max reminders', 'wp-ispconfig3') .'</strong><br />How many reminders should be sent for a single invoice to the customer');
+            ?>
+            <input type="hidden" name="wc_enable" value="1" />
+        </div>
+        <div id="ispconfig-template" class="inside tabs-panel" style="display: none;">
+            <h3><?php _e('Templates', 'wp-ispconfig3') ?></h3>
+            <p>
+                Customize your templates being sent internally or to the customer<br />
+                <strong>PLEASE NOTE: The changes will immediatly take effect once you pressed "Save"</strong>
+            </p>
+            <h3><?php _e('Payments', 'wp-ispconfig3') ?></h3>
+            <?php
+            $attr = [
+                'label_attr' => [ 'style' => 'width: 200px; display:inline-block;vertical-align:top;'],
+                'input_attr' => ['style' => 'margin-left: 1em; width:50em;height: 200px']
+            ];
+            WPISPConfig3::getField('wc_payment_message', '<strong>'. __('Payment report', 'wp-ispconfig3') .'</strong><br />Inform the administrator (see "Admin Email") about outstanding invoices','textarea', $attr);
+            WPISPConfig3::getField('wc_recur_message', '<strong>' . __('Recurring payments', 'wp-ispconfig3').'</strong><br />Submit the recurring invoice to the customer containing this message', 'textarea', $attr);
+            WPISPConfig3::getField('wc_recur_reminder_message', '<strong>'. __('Payment reminder', 'wp-ispconfig3').'</strong><br />Submit the recurring invoice to the customer containing this message', 'textarea', $attr);
             ?>
             <input type="hidden" name="wc_enable" value="1" />
         </div>
@@ -183,11 +212,13 @@ class IspconfigWcBackend {
             $result = $_POST['period'];
         } else if(!empty($_POST['payment_reminder'])) {
             $result = $this->payment_reminder();
-        } else if(!empty($_POST['recurr_reminder'])) {
+        } else if(!empty($_POST['recurr'])) {
             if(!empty(WPISPConfig3::$OPTIONS['wc_recur_test']))
-                $result = $this->payment_recur_reminder();
+                $result = $this->payment_recur();
             else
                 $result = -2;
+        } else if(!empty($_POST['recurr_reminder'])) {
+            $result = $this->payment_recur_reminder();
         }
 
         echo json_encode($result);
@@ -273,17 +304,21 @@ class IspconfigWcBackend {
         
     public function invoice_reminder(){
         $this->payment_reminder();
+        $this->payment_recur();
         $this->payment_recur_reminder();
     }
 
     /**
-     * SCHEDULE: Daily reminder on invoices reached the due date
+     * SCHEDULE: Daily reminder for administrators on invoices which are due
      */
     private function payment_reminder(){
         global $wpdb;
 
-        if(WPISPConfig3::$OPTIONS['wc_payment_reminder'] != '1')
+        if(empty(WPISPConfig3::$OPTIONS['wc_payment_reminder'])) {
+            error_log("WARNING: Payment reminder for adminstrators is disabled");
             return -1;
+        }
+            
 
         if(!filter_var(WPISPConfig3::$OPTIONS['wc_mail_reminder'], FILTER_VALIDATE_EMAIL))
             return -2;
@@ -326,13 +361,13 @@ class IspconfigWcBackend {
     }
 
     /**
-     * SCHEDULE: Reminder on recurring invoices (month/year) - daily checked
+     * SCHEDULE: Submit the recurring invoices (based on the period) to customers email address (daily checked)
      */
-    private function payment_recur_reminder(){
+    private function payment_recur(){
         global $wpdb;
 
-        if(empty(WPISPConfig3::$OPTIONS['wc_recur_reminder'])) {
-            error_log("invoice_recur_reminder DISABLED");
+        if(empty(WPISPConfig3::$OPTIONS['wc_recur'])) {
+            error_log("WARNING: Recurring payment submission is disabled");
             return -1;
         }
 
@@ -342,8 +377,6 @@ class IspconfigWcBackend {
         
         // remind admin about new recurring invoices
         if(!empty($res)) {
-            $reminders = 0;
-            
             $curDate = new DateTime();
 
             $messageBody = WPISPConfig3::$OPTIONS['wc_recur_message'];
@@ -375,10 +408,10 @@ class IspconfigWcBackend {
                     });
 
                     // CHECK IF IT IS TEST - DO NOT SEND TO CUSTOMER THEN
-                    if(WPISPConfig3::$OPTIONS['wc_recur_test'])
+                    if(!empty(WPISPConfig3::$OPTIONS['wc_recur_test']))
                         $recipient = WPISPConfig3::$OPTIONS['wc_mail_reminder'];
                     else
-                        $recipient = $order->billing_email;
+                        $recipient = $order->get_billing_email();
                     error_log("invoice_recur_reminder - Sending invoice ".$invoice->invoice_number." to: " . $recipient);
 
                     $success = wp_mail($recipient, 
@@ -388,16 +421,85 @@ class IspconfigWcBackend {
                     
                     if($success)
                     {
-                        
                         $invoice->Submitted();
 
                         $invoice->Save();
                         $order->add_order_note("Invoice ".$invoice->invoice_number." sent to: " . $recipient);
-                        $reminders++;
                     }
                 }
             }
         }
+        return 0;
+    }
+    /**
+     * SCHEDULE: Recurring reminder being sent to customer when due date is older "wc_recur_reminder_age"
+     */
+    private function payment_recur_reminder() {
+        global $wpdb;
+        
+        if(empty(WPISPConfig3::$OPTIONS['wc_recur_reminder'])) {
+            error_log("WARNING: Recurring reminder on due invoices is disabled");
+            return -1;
+        }
+
+        $age = intval(WPISPConfig3::$OPTIONS['wc_recur_reminder_age']);
+        $interval = intval(WPISPConfig3::$OPTIONS['wc_recur_reminder_interval']);
+
+        $max = intval(WPISPConfig3::$OPTIONS['wc_recur_reminder_max']);
+
+        $messageBody = WPISPConfig3::$OPTIONS['wc_recur_reminder_message'];
+
+        // fetch all invoices which have status = Sent (ignore all invoice which are already marked as paid)
+        $sql = "SELECT * FROM {$wpdb->prefix}".IspconfigInvoice::TABLE." WHERE `status` = 1 AND DATE_ADD(NOW(), INTERVAL -{$age} DAY) > due_date AND reminder_sent < $max";
+
+        $res = $wpdb->get_results($sql, OBJECT);
+
+        if(!empty($res)) {
+            foreach ($res as $v) {
+                $due_date = new DateTime($v->due_date);
+                $due_date->add(new DateInterval("P{$age}D"));
+
+                $diff  = $due_date->diff(new DateTime());
+                $diffDays = intval($diff->format("%a"));
+                $rest = $diffDays % $interval;
+
+                if($rest > 0) {
+                    error_log("Skipping recurring reminder for {$v->invoice_number}");
+                    continue;
+                }
+
+                $v->reminder_sent++;
+
+                $order = new WC_Order($v->wc_order_id);
+
+                if(!empty(WPISPConfig3::$OPTIONS['wc_recur_test']))
+                    $recipient = WPISPConfig3::$OPTIONS['wc_mail_reminder'];
+                else
+                    $recipient = $order->get_billing_email();
+                
+                
+                error_log("Sending recurring reminder for {$v->invoice_number} to $recipient | DIFF: $diffDays | REST: $rest");
+
+                // attach invoice pdf into php mailer
+                add_action('phpmailer_init', function($phpmailer) use($v){
+                    $phpmailer->clearAttachments();
+                    $phpmailer->AddStringAttachment($v->document, $v->invoice_number . '.pdf');
+                });
+
+                $success = wp_mail($recipient, 
+                    __('Payment reminder', 'wp-ispconfig3') . ' ' . $v->invoice_number,
+                    sprintf($messageBody, $v->invoice_number),
+                    'From: '. WPISPConfig3::$OPTIONS['wc_mail_sender']
+                );
+        
+                if($success)
+                {
+                    $order->add_order_note("Invoice reminder #{$v->reminder_sent} for ".$v->invoice_number." sent to " . $recipient);
+                    $wpdb->query( $wpdb->prepare("UPDATE {$wpdb->prefix}".IspconfigInvoice::TABLE." SET reminder_sent = {$v->reminder_sent} WHERE ID = %s", $v->ID ) );
+                }
+            }
+        }
+
         return 0;
     }
 

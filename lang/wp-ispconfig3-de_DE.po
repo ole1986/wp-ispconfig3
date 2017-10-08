@@ -80,8 +80,47 @@ msgstr "Ein Aufgabenplaner versendet die Rechnung an '%s'"
 msgid "General"
 msgstr "Allgemein"
 
+msgid "Account creation"
+msgstr "Kontoerstellung"
+
 msgid "Task Scheduler"
 msgstr "Aufgabenplaner"
+
+msgid "Run commands"
+msgstr "Kommandos ausführen"
+
+msgid "Sender info"
+msgstr "Absenderinformationen"
+
+msgid "Templates"
+msgstr "Vorlagen"
+
+msgid "Payments"
+msgstr "Zahlungen"
+
+msgid "Invoice template (PDF)"
+msgstr "Rechnungsvorlage (PDF)"
+
+msgid "Payment reminder"
+msgstr "Zahlungserinnerung"
+
+msgid "%s reminders sent"
+msgstr "%s Erinnerungen versendet"
+
+msgid "Recurring payments"
+msgstr "Regelmäßige Zahlungen"
+
+msgid "Payment report"
+msgstr "Zahlungsbericht"
+
+msgid "First reminder (days)"
+msgstr "Erste Erinnerung (tage)"
+
+msgid "Reminder interval"
+msgstr "Erinnerungsinterval"
+
+msgid "Max reminders"
+msgstr "Maximale Erinnerungen"
 
 msgid "yearly"
 msgstr "jährlich"

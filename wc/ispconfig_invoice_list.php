@@ -101,7 +101,10 @@ class ISPConfigInvoiceList extends WP_List_Table {
     }
 
     function column_due_date($item){
-        return '<a href="javascript:void(0)" data-id="'.$item->ID.'" onclick="ISPConfigAdmin.EditDueDate(this)">'.$item->due_date.'</a>';
+        $result = '<a href="javascript:void(0)" data-id="'.$item->ID.'" onclick="ISPConfigAdmin.EditDueDate(this)">'.$item->due_date.'</a>';
+        if($item->reminder_sent > 0)
+        $result.= "<br />" . sprintf(__('%s reminders sent', 'wp-ispconfig3'), $item->reminder_sent);
+        return $result;
     }
 
     function column_paid_date($item) {

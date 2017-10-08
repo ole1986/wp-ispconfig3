@@ -2,7 +2,7 @@
 /*
  * Plugin Name: WP-ISPConfig3
  * Description: ISPConfig3 plugin allows you to register customers through wordpress frontend using shortcodes.
- * Version: 1.1.19
+ * Version: 1.2.0
  * Author: ole1986 <ole.k@web.de>
  * Author URI: https://github.com/ole1986/wp-ispconfig3
  * Text Domain: wp-ispconfig3
@@ -180,15 +180,14 @@ if(!class_exists( 'WPISPConfig3' ) ) {
                             </ul>
                             <div class="postbox inside">
                                 <div id="ispconfig-general" class="inside tabs-panel" style="display: block;">
-                                    <h3><?php _e('General', 'wp-ispconfig3') ?></h3>
-                                    <h4><?php _e( 'SOAP Settings', 'wp-ispconfig3') ?></h4>
+                                    <h3><?php _e( 'SOAP Settings', 'wp-ispconfig3') ?></h3>
                                      <?php 
                                         self::getField('soapusername', 'SOAP Username:');
                                         self::getField('soappassword', 'SOAP Password:', 'password');
                                         self::getField('soap_location', 'SOAP Location:');
                                         self::getField('soap_uri', 'SOAP URI:');
                                     ?>
-                                    <h4>Account creation</h4>
+                                    <h3><?php _e('Account creation', 'wp-ispconfig3') ?></h3>
                                     <?php
                                         self::getField('confirm', 'Send Confirmation','checkbox');
                                         self::getField('confirm_subject', 'Confirmation subject');
@@ -217,8 +216,9 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             $xargs = [  'container' => 'p', 
                         'required' => false,
                         'attr' => [], 
-                        'label_attr' => ['style' => 'width: 160px; display:inline-block;vertical-align:top;'], 
-                        'input_attr' => ['style' => 'width: 340px']
+                        'label_attr' => ['style' => 'width: 220px; display:inline-block;vertical-align:top;'], 
+                        'input_attr' => ['style' => 'width: 340px'],
+                        'value' => ''
                     ];
 
             if($type == null) $type = 'text';
@@ -248,12 +248,14 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             if(isset(self::$OPTIONS[$name]))
                 $optValue = self::$OPTIONS[$name];
             else
-                $optValue = '';
+                $optValue = $xargs['value'];
 
-            if($type == 'text' || $type == 'password' || $type == 'email')
+            if($type == 'text' || $type == 'password')
+                echo '<input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.$optValue.'"'.$attrStr.' />';
+            else if($type == 'email')
                 echo '<input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.$optValue.'"'.$attrStr.' />';
             else if($type == 'textarea') 
-                echo '<textarea name="'.$name.'" style="width:25em;height: 150px" '.$attrStr.'>'  . strip_tags($optValue) . '</textarea>';
+                echo '<textarea name="'.$name.'" '.$attrStr.'>'  . strip_tags($optValue) . '</textarea>';
             else if($type == 'checkbox')
                 echo '<input type="'.$type.'" name="'.$name.'" value="1"' . (($optValue == '1')?'checked':'') .' />';
             else if($type == 'rte') {

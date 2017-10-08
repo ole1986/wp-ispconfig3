@@ -51,7 +51,7 @@ class IspconfigInvoice {
             $ok = $this->load($id);
         else if(!empty($id) && is_object($id) && get_class($id) == 'WC_Order')
             $ok = $this->loadFromOrder($id);
-        else if(!empty($id) && is_object($id) && get_class($id) == 'stdClass')
+        else if(!empty($id) && is_object($id) && (get_class($id) == 'stdClass' || get_class($id) == 'IspconfigInvoice'))
             $ok = $this->loadFromStd($id);
         
         if(!$ok)
@@ -248,15 +248,21 @@ class IspconfigInvoice {
         }
 
         $sql.= "UNIQUE KEY id (id) ) $charset_collate;";
+        error_log($sql);
+
+        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        dbDelta( $sql );
 
         // update the ispconfig_period meta data to be hidden
         $version = get_option('_ispconfig_invoice_version', 0);
         if($version <= 0)
-            $sql.= "UPDATE wp_postmeta SET meta_key = '_ispconfig_period' WHERE meta_key = 'ispconfig_period';";
-        
-        update_option('_ispconfig_invoice_version', 1);
+            $wpdb->query("UPDATE wp_postmeta SET meta_key = '_ispconfig_period' WHERE meta_key = 'ispconfig_period';");
 
-        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-        dbDelta( $sql );
+        if($version <= 1) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}".self::TABLE." ADD `reminder_sent` tinyint(4) NOT NULL DEFAULT 0 AFTER `paid_date`;");
+        }
+            
+
+        update_option('_ispconfig_invoice_version', 2);
     }
 }

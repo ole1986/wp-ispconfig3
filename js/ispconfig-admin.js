@@ -102,17 +102,30 @@ function ISPConfigAdminClass() {
         }).always(function () { $(obj).text(tmp); });
     }
 
-    this.RunRecurrReminder = function(obj){
+    this.RunRecurr = function(obj){
         var tmp = $(obj).text();
         $(obj).text('Loading...');
 
-        jsonRequest({ recurr_reminder: true }).done(function(resp){
+        jsonRequest({ recurr: true }).done(function(resp){
             if(resp < -1)
             {
                 alert("Please select 'Test Recurring' first.");
                 return;
             }
             if (resp < 0) {
+                alert("Recurring payments is disabled");
+                return;
+            }
+            alert("Recurring payments executed");
+        }).always(function () { $(obj).text(tmp); });
+    };
+
+    this.RunRecurrReminder = function(obj){
+        var tmp = $(obj).text();
+        $(obj).text('Loading...');
+
+        jsonRequest({ recurr_reminder: true }).done(function(resp){
+            if(resp < 0) {
                 alert("Recurring reminder is disabled");
                 return;
             }

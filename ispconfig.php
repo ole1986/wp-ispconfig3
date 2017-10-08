@@ -107,13 +107,13 @@ class Ispconfig {
         if(empty($attr['class'])) return 'No CLASS parameter defined in shortcode'; 
         
         $cls = $attr['class'];
-        $cls::init();
+        $o = new $cls();
         
         $defaultAttr = ['showtitle' => false, 'title' => 'New Client', 'subtitle' => 'Register a new client'];
         $attr = array_merge($defaultAttr, $attr);
         
         ob_start();
-        $cls::$Self->Display($attr);
+        $o->Display();
         return ob_get_clean();
     }
     

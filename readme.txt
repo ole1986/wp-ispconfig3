@@ -81,13 +81,7 @@ Below is a minimal version to register a client user with a website.
 
 
 `
-class IspconfigRegisterCustom {
-    public static $Self;
-
-    public static function init() {
-        if(!self::$Self) self::$Self = new self();
-    }
-    
+class IspconfigRegisterCustom extends Ispconfig {
     /**
      * Called when user submits the data from register form - see Ispconfig::Display() for more details
      */
@@ -97,18 +91,18 @@ class IspconfigRegisterCustom {
         $opt = ['username' => $_POST['username'], 'password' => $_POST['password'], 'domain'   => $_POST['domain']];
 
         try{
-            $client = Ispconfig::$Self->withSoap();
+            $client = $this->withSoap();
             // check if the client name already exist in ISPConfig           
-            $client = Ispconfig::$Self->GetClientByUser($opt['username']);
+            $client = $this->GetClientByUser($opt['username']);
             if(!empty($client)) throw new Exception('The user already exist. Please choice a different name');
 
             // add the customer
-            Ispconfig::$Self->AddClient($opt)
+            $this->AddClient($opt)
                             ->AddWebsite( ['domain' => $opt['domain'], 'password' => $opt['password']] );
             
             echo "<div class='ispconfig-msg ispconfig-msg-success'>" . sprintf(__('Your account %s has been created', 'wp-ispconfig3'), $opt['username']) ."</div>";
 
-            Ispconfig::$Self->closeSoap();
+            $this->closeSoap();
         } catch (SoapFault $e) {
             //WPISPConfig3::soap->__getLastResponse();
             echo '<div class="ispconfig-msg ispconfig-msg-error">SOAP Error: '.$e->getMessage() .'</div>';
@@ -157,6 +151,12 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with WP Nofollow More Links. If not, see <http://www.gnu.org/licenses/>.
 
 == Changelog ==
+
+= 1.2.0 =
+* payment reminder for customers (incl. interval and max reminders)
+* display reminder counter in invoice list (X reminders sent)
+* customize customer reminder template in WP-ISPConfig3 -> Settings -> Templates
+* updated langauge file
 
 = 1.1.19 =
 * checked compatibility with WP 4.8 and WC 3.1.2

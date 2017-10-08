@@ -38,7 +38,7 @@ function ISPConfigClass() {
             msg.show();
         });
     };
-    
+
     var _constructor = function () {
         // whenever the domain changed, check if its available using checkDomain
         jQuery('input[data-ispconfig-checkdomain]').change(function () {
