@@ -412,7 +412,7 @@ class IspconfigWcBackend {
                         $recipient = WPISPConfig3::$OPTIONS['wc_mail_reminder'];
                     else
                         $recipient = $order->get_billing_email();
-                    error_log("invoice_recur_reminder - Sending invoice ".$invoice->invoice_number." to: " . $recipient);
+                    error_log("INFO: Sending recurring invoice ".$invoice->invoice_number." to: " . $recipient);
 
                     $success = wp_mail($recipient, 
                             __('Invoice', 'wp-ispconfig3') . ' ' . $invoice->invoice_number,
@@ -478,7 +478,7 @@ class IspconfigWcBackend {
                     $recipient = $order->get_billing_email();
                 
                 
-                error_log("Sending recurring reminder for {$v->invoice_number} to $recipient | DIFF: $diffDays | REST: $rest");
+                error_log("INFO: Sending recurring reminder for {$v->invoice_number} to $recipient | DIFF: $diffDays | REST: $rest");
 
                 // attach invoice pdf into php mailer
                 add_action('phpmailer_init', function($phpmailer) use($v){
