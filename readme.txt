@@ -14,23 +14,24 @@ ISPConfig 3 ~ Hosting Control Panel ~ registration form interface incl. invoice 
 
 The WP ISPConfig 3 plugin allows you to frontend/customer registration forms to create clients, websites, shell users directly into the [ISPConfig](http://www.ispconfig.org) Control Panel by using its REST API.
 
-**General Features**
+**ISPCONFIG Features**
 
 * shipped with two default registration form for websites (ispconfig_register_client / ispconfig_register_free)
 * use the shortcode "[ispconfig class=IspconfigRegisterClient]" and "[ispconfig class=IspconfigRegisterFree]" to display the forms at any place
+* display domains and databases filtered by user
 * build your own forms (incl. shortcodde) in less than 5 minutes (Check out the Installation section for more details)
 
-**Check out the Installation tab for more details on how to build your own extension**
+Check out the Installation tab for more details on how to build your own extension
 
-**WooCommerce Features**
+**WooCommerce Invoice Features**
 
-* extend the shopping cart with "Webspace" products allowing customer to order domain or webspace packages
-* create offers and invoices as PDF directly from an order.
-* fully customize your PDF invoice (incl. company logo, footer, text, address lines, ...)
-* automate recurring invoice submission for customers
-* view all invoices from the WP ISPconfig invoice module
-
-*And alot more more*
+* "Webspace" products to order domains or webspace packages
+* submit recurring invoices to the customer
+* manage recurring invoices from a single order (incl PDF generation)
+* receive payment reminders to your personal address 
+* notifiy customer about outstanding payments (recurring reminder)
+* manage recurring reminders (first reminder / interval / counter)
+* customize the PDF invoice (incl. company logo, footer, text, address lines, ...)
 
 == Installation ==
 
