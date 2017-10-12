@@ -156,24 +156,24 @@ class IspconfigWc extends IspconfigWcBackend {
         $order = $invoice->order;
         ?>
         <h3><?php  _e('Invoice', 'wp-ispconfig3'); ?> <?php echo $invoice->invoice_number ?></h3>
-        Zahlung via <?php echo $order->payment_method_title ?>
+        Zahlung via <?php echo $order->get_payment_method_title() ?>
         <p><?php _e('Order', 'woocommerce') ?># <?php echo $invoice->invoice_number ?></p>
 
         <?php if($invoice->status & IspconfigInvoice::PAID): ?>
         <h4 style="text-align:center;"><?php echo __('Paid at', 'wp-ispconfig3') . ' ' . strftime("%x",strtotime($invoice->paid_date)) ?></h4>
         <?php return; endif; ?>
 
-        <?php if($order->payment_method == 'bacs'): $bacs = new WC_Gateway_BACS(); ?>      
-            <?php $bacs->thankyou_page($order->id); ?>
-            <h3>Betrag: <?php echo $order->get_total() .' ' . $order->get_order_currency(); ?></h3>
-        <?php elseif($order->payment_method == 'paypal'): 
+        <?php if($order->get_payment_method() == 'bacs'): $bacs = new WC_Gateway_BACS(); ?>      
+            <?php $bacs->thankyou_page($order->get_id()); ?>
+            <h3>Betrag: <?php echo $order->get_total() .' ' . $order->get_currency(); ?></h3>
+        <?php elseif($order->get_payment_method() == 'paypal'): 
         
             // overwrite order number to use invoice number instead
             add_filter('woocommerce_order_number', function() use($invoice) { return $invoice->invoice_number; });
             add_filter('woocommerce_paypal_args', function($args) use($invoice) { $args['custom'] = json_encode(array('invoice_id' => $invoice->ID) ); return $args; });
 
             $paypal = new WC_Gateway_Paypal();
-            $result = $paypal->process_payment($order->id);
+            $result = $paypal->process_payment($order->get_id());
             //include_once(WPISPCONFIG3_PLUGIN_DIR . '../woocommerce/includes/gateways/paypal/includes/class-wc-gateway-paypal-request.php');
             //$paypal_request = new WC_Gateway_Paypal_Request( $paypal );
         ?>
