@@ -153,6 +153,9 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+= 1.2.1 =
+* fixed "my account" page when displaying the invoice details
+
 = 1.2.0 =
 * payment reminder for customers (incl. interval and max reminders)
 * display reminder counter in invoice list (X reminders sent)
