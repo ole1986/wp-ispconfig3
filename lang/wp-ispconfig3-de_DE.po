@@ -77,50 +77,8 @@ msgstr "Die Zahlung erfolgt im Voraus:"
 msgid "A scheduler will submit the invoice to '%s'"
 msgstr "Ein Aufgabenplaner versendet die Rechnung an '%s'"
 
-msgid "General"
-msgstr "Allgemein"
-
 msgid "Account creation"
 msgstr "Kontoerstellung"
-
-msgid "Task Scheduler"
-msgstr "Aufgabenplaner"
-
-msgid "Run commands"
-msgstr "Kommandos ausführen"
-
-msgid "Sender info"
-msgstr "Absenderinformationen"
-
-msgid "Templates"
-msgstr "Vorlagen"
-
-msgid "Payments"
-msgstr "Zahlungen"
-
-msgid "Invoice template (PDF)"
-msgstr "Rechnungsvorlage (PDF)"
-
-msgid "Payment reminder"
-msgstr "Zahlungserinnerung"
-
-msgid "%s reminders sent"
-msgstr "%s Erinnerungen versendet"
-
-msgid "Recurring payments"
-msgstr "Regelmäßige Zahlungen"
-
-msgid "Payment report"
-msgstr "Zahlungsbericht"
-
-msgid "First reminder (days)"
-msgstr "Erste Erinnerung (tage)"
-
-msgid "Reminder interval"
-msgstr "Erinnerungsinterval"
-
-msgid "Max reminders"
-msgstr "Maximale Erinnerungen"
 
 msgid "yearly"
 msgstr "jährlich"
@@ -133,57 +91,6 @@ msgstr "pro Jahr"
 
 msgid "per month"
 msgstr "pro Monat"
-
-msgid "Invoice"
-msgstr "Rechnung"
-
-msgid "Invoices"
-msgstr "Rechnungen"
-
-msgid "Pay Now"
-msgstr "Bezahlen"
-
-msgid "Payment period"
-msgstr "Zahlungsinterval"
-
-msgid "Paid at"
-msgstr "Bezahlt am"
-
-msgid "Due at"
-msgstr "Fällig am"
-
-msgid "Paid"
-msgstr "Bezahlt"
-
-msgid "Sent"
-msgstr "Gesendet"
-
-msgid "Canceled"
-msgstr "Abgebrochen"
-
-msgid "Offer"
-msgstr "Angebot"
-
-msgid "No#"
-msgstr "Pos."
-
-msgid "Description"
-msgstr "Bezeichnung"
-
-msgid "Qty"
-msgstr "Menge"
-
-msgid "Net"
-msgstr "Netto"
-
-msgid "Tax"
-msgstr "MwSt."
-
-msgid "Summary"
-msgstr "Summe"
-
-msgid "Total"
-msgstr "Total"
 
 msgid "Working hours"
 msgstr "Arbeitsstunden"

@@ -135,10 +135,11 @@ class WC_Product_Webspace extends WC_ISPConfigProduct {
             // no ispconfig product found in order - so skip doing ispconfig related stuff
             if(empty($templateID)) return;
 
-            if($item['quantity'] == 12) 
-                update_post_meta($order_id, '_ispconfig_period', 'y');
+            // WC-InvoicePDF: use external plugin to set the recurring properly
+            if($item['quantity'] == 12)
+                do_action('wcinvoicepdf_order_period', $order_id, 'yearly');
             else
-                update_post_meta($order_id, '_ispconfig_period', 'm');
+                do_action('wcinvoicepdf_order_period', $order_id, 'monthly');
         }
     }
 

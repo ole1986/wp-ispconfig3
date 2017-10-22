@@ -2,7 +2,7 @@
 /*
  * Plugin Name: WP-ISPConfig3
  * Description: ISPConfig3 plugin allows you to register customers through wordpress frontend using shortcodes.
- * Version: 1.2.1
+ * Version: 1.3.0
  * Author: ole1986 <ole.k@web.de>
  * Author URI: https://github.com/ole1986/wp-ispconfig3
  * Text Domain: wp-ispconfig3
@@ -124,15 +124,11 @@ if(!class_exists( 'WPISPConfig3' ) ) {
          */
         public function admin_menu() {
             // show the main menu 'WP-ISPConfig 3' in backend
-            add_menu_page(__('WP-ISPConfig 3', 'wp-ispconfig3'), __('WP-ISPConfig 3', 'wp-ispconfig3'), 'null', 'ispconfig3_menu',  null, WPISPCONFIG3_PLUGIN_URL.'img/ispconfig.png', 3);
+            add_menu_page(__('WP-ISPConfig 3', 'wp-ispconfig3'), __('WP-ISPConfig 3', 'wp-ispconfig3'), 'null', 'ispconfig3_menu',  null, WPISPCONFIG3_PLUGIN_URL.'ispconfig.png', 3);
             // display the settings menu entry 
             add_submenu_page('ispconfig3_menu', __('Settings'), __('Settings'), 'edit_themes', 'ispconfig_settings',  array($this, 'DisplaySettings') );
             // if woocommerce and invoicing module for ISPConfig is avialble, load it and display invoices menu entry
             
-            if (file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php'))
-            {
-                add_submenu_page('ispconfig3_menu', __('Invoices', 'wp-ispconfig3'), __('Invoices', 'wp-ispconfig3'), 'edit_themes', 'ispconfig_invoices',  array('IspconfigWcBackend', 'DisplayInvoices') );
-            }
             if (file_exists(WPISPCONFIG3_PLUGIN_DIR . 'manage/ispconfig_website.php'))
             {
                 add_submenu_page('ispconfig3_menu', __('Websites', 'wp-ispconfig3'), __('Websites', 'wp-ispconfig3'), 'edit_themes', 'ispconfig_websites',  array('IspconfigWebsite', 'DisplayWebsites') );
@@ -168,42 +164,44 @@ if(!class_exists( 'WPISPConfig3' ) ) {
                        
             $cfg = self::$OPTIONS;
             ?>
+            <?php
+            include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+            if(!is_plugin_active('wc-invoice-pdf/wc-invoice-pdf.php') ) {
+                echo '<div class="notice notice-info"><p>Install the <strong>WC-InvoicePdf</strong> plugin to enable the recurring invoice / billing feature - <a href="'.get_admin_url().'/plugin-install.php?s=WC%20InvoicePdf&tab=search&type=term">Click here</a></p></div>';
+            }
+
+            if(isset(self::$OPTIONS['wc_pdf_title'])) {
+                echo '<div class="notice notice-error"><p><strong>IMPORTANT:</strong> Please install and <strong>MIGRATE</strong> the WC-InvoicePdf plugin before saving - Otherwise PDF and recurring settings get lost!!!</p></div>';
+            }
+            ?>
+            
             <div class="wrap">
                 <h2><?php _e('WP-ISPConfig 3 Settings', 'wp-ispconfig3' );?></h2>
                 <form method="post" action="">
                 <div id="poststuff" class="metabox-holder has-right-sidebar">
-                    <div id="post-body">
-                        <div id="post-body-content">
-                            <ul id="ispconfig-tabs" class="category-tabs">
-                                <li class="tabs"><a href="#ispconfig-general"><?php _e('General', 'wp-ispconfig3') ?></a></li>
-                                <?php do_action('ispconfig_option_tabs') ?>
-                            </ul>
-                            <div class="postbox inside">
-                                <div id="ispconfig-general" class="inside tabs-panel" style="display: block;">
-                                    <h3><?php _e( 'SOAP Settings', 'wp-ispconfig3') ?></h3>
-                                     <?php 
-                                        self::getField('soapusername', 'SOAP Username:');
-                                        self::getField('soappassword', 'SOAP Password:', 'password');
-                                        self::getField('soap_location', 'SOAP Location:');
-                                        self::getField('soap_uri', 'SOAP URI:');
-                                    ?>
-                                    <h3><?php _e('Account creation', 'wp-ispconfig3') ?></h3>
-                                    <?php
-                                        self::getField('confirm', 'Send Confirmation','checkbox');
-                                        self::getField('confirm_subject', 'Confirmation subject');
-                                        self::getField('confirm_body', 'Confirmation Body', 'textarea');
-                                        self::getField('default_domain', 'Default Domain');
-                                        self::getField('sender_name', 'Sender name');
-                                    ?>
-                                </div>
-                                <?php do_action('ispconfig_options'); ?>
-
-                                <div class="inside">
-                                    <p></p>
-                                    <p><input type="submit" class="button-primary" name="submit" value="<?php _e('Save');?>" /></p>
-                                    <p></p>
-                                </div>
-                            </div>
+                    <div class="postbox inside">
+                        <div id="ispconfig-general" class="inside tabs-panel" style="display: block;">
+                            <h3><?php _e( 'SOAP Settings', 'wp-ispconfig3') ?></h3>
+                                <?php 
+                                self::getField('soapusername', 'SOAP Username:');
+                                self::getField('soappassword', 'SOAP Password:', 'password');
+                                self::getField('soap_location', 'SOAP Location:');
+                                self::getField('soap_uri', 'SOAP URI:');
+                            ?>
+                            <h3><?php _e('Account creation', 'wp-ispconfig3') ?></h3>
+                            <?php
+                                self::getField('confirm', 'Send Confirmation','checkbox');
+                                self::getField('confirm_subject', 'Confirmation subject');
+                                self::getField('confirm_body', 'Confirmation Body', 'textarea');
+                                self::getField('default_domain', 'Default Domain');
+                                self::getField('sender_name', 'Sender name');
+                            ?>
+                        </div>
+                        <?php do_action('ispconfig_options'); ?>
+                        <div class="inside">
+                            <p></p>
+                            <p><input type="submit" class="button-primary" name="submit" value="<?php _e('Save');?>" /></p>
+                            <p></p>
                         </div>
                     </div>
                 </div>
@@ -308,11 +306,7 @@ if(!class_exists( 'WPISPConfig3' ) ) {
          * @return void
          */
         public static function install() {
-            // run the installer if ISPConfig invoicing module (if available)
-            if(file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php')){
-                require_once( WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php' );
-                IspconfigWcBackend::install();
-            }
+            
         }
 
         /**
@@ -323,11 +317,7 @@ if(!class_exists( 'WPISPConfig3' ) ) {
          * @return void
          */
         public static function deactivate(){
-            // run the deactivate method from ISPConfig invoicing module (if available)
-            if(file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php')){
-                require_once( WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php' );
-                IspconfigWcBackend::deactivate();
-            }
+            
         }
 
         /**

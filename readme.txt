@@ -23,16 +23,6 @@ The WP ISPConfig 3 plugin allows you to frontend/customer registration forms to 
 
 Check out the Installation tab for more details on how to build your own extension
 
-**WooCommerce Invoice Features**
-
-* "Webspace" products to order domains or webspace packages
-* submit recurring invoices to the customer
-* manage recurring invoices from a single order (incl PDF generation)
-* receive payment reminders to your personal address 
-* notifiy customer about outstanding payments (recurring reminder)
-* manage recurring reminders (first reminder / interval / counter)
-* customize the PDF invoice (incl. company logo, footer, text, address lines, ...)
-
 == Installation ==
 
 * Search for "wp-ispconfig3" in the "Plugins -> Install" register
@@ -139,9 +129,7 @@ class IspconfigRegisterCustom extends Ispconfig {
 1. ISPConfig SOAP settings in wordpress
 2. Registration form (client edition) 
 3. Registration form (free edition) 
-4. Invoice list module
-5. Example on how to build a "webspace" product (animated)
-6. Complete list of settings (animated)
+4. Example on how to build a "webspace" product (animated)
 
 == License ==
 
@@ -152,6 +140,10 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with WP Nofollow More Links. If not, see <http://www.gnu.org/licenses/>.
 
 == Changelog ==
+
+= 1.3.0 =
+* IMPORTANT: moved billing (invoice) parts to a separate plugin "WC-InvoicePdf"
+* IMPORTANT: Please install the WC-InvoicePdf plugin to migrate your PDF / Recurring settings
 
 = 1.2.1 =
 * fixed "my account" page when displaying the invoice details
