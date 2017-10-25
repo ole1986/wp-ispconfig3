@@ -23,6 +23,9 @@ The WP ISPConfig 3 plugin allows you to frontend/customer registration forms to 
 
 Check out the Installation tab for more details on how to build your own extension
 
+**FOR RECURRING INVOICES USE THE BELOW PLUGIN**
+https://wordpress.org/plugins/wc-invoice-pdf/
+
 == Installation ==
 
 * Search for "wp-ispconfig3" in the "Plugins -> Install" register
