@@ -2,7 +2,7 @@
 /*
  * Plugin Name: WP-ISPConfig3
  * Description: ISPConfig3 plugin allows you to register customers through wordpress frontend using shortcodes.
- * Version: 1.3.0
+ * Version: 1.3.1
  * Author: ole1986 <ole.k@web.de>
  * Author URI: https://github.com/ole1986/wp-ispconfig3
  * Text Domain: wp-ispconfig3
@@ -56,6 +56,7 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             'soappassword' => 'remote_user_pass',
             'soap_location' => 'http://localhost:8080/remote/index.php',
             'soap_uri' => 'http://localhost:8080/remote/',
+            'skip_ssl' => 0,
             'confirm'   => 0,
             'confirm_subject'=> 'Your ISPConfig account has been created',
             'confirm_body'   => "Your payment has been received and your account has been created\n
@@ -187,6 +188,7 @@ if(!class_exists( 'WPISPConfig3' ) ) {
                                 self::getField('soappassword', 'SOAP Password:', 'password');
                                 self::getField('soap_location', 'SOAP Location:');
                                 self::getField('soap_uri', 'SOAP URI:');
+                                self::getField('skip_ssl', 'Skip certificate check','checkbox');
                             ?>
                             <h3><?php _e('Account creation', 'wp-ispconfig3') ?></h3>
                             <?php

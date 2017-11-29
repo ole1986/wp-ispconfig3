@@ -35,7 +35,20 @@ class Ispconfig {
      * Initialize the SoapClient for ISPConfig
      */
     public function withSoap(){
-        $this->soap = new SoapClient(null, ['location' => WPISPConfig3::$OPTIONS['soap_location'] , 'uri' => WPISPConfig3::$OPTIONS['soap_uri'], 'trace' => 1, 'exceptions' => 1]);
+        $options = ['location' => WPISPConfig3::$OPTIONS['soap_location'] , 'uri' => WPISPConfig3::$OPTIONS['soap_uri'], 'trace' => 1, 'exceptions' => 1];
+        
+        if(WPISPConfig3::$OPTIONS['skip_ssl']) {
+            // apply stream context to disable ssl checks
+            $options['stream_context'] = stream_context_create([
+                'ssl' => [
+                    'verify_peer'=>false,
+                    'verify_peer_name'=>false,
+                    'allow_self_signed' => true
+                ]
+            ]);
+        }
+
+        $this->soap = new SoapClient(null, $options);
         $this->session_id = $this->soap->login(WPISPConfig3::$OPTIONS['soapusername'], WPISPConfig3::$OPTIONS['soappassword']);
         return $this;
     }

@@ -99,7 +99,13 @@ class IspconfigRegisterFree extends Ispconfig {
         $defaultOptions = ['title' => 'WP-ISPConfig3', 'button' => 'Click to create Client', 'subtitle' => 'New Client (incl. Website and Domain)','showtitle' => true];
         
         // load the Client templates from ISPCONFIG
-        $templates = $this->withSoap()->GetClientTemplates();
+        try{
+            $templates = $this->withSoap()->GetClientTemplates();
+        } catch(SoapFault $e){
+            echo '<div class="ispconfig-msg ispconfig-msg-error">SOAP Error: '. $e->getMessage() .'</div>';
+            return;
+        }
+        
         foreach ($templates as $k => $v) {
             $this->products[$v['template_id']] = $v;
         }
