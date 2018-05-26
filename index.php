@@ -2,7 +2,7 @@
 /*
  * Plugin Name: WP-ISPConfig3
  * Description: ISPConfig3 plugin allows you to register customers through wordpress frontend using shortcodes.
- * Version: 1.3.1
+ * Version: 1.3.2
  * Author: ole1986 <ole.k@web.de>
  * Author URI: https://github.com/ole1986/wp-ispconfig3
  * Text Domain: wp-ispconfig3
@@ -232,14 +232,16 @@ if(!class_exists( 'WPISPConfig3' ) ) {
                 echo ' '.$k.'="'.$v.'"';
             }
             echo '>';
-            echo '<label';
-            foreach ($xargs['label_attr'] as $k => $v)
-                echo ' '. $k . '="'.$v.'"';
 
-            echo '>';
-            _e($title, 'wp-ispconfig3');
-            if($xargs['required']) echo '<span style="color: red;"> *</span>';
-            echo '</label>';
+            if(!empty($title)) {
+                echo '<label';
+                foreach ($xargs['label_attr'] as $k => $v)
+                    echo ' '. $k . '="'.$v.'"';
+                echo '>';
+                _e($title, 'wp-ispconfig3');
+                if($xargs['required']) echo '<span style="color: red;"> *</span>';
+                echo '</label>';
+            }
 
             $attrStr = '';
             foreach ($xargs['input_attr'] as $k => $v)
@@ -250,19 +252,17 @@ if(!class_exists( 'WPISPConfig3' ) ) {
             else
                 $optValue = $xargs['value'];
 
-            if($type == 'text' || $type == 'password')
-                echo '<input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.$optValue.'"'.$attrStr.' />';
-            else if($type == 'email')
-                echo '<input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.$optValue.'"'.$attrStr.' />';
-            else if($type == 'textarea') 
+            if($type == 'textarea')
                 echo '<textarea name="'.$name.'" '.$attrStr.'>'  . strip_tags($optValue) . '</textarea>';
-            else if($type == 'checkbox')
+            else if ($type == 'checkbox')
                 echo '<input type="'.$type.'" name="'.$name.'" value="1"' . (($optValue == '1')?'checked':'') .' />';
-            else if($type == 'rte') {
+            else if ($type == 'rte') {
                 echo '<div '.$attrStr.'>';
                 wp_editor($optValue, $name, ['teeny' => true, 'editor_height'=>200, 'media_buttons' => false]);
                 echo '</div>'; 
-            }           
+            } else
+                echo '<input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.$optValue.'"'.$attrStr.' />';
+
             echo '</' . $xargs['container'] .'>';
         }
         

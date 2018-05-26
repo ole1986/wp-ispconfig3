@@ -143,6 +143,9 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+= 1.3.2 =
+* support for any input type using the getField method (issue #12)
+
 = 1.3.1 =
 * support for self signed certificates
 
