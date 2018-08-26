@@ -2,25 +2,31 @@
 
 require_once WPISPCONFIG3_PLUGIN_DIR . 'manage/ispconfig_website_list.php';
 
-class IspconfigWebsite {
+class IspconfigWebsite
+{
     public static $Self;
 
-    public static function init() {
-         if(!self::$Self)
+    public static function init() 
+    {
+        if (!self::$Self) {
             self::$Self = new self();
+        }
     }
 
-    public function __construct(){
+    public function __construct()
+    {
         // enable changing the due date through ajax
-        add_action( 'wp_ajax_ispconfig_website', array(&$this, 'doAjax') );
+        add_action('wp_ajax_ispconfig_website', array(&$this, 'doAjax'));
 
         // the rest after this is for NON-AJAX requests
-        if(defined('DOING_AJAX') && DOING_AJAX) return;
+        if (defined('DOING_AJAX') && DOING_AJAX) { return;
+        }
     }
 
-    public function doAjax(){
+    public function doAjax()
+    {
         $result = '';
-        if(!empty($_POST['website_id']) && !empty($_POST['status'])) {
+        if (!empty($_POST['website_id']) && !empty($_POST['status'])) {
             $result = Ispconfig::$Self->withSoap()->SetSiteStatus($_POST['website_id'], $_POST['status']);
         }
 
@@ -28,7 +34,8 @@ class IspconfigWebsite {
         wp_die();
     }
     
-    public static function DisplayWebsites(){
+    public static function DisplayWebsites()
+    {
         $list = new IspconfigWebsiteList();
         
         $list->prepare_items();

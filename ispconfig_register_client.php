@@ -9,14 +9,20 @@ class IspconfigRegisterClient extends Ispconfig {
     /**
      * Called when user submits the data from register form - see Ispconfig::Display() for more details
      */
-    protected function onPost(){
-        if ( 'POST' !== $_SERVER[ 'REQUEST_METHOD' ] ) return;
+    protected function onPost() {
+        if ('POST' !== $_SERVER[ 'REQUEST_METHOD' ] ) { 
+            return;
+        }
         
         try{
             // at least chekc if the client limit template exists in ISPConfig
             $templates = $this->withSoap()->GetClientTemplates();
 
-            $filtered = array_filter($templates, function($v){ return $v['template_id'] == $_POST['template']; });
+            $filtered = array_filter($templates,
+                function ($v) {
+                    return $v['template_id'] == $_POST['template'];
+                }
+            );
             if(empty($filtered)) throw new Exception('No Limit template found for ID ' . $_POST['template']);
 
             $opt = ['company_name' => $_POST['empresa'], 
@@ -33,15 +39,14 @@ class IspconfigRegisterClient extends Ispconfig {
             if(!empty($client)) throw new Exception('The user already exist. Please choice a different name');
             
             // add the customer
-            $this->AddClient($opt)
-                            ->AddWebsite( ['domain' => $opt['domain'], 'password' => $_POST['password']] );
+            $this->AddClient($opt)->AddWebsite(['domain' => $opt['domain'], 'password' => $_POST['password']]);
             
             echo "<div class='ispconfig-msg ispconfig-msg-success'>" . sprintf(__('Your account %s has been created', 'wp-ispconfig3'), $opt['username']) ."</div>";
             
             // send confirmation mail
-            if(!empty(WPISPConfig3::$OPTIONS['confirm'])) {
-                $sent = $this->SendConfirmation( $opt );
-                if($sent) echo "<div class='ispconfig-msg ispconfig-msg-success'>" . __('You will receive a confirmation email shortly', 'wp-ispconfig3') . "</div>";
+            if (!empty(WPISPConfig3::$OPTIONS['confirm'])) {
+                $sent = $this->SendConfirmation($opt);
+                if ($sent) echo "<div class='ispconfig-msg ispconfig-msg-success'>" . __('You will receive a confirmation email shortly', 'wp-ispconfig3') . "</div>";
             }
             
             echo "<div class='ispconfig-msg'>" . __('You can now login here', 'wp-ispconfig3') .": <a href=\"https://".$_SERVER['HTTP_HOST'].":8080/\">click</a></div>";
@@ -59,18 +64,22 @@ class IspconfigRegisterClient extends Ispconfig {
     /**
      * Display the formular and submit button
      * Usually called through shortcode
+     * 
+     * @param array $opt options
      */
-    public function Display($opt = null){
+    public function Display($opt = null)
+    {
         $defaultOptions = ['title' => 'WP-ISPConfig3', 'button' => 'Click to create Client', 'subtitle' => 'New Client (incl. Website and Domain)','showtitle' => true];
         
-        if(is_array($opt))
+        if (is_array($opt)) {
             $opt = array_merge($defaultOptions, $opt);
-        else 
+        } else {
             $opt = $defaultOptions;
+        }
             
         ?>
         <div class="wrap">
-            <h2><?php if($opt['showtitle']) _e( $opt['title'], 'wp-ispconfig3' ); ?></h2>
+            <h2><?php if ($opt['showtitle']) _e($opt['title'], 'wp-ispconfig3'); ?></h2>
             <?php 
                 $this->onPost();
             ?>

@@ -18,7 +18,8 @@ class IspconfigRegisterFree extends Ispconfig {
      */
     public $products = [];
     
-    public function __construct(){
+    public function __construct()
+    {
         // contains any of the below word is forbidden in username
         $this->forbiddenUserEx = 'www|mail|ftp|smtp|imap|download|upload|image|service|offline|online|admin|root|username|webmail|blog|help|support';
         // exact words forbidden in username
@@ -30,22 +31,24 @@ class IspconfigRegisterFree extends Ispconfig {
     /**
      * Called when user submits the data from register form - see IspconfigRegister::Display() for more details
      */
-    protected function onPost(){
+    protected function onPost()
+    {
         if ( 'POST' !== $_SERVER[ 'REQUEST_METHOD' ] ) return;
         
         try{
             if(!$this->onCaptchaPost()) throw new Exception("Wrong or invalid captcha");
             
             $client = $this->validateName($_POST['client']);
-            $username = $this->validateUsername( $_POST['username'] );
+            $username = $this->validateUsername($_POST['username']);
             $email = $this->validateMail($_POST['email'], $_POST['email_confirm']);
             
             // check the domain part
-            if(intval($_POST['product_id']) == self::$FreeTemplateID )
+            if (intval($_POST['product_id']) == self::$FreeTemplateID ) {
                 // add the first page for the customer
                 $domain = $username . '.'. WPISPConfig3::$OPTIONS['default_domain'];
-            else
+            } else {
                 $domain = $this->validateDomain($_POST['domain']);
+            }
             
             // check password
             $this->validatePassword($_POST['password'], $_POST['password_confirm']);
@@ -65,20 +68,24 @@ class IspconfigRegisterFree extends Ispconfig {
             
             $client = $this->GetClientByUser($opt['username']);
             
-            if(!empty($client)) throw new Exception('The user you have entered already exists');
+            if (!empty($client)) {
+                throw new Exception('The user you have entered already exists');
+            }
             
             // add the customer
-            $this->AddClient($opt)->AddWebsite( ['domain' => $opt['domain'], 'password' => $_POST['password'],  'hd_quota' => $foundTemplate['limit_web_quota'], 'traffic_quota' => $foundTemplate['limit_traffic_quota'] ] );
+            $this->AddClient($opt)->AddWebsite(['domain' => $opt['domain'], 'password' => $_POST['password'],  'hd_quota' => $foundTemplate['limit_web_quota'], 'traffic_quota' => $foundTemplate['limit_traffic_quota'] ]);
             
             // give the free user a shell
-            $this->AddShell(['username' => $opt['username'] . '_shell', 'username_prefix' => $opt['username'] . '_', 'password' => $_POST['password'] ] );
+            $this->AddShell(['username' => $opt['username'] . '_shell', 'username_prefix' => $opt['username'] . '_', 'password' => $_POST['password'] ]);
             
             echo "<div class='ispconfig-msg ispconfig-msg-success'>" . sprintf(__('Your account %s has been created', 'wp-ispconfig3'), $opt['username']) ."</div>";
             
             // send confirmation mail
-            if(!empty(WPISPConfig3::$OPTIONS['confirm'])) {
+            if (!empty(WPISPConfig3::$OPTIONS['confirm'])) {
                 $sent = $this->SendConfirmation($opt);
-                if($sent) echo "<div class='ispconfig-msg ispconfig-msg-success'>" . __('You will receive a confirmation email shortly', 'wp-ispconfig3') . "</div>";
+                if ($sent) {
+                    echo "<div class='ispconfig-msg ispconfig-msg-success'>" . __('You will receive a confirmation email shortly', 'wp-ispconfig3') . "</div>";
+                }
             }
 
             echo "<div class='ispconfig-msg'>" . __('You can now login here', 'wp-ispconfig3') .": <a href=\"https://".$_SERVER['HTTP_HOST'].":8080/\">click</a></div>";
@@ -94,8 +101,11 @@ class IspconfigRegisterFree extends Ispconfig {
     /**
      * Display the formular and submit button
      * Usually called through shortcode
+     *
+     * @param array $opt options
      */
-    public function Display($opt = null){
+    public function Display($opt = null)
+    {
         $defaultOptions = ['title' => 'WP-ISPConfig3', 'button' => 'Click to create Client', 'subtitle' => 'New Client (incl. Website and Domain)','showtitle' => true];
         
         // load the Client templates from ISPCONFIG
@@ -110,33 +120,35 @@ class IspconfigRegisterFree extends Ispconfig {
             $this->products[$v['template_id']] = $v;
         }
 
-        if(is_array($opt))
+        if (is_array($opt)) {
             $opt = array_merge($defaultOptions, $opt);
-        else 
+        } else {
             $opt = $defaultOptions;
+        }
+
         ?>
         <div class="wrap">
-            <h2><?php if($opt['showtitle']) _e( $opt['title'], 'wp-ispconfig3' ); ?></h2>
+            <h2><?php if($opt['showtitle']) _e($opt['title'], 'wp-ispconfig3'); ?></h2>
             <?php 
                 $this->onPost();
             ?>
-            <form method="post" class="ispconfig" action="<?php echo get_permalink() ?>">
+            <form method="post" class="ispconfig" action="<?php echo get_permalink(); ?>">
             <div id="poststuff" class="metabox-holder has-right-sidebar">
                 <div id="post-body">
                     <div id="post-body-content">
                         <div id="normal-sortables" class="meta-box-sortables ui-sortable">
                             <div class="postbox inside">
-                                <h3><?php _e( $opt['subtitle'], 'wp-ispconfig3' );?></h3>
+                                <h3><?php _e($opt['subtitle'], 'wp-ispconfig3'); ?></h3>
                                 <div class="inside">
                                     <div style="margin-left: 0.3em;margin-bottom: 0.5em;font-weight: bold;">
                                         <label>Product: </label>
                                         <select name="product_id" data-ispconfig-selectproduct style="width: 340px;">
                                             <?php
-                                                foreach($this->products as $k => $v) {
-                                                    $s = (isset($_GET['product']) && $_GET['product'] == $k)?'selected':'';
-                                                    $free = ($k == self::$FreeTemplateID)?'data-isfree="1"':'';
-                                                    echo '<option value="'.$k.'" '.$s.' '.$free.'>'.$v['template_name'].'</option>';
-                                                }   
+                                            foreach ($this->products as $k => $v) {
+                                                $s = (isset($_GET['product']) && $_GET['product'] == $k)?'selected':'';
+                                                $free = ($k == self::$FreeTemplateID)?'data-isfree="1"':'';
+                                                echo '<option value="'.$k.'" '.$s.' '.$free.'>'.$v['template_name'].'</option>';
+                                            }   
                                             ?>
                                         </select>
                                     </div>

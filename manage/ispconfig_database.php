@@ -1,20 +1,24 @@
 <?php
-
 require_once WPISPCONFIG3_PLUGIN_DIR . 'manage/ispconfig_database_list.php';
 
-class IspconfigDatabase {
+class IspconfigDatabase
+{
     public static $Self;
 
-    public static function init() {
-         if(!self::$Self)
+    public static function init() 
+    {
+        if (!self::$Self) {
             self::$Self = new self();
+        }
     }
 
-    public function __construct(){
+    public function __construct()
+    {
         
     }
     
-    public static function DisplayDatabases(){
+    public static function DisplayDatabases()
+    {
         $list = new IspconfigDatabaseList();
         
         $list->prepare_items();
