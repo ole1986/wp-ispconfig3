@@ -3,7 +3,7 @@
 defined( 'ABSPATH' ) || exit; 
 
 /**
- * Free registration form example
+ * Provide a html form to allow users register a new client account (free edition).
  */
 class IspconfigRegisterFree extends Ispconfig {
     /**

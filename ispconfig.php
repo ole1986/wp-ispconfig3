@@ -1,10 +1,10 @@
 <?php
-defined('ABSPATH') || exit; 
+defined('ABSPATH') || exit;
 
 /**
  * Abstract class to provide soap requests and shortcodes
- * 
- * PLEASE NOTE: 
+ *
+ * PLEASE NOTE:
  * You can easily add features by creating a "ispconfig_register_<yourfeature>.php" file
  * shortcode can than be use the following in RTF Editor: [ispconfig class=IspconfigRegisterYourfeature]
  *
@@ -21,7 +21,7 @@ class Ispconfig
     protected $domain_id;
 
     private $reseller_id = 0;
-    
+
     public static function init()
     {
         self::$Self = new self();
@@ -32,23 +32,23 @@ class Ispconfig
         $this->withShortcode();
         $this->withAjax();
     }
-    
+
     /**
      * Initialize the SoapClient for ISPConfig
      */
     public function withSoap()
     {
-        $options = ['location' => WPISPConfig3::$OPTIONS['soap_location'] , 'uri' => WPISPConfig3::$OPTIONS['soap_uri'], 'trace' => 1, 'exceptions' => 1];
-        
+        $options = ['location' => WPISPConfig3::$OPTIONS['soap_location'], 'uri' => WPISPConfig3::$OPTIONS['soap_uri'], 'trace' => 1, 'exceptions' => 1];
+
         if (WPISPConfig3::$OPTIONS['skip_ssl']) {
             // apply stream context to disable ssl checks
             $options['stream_context'] = stream_context_create(
                 [
-                'ssl' => [
-                    'verify_peer'=>false,
-                    'verify_peer_name'=>false,
-                    'allow_self_signed' => true
-                ]
+                    'ssl' => [
+                        'verify_peer' => false,
+                        'verify_peer_name' => false,
+                        'allow_self_signed' => true,
+                    ],
                 ]
             );
         }
@@ -66,33 +66,29 @@ class Ispconfig
         }
         unset($this->soap);
     }
-    
-    /** 
+
+    /**
      * Enable shortcode for the calling class
      */
     public function withShortcode()
     {
-        if (! is_admin() ) {
-            add_shortcode('ispconfig', array($this,'shortcode'));
+        if (!is_admin()) {
+            add_shortcode('ispconfig', array($this, 'shortcode'));
         }
-        
+
     }
-    
+
     public function withAjax()
     {
         // used to request whois through ajax
-        if (is_admin() ) {
+        if (is_admin()) {
             add_action('wp_ajax_ispconfig_whois', [$this, 'AJAX_ispconfig_whois_callback']);
             add_action('wp_ajax_nopriv_ispconfig_whois', [$this, 'AJAX_ispconfig_whois_callback']);
         } else {
-            add_action(
-                'wp_head', function () {
-                    echo "<script>var ajaxurl = '" . admin_url('admin-ajax.php') . "'</script>"; 
-                }
-            );
+            add_action('wp_head', function () {echo "<script>var ajaxurl = '" . admin_url('admin-ajax.php') . "'</script>";});
         }
     }
-        
+
     public function AJAX_ispconfig_whois_callback()
     {
         $dom = strtolower($_POST['domain']);
@@ -114,59 +110,61 @@ class Ispconfig
         echo json_encode($result);
         wp_die();
     }
-    
-    public static function isDomainAvailable($dom) 
+
+    public static function isDomainAvailable($dom)
     {
         $result = shell_exec("whois $dom");
-        
+
         if (preg_match("/^(No whois server is known|This TLD has no whois server)/m", $result)) {
             return -1;
-        } else if (preg_match("/^(Status: AVAILABLE|Status: free|NOT FOUND|".$dom." no match|No match for \"(.*?)\"\.)$/im", $result)) {
+        } else if (preg_match("/^(Status: AVAILABLE|Status: free|NOT FOUND|" . $dom . " no match|No match for \"(.*?)\"\.)$/im", $result)) {
             return 1;
         }
+
         return 0;
     }
-   
+
     /**
      * Provide shortcode execution by calling the class constructor defined "class=..." attribute
      */
     public function shortcode($attr, $content = null)
     {
         // init
-        if (empty($attr)) { 
+        if (empty($attr)) {
             return 'No parameters defined in shortcode';
         }
-        if (empty($attr['class'])) { 
+
+        if (empty($attr['class'])) {
             return 'No CLASS parameter defined in shortcode';
-        } 
-        
+        }
+
         $cls = $attr['class'];
         $o = new $cls();
-        
+
         $defaultAttr = ['showtitle' => false, 'title' => 'New Client', 'subtitle' => 'Register a new client'];
         $attr = array_merge($defaultAttr, $attr);
-        
+
         ob_start();
-        $o->Display();
+        $o->Display($attr);
         return ob_get_clean();
     }
-    
+
     /**
      * SOAP: Get Client by username
      */
     public function GetClientByUser($username)
     {
-        try{
+        try {
             return $this->soap->client_get_by_username($this->session_id, $username);
-        } catch(SoapFault $e) {
-            
+        } catch (SoapFault $e) {
+
         }
     }
-    
+
     /**
      * SOAP: Get a list of arrays containing all Client/Reseller limit templates
      */
-    public function GetClientTemplates() 
+    public function GetClientTemplates()
     {
         return $this->soap->client_templates_get_all($this->session_id);
     }
@@ -178,7 +176,7 @@ class Ispconfig
         return $this->soap->client_get_sites_by_user($this->session_id, $client['userid'], $client['default_group']);
     }
 
-    public function GetClientDatabases($user_name) 
+    public function GetClientDatabases($user_name)
     {
         $client = $this->GetClientByUser($user_name);
         return $this->soap->sites_database_get_all_by_user($this->session_id, $client['client_id']);
@@ -188,7 +186,7 @@ class Ispconfig
     {
         return $this->soap->sites_web_domain_set_status($this->session_id, intval($id), $status);
     }
-    
+
     /**
      * SOAP: Add a new client into ISPConfig
      */
@@ -252,37 +250,55 @@ class Ispconfig
             'usertheme' => 'default',
             'template_master' => 0,
             'template_additional' => '',
-            'created_at' => 0
+            'created_at' => 0,
         );
-      
+
         $options = array_merge($defaultOptions, $options);
-        
+
         // check for required fields
-        if (!array_key_exists('username', $options)) { 
+        if (!array_key_exists('username', $options)) {
             throw new Exception("Error missing or invalid username");
         }
-        if (!array_key_exists('password', $options)) { 
+
+        if (!array_key_exists('password', $options)) {
             throw new Exception("Error missing or invalid password");
         }
-        if (!array_key_exists('email', $options)) { 
+
+        if (!array_key_exists('email', $options)) {
             throw new Exception("Error missing email");
         }
-        if (!filter_var($options['email'], FILTER_VALIDATE_EMAIL)) { 
+
+        if (!filter_var($options['email'], FILTER_VALIDATE_EMAIL)) {
             throw new Exception("Error invalid email");
         }
-        
+
         // SOAP REQUEST TO INSERT INTO ISPCONFIG
         $this->client_id = $this->soap->client_add($this->session_id, $this->reseller_id, $options);
         return $this;
     }
-    
+
+    public function UpdClient($options = [], $c_id)
+    {
+        $defaultOptions = array(
+            'locked' => 'n',
+            'canceled' => 'n',
+        );
+        $options = array_merge($defaultOptions, $options);
+        if (!array_key_exists('username', $options)) {
+            throw new Exception("Error missing or invalid username");
+        }
+
+        $this->client_id = $this->soap->client_update($this->session_id, $c_id, $this->reseller_id, $options);
+        return $this;
+    }
+
     /**
      * SOAP: Add a new Website into ISPConfig
      */
     public function AddWebsite($options)
     {
         $defaultOptions = array(
-            'server_id'    => '1',
+            'server_id' => '1',
             'domain' => '',
             'ip_address' => '*',
             'http_port' => '80',
@@ -298,9 +314,9 @@ class Ispconfig
             'errordocs' => 1,
             'is_subdomainwww' => 1,
             'subdomain' => 'www',
-            'php' => 'php-fpm', 
+            'php' => 'php-fpm',
             'php_fpm_use_socket' => 'y',
-            'ruby' => 'n', 
+            'ruby' => 'n',
             'redirect_type' => '',
             'redirect_path' => '',
             'ssl' => 'n',
@@ -318,68 +334,69 @@ class Ispconfig
             'stats_type' => 'webalizer',
             'allow_override' => 'All',
             'apache_directives' => '',
-            'php_open_basedir' => '/', 
-            'custom_php_ini' => '', 
+            'php_open_basedir' => '/',
+            'custom_php_ini' => '',
             'backup_interval' => '',
             'backup_copies' => 1,
             'active' => 'y',
             'traffic_quota_lock' => 'n',
             'pm' => 'dynamic',
-            'pm_process_idle_timeout'=>10,
-            'pm_max_requests'=>0
+            'pm_process_idle_timeout' => 10,
+            'pm_max_requests' => 0,
         );
-        
+
         $options = array_merge($defaultOptions, $options);
-        
+
         $this->domain_id = $this->soap->sites_web_domain_add($this->session_id, $this->client_id, $options, $readonly = false);
         return $this->domain_id;
     }
-    
+
     /**
      * SOAP: Add a new shell user into ISPConfig
      */
     public function AddShell($options)
     {
         $defaultOptions = array(
-        'server_id' => 1,
-        'parent_domain_id' => $this->domain_id,
-        'username' => '',
-        'password' => '',
-        'quota_size' => -1,
-        'active' => 'y',
-        'puser' => 'web' . $this->domain_id,
-        'pgroup' => 'client' . $this->client_id,
-        'shell' => '/bin/bash',
-        'dir' => '/home/clients/client' . $this->client_id . '/web' . $this->domain_id,
-        'chroot' => 'jailkit'
+            'server_id' => 1,
+            'parent_domain_id' => $this->domain_id,
+            'username' => '',
+            'password' => '',
+            'quota_size' => -1,
+            'active' => 'y',
+            'puser' => 'web' . $this->domain_id,
+            'pgroup' => 'client' . $this->client_id,
+            'shell' => '/bin/bash',
+            'dir' => '/home/clients/client' . $this->client_id . '/web' . $this->domain_id,
+            'chroot' => 'jailkit',
         );
-        
+
         $options = array_merge($defaultOptions, $options);
-      
+
         $this->shell_id = $this->soap->sites_shell_user_add($this->session_id, $this->client_id, $options);
         return $this->shell_id;
     }
-    
-    /** 
+
+    /**
      * Provide an option to send a confirmation email
      */
     public function SendConfirmation($opt)
     {
-        if (!$this->client_id) { 
-            return;
-        }
-        if (!filter_var($opt['email'], FILTER_VALIDATE_EMAIL)) { 
+        if (!$this->client_id) {
             return;
         }
 
-        $header = 'From: '. WPISPConfig3::$OPTIONS['sender_name'] .' <no-reply@' . WPISPConfig3::$OPTIONS['default_domain'] .'>';
+        if (!filter_var($opt['email'], FILTER_VALIDATE_EMAIL)) {
+            return;
+        }
+
+        $header = 'From: ' . WPISPConfig3::$OPTIONS['sender_name'] . ' <no-reply@' . WPISPConfig3::$OPTIONS['default_domain'] . '>';
 
         $subject = WPISPConfig3::$OPTIONS['confirm_subject'];
         $message = str_replace(['#USERNAME#', '#PASSWORD#', '#DOMAIN#', '#HOSTNAME#'], [$opt['username'], $opt['password'], $opt['domain'], $_SERVER['HTTP_HOST']], WPISPConfig3::$OPTIONS['confirm_body']);
 
-        return mail($opt['email'], $subject, $message, $header);
+        return wp_mail($opt['email'], $subject, $message, $header);
     }
-        
+
     public function Captcha($title = 'Catpcha')
     {
         if (!isset($_COOKIE['captcha_uid'])) {
@@ -387,147 +404,156 @@ class Ispconfig
         } else {
             $uid = $_COOKIE['captcha_uid'];
         }
-        
+
         $m = [];
         for ($i = 0; $i <= 5; $i++) {
-            $op = (rand(0, 1))?true:false;
+            $op = (rand(0, 1)) ? true : false;
             if ($op) {
                 $m[$i] = ['a' => rand(1, 5), 'b' => rand(1, 15), 'op' => $op];
             } else {
                 $m[$i] = ['a' => rand(1, 15), 'b' => rand(1, 5), 'op' => $op];
             }
+
         }
-        
+
         $choice = rand(0, 5);
-        
+
         if ($m[$choice]['op']) {
             $result = $m[$choice]['a'] + $m[$choice]['b'];
         } else {
             $result = $m[$choice]['a'] - $m[$choice]['b'];
         }
-        
-        set_transient('wp_ispconfig_register_'.$uid.'_captcha', ['result' => $result, 'key' => $choice], 360);
-        
+
+        set_transient('wp_ispconfig_register_' . $uid . '_captcha', ['result' => $result, 'key' => $choice], 360);
+
         foreach ($m as $k => $v) {
             if ($v['op']) {
                 $str = $v['a'] . ' + ' . $v['b'] . ' = ?';
             } else {
                 $str = $v['a'] . ' - ' . $v['b'] . ' = ?';
             }
-            
+
             echo "<div id=\"captcha_problem_{$k}\" style=\"display:none\"><label>{$title} {$str}</label><input type=\"text\" name=\"captcha[{$k}]\" maxlength=\"2\"></div>";
         }
         echo "<input type=\"hidden\" name=\"captcha_uid\" value=\"{$uid}\" />";
 
         echo "<script>jQuery(function(){ var t = new Date(); t.setSeconds(t.getSeconds() + 360); document.cookie=\"captcha_uid={$uid};expires=\"+t.toUTCString();   jQuery('#captcha_problem_{$choice}').show(); })</script>";
     }
-    
+
     public function onCaptchaPost()
     {
-        if (!isset($_POST['captcha_uid'])) { 
+        if (!isset($_POST['captcha_uid'])) {
             return false;
         }
-        
-        $cachedData = get_transient('wp_ispconfig_register_'.$_POST['captcha_uid'].'_captcha');
 
-        if ($cachedData === false) { 
+        $cachedData = get_transient('wp_ispconfig_register_' . $_POST['captcha_uid'] . '_captcha');
+        if ($cachedData === false) {
             return false;
         }
-        
+
         delete_transient('wp_ispconfig_register_captcha');
-        
+
         $result = $cachedData['result'];
         $key = $cachedData['key'];
-                
-        if (!isset($_POST['captcha'])) { 
+
+        if (!isset($_POST['captcha'])) {
             return false;
         }
-        if (!isset($_POST['captcha'][$key])) { 
+
+        if (!isset($_POST['captcha'][$key])) {
             return false;
         }
-        
-        if ($result === false) { 
+
+        if ($result === false) {
             return false;
         }
-        
+
         if ($result != $_POST['captcha'][$key]) {
             return false;
         }
-            
+
         return true;
     }
-    
+
     protected function validateName($input)
     {
-        if (empty($input)) { 
+        if (empty($input)) {
             throw new Exception(__("The name cannot be empty", 'wp-ispconfig3'));
         }
-        if (substr_count($input, ' ') < 1) { 
+
+        if (substr_count($input, ' ') < 1) {
             throw new Exception(__("Please enter your name in full-style", 'wp-ispconfig3'));
-        } 
-            
+        }
+
         return $input;
     }
-    
+
     protected function validateUsername($u)
     {
-        if (empty($u)) { 
+        if (empty($u)) {
             throw new Exception(__("The username cannot be empty", 'wp-ispconfig3'));
         }
-        if (preg_match('/[^A-z0-9]/', $u)) { 
+
+        if (preg_match('/[^A-z0-9]/', $u)) {
             throw new Exception(__("The username contains invalid characters", 'wp-ispconfig3'));
         }
-        if (strlen($u) < 4) { 
+
+        if (strlen($u) < 4) {
             throw new Exception(__("The username is too short", 'wp-ispconfig3'));
         }
-        if (strlen($u) > 20) { 
+
+        if (strlen($u) > 20) {
             throw new Exception(__("The username is too long", 'wp-ispconfig3'));
         }
-        
-        if (!empty($this->forbiddenUserEx)) { 
-            if (preg_match('/'.$this->forbiddenUserEx .'/i', $u)) { 
+
+        if (!empty($this->forbiddenUserEx)) {
+            if (preg_match('/' . $this->forbiddenUserEx . '/i', $u)) {
                 throw new Exception(__("The username is not allowed", 'wp-ispconfig3'));
             }
         }
-        
+
         return strtolower($u);
     }
-    
+
     protected function validatePassword($input, $input_confirm)
     {
-        if (strlen($input) < 10) { 
+        if (strlen($input) < 10) {
             throw new Exception(__("The password is too short", 'wp-ispconfig3'));
         }
-        if (strlen($input) > 30) { 
+
+        if (strlen($input) > 30) {
             throw new Exception(__("The password is too long", 'wp-ispconfig3'));
         }
-        if (preg_match('/[^\x20-\x7f]/', $input)) { 
+
+        if (preg_match('/[^\x20-\x7f]/', $input)) {
             throw new Exception(__('The password contains invalid characters', 'wp-ispconfig3'));
         }
-        
-        if ($input !== $input_confirm) { 
+
+        if ($input !== $input_confirm) {
             throw new Exception(__("The password does not match", 'wp-ispconfig3'));
         }
+
     }
-    
+
     public static function validateDomain($input)
     {
         if (!preg_match("/^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,4}$/", $input)) {
             throw new Exception(__("The domain name is invalid", 'wp-ispconfig3'));
         }
+
         return strtolower($input);
     }
-    
+
     protected function validateMail($input, $input_confirm)
     {
-        if (!filter_var($input, FILTER_VALIDATE_EMAIL)) { 
+        if (!filter_var($input, FILTER_VALIDATE_EMAIL)) {
             throw new Exception(__("The email address is invalid", 'wp-ispconfig3'));
         }
-        if ($input !== $input_confirm) { 
+
+        if ($input !== $input_confirm) {
             throw new Exception(__("The email address does not match", 'wp-ispconfig3'));
         }
-        
+
         return strtolower($input);
     }
 }
-?>
