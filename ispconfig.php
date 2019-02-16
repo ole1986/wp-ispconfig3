@@ -107,7 +107,7 @@ class Ispconfig {
         wp_die();
     }
     
-    public static function isDomainAvailable($dom)
+    public static function isDomainAvailable($dom) 
     {
         $result = shell_exec("whois $dom");
         
