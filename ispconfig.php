@@ -153,7 +153,7 @@ class Ispconfig {
     /**
      * SOAP: Get a list of arrays containing all Client/Reseller limit templates
      */
-    public function GetClientTemplates()
+    public function GetClientTemplates() 
     {
         return $this->soap->client_templates_get_all($this->session_id);
     }
