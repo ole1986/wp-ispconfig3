@@ -144,7 +144,7 @@ You should have received a copy of the GNU General Public License along with WP 
 == Changelog ==
 
 = 1.3.3 =
-* support for passing arguments in shortcode (allow for execution from filters/hooks, you must include "hidden" in shortcode)
+* support for passing arguments in shortcode (allow for execution from filters/hooks)
 * switched email method from mail to wp_mail
 * added ispconfig_register_cancelled.php for reference in hidden form/scripted use
 
