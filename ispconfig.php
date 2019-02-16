@@ -275,6 +275,18 @@ class Ispconfig
         $this->client_id = $this->soap->client_add($this->session_id, $this->reseller_id, $options);
         return $this;
     }
+
+    public function UpdClient($options = [], $c_id){
+        $defaultOptions = array(
+            'locked' => 'n',
+            'canceled' => 'n'
+        );
+        $options = array_merge($defaultOptions, $options);
+        if(!array_key_exists('username', $options)) throw new Exception("Error missing or invalid username");
+
+        $this->client_id = $this->soap->client_update($this->session_id, $c_id, $this->reseller_id, $options);
+        return $this;
+    }
     
     /**
      * SOAP: Add a new Website into ISPConfig
@@ -377,7 +389,7 @@ class Ispconfig
         $subject = WPISPConfig3::$OPTIONS['confirm_subject'];
         $message = str_replace(['#USERNAME#', '#PASSWORD#', '#DOMAIN#', '#HOSTNAME#'], [$opt['username'], $opt['password'], $opt['domain'], $_SERVER['HTTP_HOST']], WPISPConfig3::$OPTIONS['confirm_body']);
 
-        return mail($opt['email'], $subject, $message, $header);
+        return wp_mail($opt['email'], $subject, $message, $header);
     }
         
     public function Captcha($title = 'Catpcha')
