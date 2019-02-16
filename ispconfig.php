@@ -134,9 +134,7 @@ class Ispconfig {
         $attr = array_merge($defaultAttr, $attr);
         
 	ob_start();
-	$opt = null;
-	if(isset($attr['hidden'])) $opt = $attr;
-        $o->Display($opt);
+        $o->Display($attr);
         return ob_get_clean();
     }
     
