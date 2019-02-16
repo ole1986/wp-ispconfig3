@@ -1,6 +1,5 @@
 <?php 
-// Prevent loading this file directly
-defined( 'ABSPATH' ) || exit; 
+defined('ABSPATH') || exit; 
 
 /**
  * Abstract class to provide soap requests and shortcodes
