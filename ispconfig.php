@@ -133,8 +133,10 @@ class Ispconfig {
         $defaultAttr = ['showtitle' => false, 'title' => 'New Client', 'subtitle' => 'Register a new client'];
         $attr = array_merge($defaultAttr, $attr);
         
-        ob_start();
-        $o->Display($attr);
+	ob_start();
+	$opt = null;
+	if(isset($attr['hidden'])) $opt = $attr;
+        $o->Display($opt);
         return ob_get_clean();
     }
     
