@@ -3,7 +3,9 @@
 defined( 'ABSPATH' ) || exit; 
 
 /**
- * Example to register a new customer by using the class Ispconfig
+ * Provide a html form to allow users register a new client account (payed edition).
+ * 
+ * Example: [ispconfig class=IspconfigRegisterClient]
  */
 class IspconfigRegisterClient extends Ispconfig {   
     /**
