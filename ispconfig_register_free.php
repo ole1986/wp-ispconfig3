@@ -83,7 +83,7 @@ class IspconfigRegisterFree extends Ispconfig {
             // send confirmation mail
             if (!empty(WPISPConfig3::$OPTIONS['confirm'])) {
                 $sent = $this->SendConfirmation($opt);
-                if ($sent) {
+                if ($sent) {
                     echo "<div class='ispconfig-msg ispconfig-msg-success'>" . __('You will receive a confirmation email shortly', 'wp-ispconfig3') . "</div>";
                 }
             }
