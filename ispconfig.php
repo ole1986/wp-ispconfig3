@@ -39,17 +39,17 @@ class Ispconfig {
     {
         $options = ['location' => WPISPConfig3::$OPTIONS['soap_location'] , 'uri' => WPISPConfig3::$OPTIONS['soap_uri'], 'trace' => 1, 'exceptions' => 1];
         
-        if(WPISPConfig3::$OPTIONS['skip_ssl']) {
+	if(WPISPConfig3::$OPTIONS['skip_ssl']) {
             // apply stream context to disable ssl checks
-		$options['stream_context'] = stream_context_create(
-			[
-				'ssl' => [
-					'verify_peer'=>false,
-					'verify_peer_name'=>false,
-					'allow_self_signed' => true
-				]
-			]
-		);
+            $options['stream_context'] = stream_context_create(
+                [
+                'ssl' => [
+                    'verify_peer'=>false,
+                    'verify_peer_name'=>false,
+                    'allow_self_signed' => true
+                ]
+                ]
+            );
         }
 
         $this->soap = new SoapClient(null, $options);
@@ -71,9 +71,7 @@ class Ispconfig {
      */
     public function withShortcode()
     {
-        if ( ! is_admin() )
-            add_shortcode( 'ispconfig', array($this,'shortcode') );
-        
+        if(!is_admin()) add_shortcode( 'ispconfig', array($this,'shortcode') );
     }
     
     public function withAjax()
