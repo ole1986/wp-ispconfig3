@@ -190,7 +190,7 @@ class Ispconfig {
             'zip' => '',
             'city' => '',
             'state' => '',
-            'country' => 'US',
+            'country' => 'EN',
             'telephone' => '',
             'mobile' => '',
             'fax' => '',
