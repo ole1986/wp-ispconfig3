@@ -277,12 +277,17 @@ class Ispconfig
         return $this;
     }
 
-    public function UpdClient($options = [], $c_id)
+    public function UpdClient($options, $c_id)
     {
         $defaultOptions = array(
             'locked' => 'n',
             'canceled' => 'n',
         );
+
+        if (!is_array($options)) {
+            throw new Exception("options must be an array");
+        }
+
         $options = array_merge($defaultOptions, $options);
         if (!array_key_exists('username', $options)) {
             throw new Exception("Error missing or invalid username");

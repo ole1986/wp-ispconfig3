@@ -46,7 +46,7 @@ class IspconfigDatabaseList extends WP_List_Table
         return $columns;
     }
     
-    function column_default($item, $column_name)
+    protected function column_default($item, $column_name)
     {
         switch ($column_name) {
             default:

@@ -47,7 +47,7 @@ class IspconfigWebsiteList extends WP_List_Table
         return $columns;
     }
     
-    function column_default($item, $column_name)
+    protected function column_default($item, $column_name)
     {
         switch ($column_name) {
             case 'domain':
@@ -57,7 +57,7 @@ class IspconfigWebsiteList extends WP_List_Table
         }
     }
 
-    function column_active($item)
+    protected function column_active($item)
     {
         if ($item->active === 'y') {
             $actions = [ 'deactivate' => '<a href="javascript:void(0)" data-id="'.$item->domain_id.'" onclick="ISPConfigAdmin.WebsiteStatus(this,\'inactive\')" target="_blank">Deactivate</a>' ];
