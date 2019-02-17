@@ -112,3 +112,9 @@ msgstr "Der Domainname konnte nicht verifiziert werden"
 
 msgid "Your desired domain"
 msgstr "Ihre Wunschdomain"
+
+msgid "Websites"
+msgstr "Webseiten"
+
+msgid "Databases"
+msgstr "Datenbanken"

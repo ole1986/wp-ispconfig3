@@ -25,13 +25,13 @@ class IspconfigDatabase
 
         ?>
         <div class='wrap'>
-            <h1>Databases</h1>
+            <h1><?php _e('Databases', 'wp-ispconfig3') ?></h1>
             <h2></h2>
-            <p>Please select a customer to display the databases</p>
+            <p>Pick a user (must match the ISPconfig3 client username) to display all related databases</p>
             <form action="" method="GET">
                 <input type="hidden" name="page" value="ispconfig_databases" />
                 <input type="hidden" name="action" value="filter" />
-                <label class="post-attributes-label" for="user_login">Customer:</label>
+                <label class="post-attributes-label" for="user_login">User login:</label>
                 <select id="user_login" name="user_login" style="min-width: 200px">
                     <option value="">[select customer]</option>
                 <?php  

@@ -19,7 +19,8 @@ class IspconfigWebsite
         add_action('wp_ajax_ispconfig_website', array(&$this, 'doAjax'));
 
         // the rest after this is for NON-AJAX requests
-        if (defined('DOING_AJAX') && DOING_AJAX) { return;
+        if (defined('DOING_AJAX') && DOING_AJAX) { 
+            return;
         }
     }
 
@@ -42,13 +43,13 @@ class IspconfigWebsite
 
         ?>
         <div class='wrap'>
-            <h1>Websites</h1>
+            <h1><?php _e('Websites', 'wp-ispconfig3') ?></h1>
             <h2></h2>
-            <p>Please select a customer to display the sites</p>
+            <p>Pick a user (must match the ISPconfig3 client username) to display all related websites</p>
             <form action="" method="GET">
                 <input type="hidden" name="page" value="ispconfig_websites" />
                 <input type="hidden" name="action" value="filter" />
-                <label class="post-attributes-label" for="user_login">Customer:</label>
+                <label class="post-attributes-label" for="user_login">User login:</label>
                 <select id="user_login" name="user_login" style="min-width: 200px">
                     <option value="">[select customer]</option>
                 <?php  

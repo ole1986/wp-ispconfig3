@@ -104,6 +104,8 @@ if (!class_exists('WPISPConfig3') ) {
             
             // action hook to load the scripts and style sheets (frontend)
             add_action('wp_enqueue_scripts', array($this, 'wpdocs_theme_name_scripts'));
+            // action hook to load the scripts and style sheets (backend)
+            add_action('admin_enqueue_scripts', array($this, 'wp_admin_scripts'));
             
             // skip the rest if its a frontend request
             if (! is_admin() ) {
@@ -120,7 +122,15 @@ if (!class_exists('WPISPConfig3') ) {
         public function wpdocs_theme_name_scripts()
         {
             wp_enqueue_style('style-name', WPISPCONFIG3_PLUGIN_URL . 'style/ispconfig.css');
-            wp_enqueue_script('ispconfig-script', WPISPCONFIG3_PLUGIN_URL . 'js/ispconfig.js?_' . time());
+            wp_enqueue_script('ispconfig-script', WPISPCONFIG3_PLUGIN_URL . 'js/ispconfig.js');
+        }
+
+        /**
+         * Load neccessary JS scripts for the admin area
+         * HOOK: admin_enqueue_scripts
+         */
+        public function wp_admin_scripts() {
+            wp_enqueue_script('ispconfig-admin-script', WPISPCONFIG3_PLUGIN_URL . 'js/ispconfig-admin.js');
         }
         
         /**
