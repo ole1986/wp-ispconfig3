@@ -20,5 +20,13 @@
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "2.8.*"
+    },
+    "autoload": {
+        "psr-4": {"Ole1986\\": "install/"}
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "Ole1986\\GitPreCommit::install"
+        ]
     }
 }
