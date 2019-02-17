@@ -2,7 +2,7 @@
 defined('ABSPATH') || exit;
 
 // load the wordpress list table class
-if (! class_exists('WP_List_Table') ) {
+if (! class_exists('WP_List_Table')) {
     include_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 }
 
@@ -19,12 +19,12 @@ class IspconfigDatabaseList extends WP_List_Table
         parent::__construct();
     }
 
-    public static function admin_header() 
+    public static function admin_header()
     {
         $page = ( isset($_GET['page']) ) ? esc_attr($_GET['page']) : false;
-        if ('ispconfig_databases' != $page ) {
+        if ('ispconfig_databases' != $page) {
             return;
-        } 
+        }
 
         echo '<style type="text/css">';
         echo '.wp-list-table .column-database_id { width: 40px; }';
@@ -46,15 +46,15 @@ class IspconfigDatabaseList extends WP_List_Table
         return $columns;
     }
     
-    function column_default( $item, $column_name ) 
+    function column_default($item, $column_name)
     {
-        switch($column_name) {
-        default:
-            return $item->$column_name;
+        switch ($column_name) {
+            default:
+                return $item->$column_name;
         }
     }
     
-    public function prepare_items() 
+    public function prepare_items()
     {
         /*global $wpdb;*/
         $columns = $this->get_columns();

@@ -5,7 +5,7 @@ class IspconfigDatabase
 {
     public static $Self;
 
-    public static function init() 
+    public static function init()
     {
         if (!self::$Self) {
             self::$Self = new self();
@@ -14,7 +14,6 @@ class IspconfigDatabase
 
     public function __construct()
     {
-        
     }
     
     public static function DisplayDatabases()
@@ -34,7 +33,7 @@ class IspconfigDatabase
                 <label class="post-attributes-label" for="user_login">User login:</label>
                 <select id="user_login" name="user_login" style="min-width: 200px">
                     <option value="">[select customer]</option>
-                <?php  
+                <?php
                 $users = get_users(['role' => 'customer']);
                 foreach ($users as $u) {
                     $company = get_user_meta($u->ID, 'billing_company', true);

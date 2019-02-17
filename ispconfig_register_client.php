@@ -1,33 +1,38 @@
-<?php 
+<?php
 // Prevent loading this file directly
-defined( 'ABSPATH' ) || exit; 
+defined('ABSPATH') || exit;
 
 /**
  * Provide a html form to allow users register a new client account (payed edition).
- * 
+ *
  * Example: [ispconfig class=IspconfigRegisterClient]
  */
-class IspconfigRegisterClient extends Ispconfig {   
+class IspconfigRegisterClient extends Ispconfig
+{
     /**
      * Called when user submits the data from register form - see Ispconfig::Display() for more details
      */
-    protected function onPost() {
-        if ('POST' !== $_SERVER[ 'REQUEST_METHOD' ] ) { 
+    protected function onPost()
+    {
+        if ('POST' !== $_SERVER[ 'REQUEST_METHOD' ]) {
             return;
         }
         
-        try{
+        try {
             // at least chekc if the client limit template exists in ISPConfig
             $templates = $this->withSoap()->GetClientTemplates();
 
-            $filtered = array_filter($templates,
+            $filtered = array_filter(
+                $templates,
                 function ($v) {
                     return $v['template_id'] == $_POST['template'];
                 }
             );
-            if(empty($filtered)) throw new Exception('No Limit template found for ID ' . $_POST['template']);
+            if (empty($filtered)) {
+                throw new Exception('No Limit template found for ID ' . $_POST['template']);
+            }
 
-            $opt = ['company_name' => $_POST['empresa'], 
+            $opt = ['company_name' => $_POST['empresa'],
                     'contact_name' => $_POST['cliente'],
                     'email' => $_POST['email'],
                     'domain' => $_POST['domain'],
@@ -38,7 +43,9 @@ class IspconfigRegisterClient extends Ispconfig {
             
             $client = $this->GetClientByUser($opt['username']);
             
-            if(!empty($client)) throw new Exception('The user already exist. Please choice a different name');
+            if (!empty($client)) {
+                throw new Exception('The user already exist. Please choice a different name');
+            }
             
             // add the customer
             $this->AddClient($opt)->AddWebsite(['domain' => $opt['domain'], 'password' => $_POST['password']]);
@@ -48,13 +55,14 @@ class IspconfigRegisterClient extends Ispconfig {
             // send confirmation mail
             if (!empty(WPISPConfig3::$OPTIONS['confirm'])) {
                 $sent = $this->SendConfirmation($opt);
-                if ($sent) echo "<div class='ispconfig-msg ispconfig-msg-success'>" . __('You will receive a confirmation email shortly', 'wp-ispconfig3') . "</div>";
+                if ($sent) {
+                    echo "<div class='ispconfig-msg ispconfig-msg-success'>" . __('You will receive a confirmation email shortly', 'wp-ispconfig3') . "</div>";
+                }
             }
             
             echo "<div class='ispconfig-msg'>" . __('You can now login here', 'wp-ispconfig3') .": <a href=\"https://".$_SERVER['HTTP_HOST'].":8080/\">click</a></div>";
             
             $this->closeSoap();
-
         } catch (SoapFault $e) {
             //WPISPConfig3::soap->__getLastResponse();
             echo '<div class="ispconfig-msg ispconfig-msg-error">SOAP Error: '.$e->getMessage() .'</div>';
@@ -66,7 +74,7 @@ class IspconfigRegisterClient extends Ispconfig {
     /**
      * Display the formular and submit button
      * Usually called through shortcode
-     * 
+     *
      * @param array $opt options
      */
     public function Display($opt = null)
@@ -81,8 +89,10 @@ class IspconfigRegisterClient extends Ispconfig {
             
         ?>
         <div class="wrap">
-            <h2><?php if ($opt['showtitle']) _e($opt['title'], 'wp-ispconfig3'); ?></h2>
-            <?php 
+            <h2><?php if ($opt['showtitle']) {
+                _e($opt['title'], 'wp-ispconfig3');
+} ?></h2>
+            <?php
                 $this->onPost();
             ?>
             <form method="post" class="ispconfig" action="">
@@ -91,10 +101,10 @@ class IspconfigRegisterClient extends Ispconfig {
                     <div id="post-body-content">
                         <div id="normal-sortables" class="meta-box-sortables ui-sortable">
                             <div class="postbox inside">
-                                <h3><?php _e( $opt['subtitle'], 'wp-ispconfig3' );?></h3>
+                                <h3><?php _e($opt['subtitle'], 'wp-ispconfig3');?></h3>
                                 <div class="inside">
                                     <div>
-                                    <?php 
+                                    <?php
                                         WPISPConfig3::getField('domain', 'Domain:', 'text', ['container' => 'div']);
                                         WPISPConfig3::getField('cliente', 'Full Name:', 'text', ['container' => 'div']);
                                         WPISPConfig3::getField('email', 'e-Mail:', 'email', ['container' => 'div']);
@@ -106,7 +116,7 @@ class IspconfigRegisterClient extends Ispconfig {
                                         WPISPConfig3::getField('ns2', 'NameServer 2:', 'text', ['container' => 'div']);
                                     ?>
                                     <div>
-                                    <label><?php echo __( 'Template:' ); ?></label>
+                                    <label><?php echo __('Template:'); ?></label>
                                     <select name="template">
                                         <option value="1">5GB Webspace</option>
                                         <option value="2">2GB Webspace</option>

@@ -1,5 +1,5 @@
 <?php
-if (!class_exists('WC_Product')) { 
+if (!class_exists('WC_Product')) {
     return;
 }
 
@@ -11,7 +11,7 @@ abstract class WC_ISPConfigProduct extends WC_Product
     abstract public function OnCheckoutValidate();
     abstract public function OnCheckoutSubmit($order_id, $item_key, $item);
 
-    public static function add_to_cart() 
+    public static function add_to_cart()
     {
         wc_get_template('single-product/add-to-cart/simple.php');
     }
@@ -30,12 +30,12 @@ abstract class WC_ISPConfigProduct extends WC_Product
         return $product_data_tabs;
     }
 
-    public function is_purchasable() 
+    public function is_purchasable()
     {
         return true;
     }
 
-    public function get_sold_individually($context = 'view') 
+    public function get_sold_individually($context = 'view')
     {
         return true;
     }
@@ -43,14 +43,14 @@ abstract class WC_ISPConfigProduct extends WC_Product
     public function get_price($context = 'view')
     {
         return $this->get_regular_price();
-    }   
+    }
 
     /**
      * Get the add to url used mainly in loops.
      *
      * @return string
      */
-    public function add_to_cart_url() 
+    public function add_to_cart_url()
     {
         $url = $this->is_purchasable() && $this->is_in_stock() ? remove_query_arg('added-to-cart', add_query_arg('add-to-cart', $this->id)) : get_permalink($this->id);
         return $url;
@@ -61,7 +61,7 @@ abstract class WC_ISPConfigProduct extends WC_Product
      *
      * @return string
      */
-    public function add_to_cart_text() 
+    public function add_to_cart_text()
     {
         $text = $this->is_purchasable() && $this->is_in_stock() ? __('Add to cart', 'woocommerce') : __('Read more', 'woocommerce');
 

@@ -9,11 +9,11 @@
  */
 defined('ABSPATH') or die('No script kiddies please!');
  
-if (! defined('WPISPCONFIG3_PLUGIN_DIR') ) {
+if (! defined('WPISPCONFIG3_PLUGIN_DIR')) {
     define('WPISPCONFIG3_PLUGIN_DIR', plugin_dir_path(__FILE__));
 }
 
-if (! defined('WPISPCONFIG3_PLUGIN_URL') ) {
+if (! defined('WPISPCONFIG3_PLUGIN_URL')) {
     define('WPISPCONFIG3_PLUGIN_URL', plugin_dir_url(__FILE__));
 }
 
@@ -21,7 +21,7 @@ require_once 'ispconfig.php';
 
 // autoload php files starting with "ispconfig_register_[...].php" when class is used
 spl_autoload_register(
-    function ($class) { 
+    function ($class) {
         $cls = strtolower(preg_replace(['/([a-z\d])([A-Z])/', '/([^_])([A-Z][a-z])/'], "$1_$2", $class));
         $f = $cls .'.php';
         // only include 'ispconfig_register' files
@@ -32,7 +32,7 @@ spl_autoload_register(
     }
 );
 
-if (!class_exists('WPISPConfig3') ) {
+if (!class_exists('WPISPConfig3')) {
     add_action('init', array( 'WPISPConfig3', 'init' ));
 
     register_activation_hook(plugin_basename(__FILE__), array( 'WPISPConfig3', 'install' ));
@@ -71,16 +71,16 @@ if (!class_exists('WPISPConfig3') ) {
 
         /**
          * Initialize the text domain and load the constructor
-         * 
+         *
          * @return void
          */
-        public static function init() 
+        public static function init()
         {
             WPISPConfig3 :: load_textdomain_file();
             new self();
         }
         
-        public function __construct() 
+        public function __construct()
         {
             // load the options from database and make available in WPISPConfig3::$OPTIONS
             $this->load_options();
@@ -108,7 +108,7 @@ if (!class_exists('WPISPConfig3') ) {
             add_action('admin_enqueue_scripts', array($this, 'wp_admin_scripts'));
             
             // skip the rest if its a frontend request
-            if (! is_admin() ) {
+            if (! is_admin()) {
                 return;
             }
             
@@ -116,7 +116,7 @@ if (!class_exists('WPISPConfig3') ) {
             add_action('admin_menu', array( $this, 'admin_menu' ));
         }
         /**
-         * Load the neccessary JS and stylesheets 
+         * Load the neccessary JS and stylesheets
          * HOOK: wp_enqueue_scripts
          */
         public function wpdocs_theme_name_scripts()
@@ -129,7 +129,8 @@ if (!class_exists('WPISPConfig3') ) {
          * Load neccessary JS scripts for the admin area
          * HOOK: admin_enqueue_scripts
          */
-        public function wp_admin_scripts() {
+        public function wp_admin_scripts()
+        {
             wp_enqueue_script('ispconfig-admin-script', WPISPCONFIG3_PLUGIN_URL . 'js/ispconfig-admin.js');
         }
         
@@ -138,37 +139,37 @@ if (!class_exists('WPISPConfig3') ) {
          *
          * @return void
          */
-        public function admin_menu() 
+        public function admin_menu()
         {
             // show the main menu 'WP-ISPConfig 3' in backend
-            add_menu_page(__('WP-ISPConfig 3', 'wp-ispconfig3'), __('WP-ISPConfig 3', 'wp-ispconfig3'), 'null', 'ispconfig3_menu',  null, WPISPCONFIG3_PLUGIN_URL.'ispconfig.png', 3);
-            // display the settings menu entry 
-            add_submenu_page('ispconfig3_menu', __('Settings'), __('Settings'), 'edit_themes', 'ispconfig_settings',  array($this, 'DisplaySettings'));
+            add_menu_page(__('WP-ISPConfig 3', 'wp-ispconfig3'), __('WP-ISPConfig 3', 'wp-ispconfig3'), 'null', 'ispconfig3_menu', null, WPISPCONFIG3_PLUGIN_URL.'ispconfig.png', 3);
+            // display the settings menu entry
+            add_submenu_page('ispconfig3_menu', __('Settings'), __('Settings'), 'edit_themes', 'ispconfig_settings', array($this, 'DisplaySettings'));
             // if woocommerce and invoicing module for ISPConfig is avialble, load it and display invoices menu entry
             
             if (file_exists(WPISPCONFIG3_PLUGIN_DIR . 'manage/ispconfig_website.php')) {
-                add_submenu_page('ispconfig3_menu', __('Websites', 'wp-ispconfig3'), __('Websites', 'wp-ispconfig3'), 'edit_themes', 'ispconfig_websites',  array('IspconfigWebsite', 'DisplayWebsites'));
+                add_submenu_page('ispconfig3_menu', __('Websites', 'wp-ispconfig3'), __('Websites', 'wp-ispconfig3'), 'edit_themes', 'ispconfig_websites', array('IspconfigWebsite', 'DisplayWebsites'));
             }
             if (file_exists(WPISPCONFIG3_PLUGIN_DIR . 'manage/ispconfig_database.php')) {
-                add_submenu_page('ispconfig3_menu', __('Databases', 'wp-ispconfig3'), __('Databases', 'wp-ispconfig3'), 'edit_themes', 'ispconfig_databases',  array('IspconfigDatabase', 'DisplayDatabases'));
+                add_submenu_page('ispconfig3_menu', __('Databases', 'wp-ispconfig3'), __('Databases', 'wp-ispconfig3'), 'edit_themes', 'ispconfig_databases', array('IspconfigDatabase', 'DisplayDatabases'));
             }
         }
         
         /**
          * When option update post data are being submitted
-         * 
+         *
          * @return void
          */
         private function onUpdateSettings()
         {
-            if ('POST' === $_SERVER[ 'REQUEST_METHOD' ] ) {
-                if (get_magic_quotes_gpc() ) {
+            if ('POST' === $_SERVER[ 'REQUEST_METHOD' ]) {
+                if (get_magic_quotes_gpc()) {
                     $_POST = array_map('stripslashes_deep', $_POST);
                 }
                 
                 self::$OPTIONS = $_POST;
                 
-                if ($this->update_options() ) {
+                if ($this->update_options()) {
                     ?><div class="updated"><p> <?php _e('Settings saved', 'wp-ispconfig3');?></p></div><?php
                 }
             }
@@ -177,7 +178,7 @@ if (!class_exists('WPISPConfig3') ) {
         /**
          * Display the settings for ISPConfig
          * action hook 'ispconfig_options' supported
-         * 
+         *
          * @return void
          */
         public function DisplaySettings()
@@ -188,11 +189,11 @@ if (!class_exists('WPISPConfig3') ) {
             ?>
             <?php
             include_once ABSPATH . 'wp-admin/includes/plugin.php';
-            if(!is_plugin_active('wc-invoice-pdf/wc-invoice-pdf.php') ) {
+            if (!is_plugin_active('wc-invoice-pdf/wc-invoice-pdf.php')) {
                 echo '<div class="notice notice-info"><p>Install the <strong>WC-InvoicePdf</strong> plugin to enable the recurring invoice / billing feature - <a href="'.get_admin_url().'/plugin-install.php?s=WC%20InvoicePdf&tab=search&type=term">Click here</a></p></div>';
             }
 
-            if(isset(self::$OPTIONS['wc_pdf_title'])) {
+            if (isset(self::$OPTIONS['wc_pdf_title'])) {
                 echo '<div class="notice notice-error"><p><strong>IMPORTANT:</strong> Please install and <strong>MIGRATE</strong> the WC-InvoicePdf plugin before saving - Otherwise PDF and recurring settings get lost!!!</p></div>';
             }
             ?>
@@ -204,7 +205,7 @@ if (!class_exists('WPISPConfig3') ) {
                     <div class="postbox inside">
                         <div id="ispconfig-general" class="inside tabs-panel" style="display: block;">
                             <h3><?php _e('SOAP Settings', 'wp-ispconfig3') ?></h3>
-                                <?php 
+                                <?php
                                 self::getField('soapusername', 'SOAP Username:');
                                 self::getField('soappassword', 'SOAP Password:', 'password');
                                 self::getField('soap_location', 'SOAP Location:');
@@ -235,20 +236,20 @@ if (!class_exists('WPISPConfig3') ) {
         
         public static function getField($name, $title, $type = 'text', $args = [])
         {
-            $xargs = [  'container' => 'p', 
+            $xargs = [  'container' => 'p',
                         'required' => false,
-                        'attr' => [], 
-                        'label_attr' => ['style' => 'width: 220px; display:inline-block;vertical-align:top;'], 
+                        'attr' => [],
+                        'label_attr' => ['style' => 'width: 220px; display:inline-block;vertical-align:top;'],
                         'input_attr' => ['style' => 'width: 340px'],
                         'value' => ''
                     ];
 
-            if ($type == null) { 
+            if ($type == null) {
                 $type = 'text';
             }
 
             foreach ($xargs as $k => $v) {
-                if (!empty($args[$k])) { 
+                if (!empty($args[$k])) {
                     $xargs[$k] = $args[$k];
                 }
             }
@@ -266,7 +267,7 @@ if (!class_exists('WPISPConfig3') ) {
                 }
                 echo '>';
                 _e($title, 'wp-ispconfig3');
-                if ($xargs['required']) { 
+                if ($xargs['required']) {
                     echo '<span style="color: red;"> *</span>';
                 }
                 echo '</label>';
@@ -285,12 +286,12 @@ if (!class_exists('WPISPConfig3') ) {
 
             if ($type == 'textarea') {
                 echo '<textarea name="'.$name.'" '.$attrStr.'>'  . strip_tags($optValue) . '</textarea>';
-            } else if ($type == 'checkbox') {
+            } elseif ($type == 'checkbox') {
                 echo '<input type="'.$type.'" name="'.$name.'" value="1"' . (($optValue == '1')?'checked':'') .' />';
-            } else if ($type == 'rte') {
+            } elseif ($type == 'rte') {
                 echo '<div '.$attrStr.'>';
                 wp_editor($optValue, $name, ['teeny' => true, 'editor_height'=>200, 'media_buttons' => false]);
-                echo '</div>'; 
+                echo '</div>';
             } else {
                 echo '<input type="'.$type.'" class="regular-text" name="'.$name.'" value="'.$optValue.'"'.$attrStr.' />';
             }
@@ -303,10 +304,10 @@ if (!class_exists('WPISPConfig3') ) {
          *
          * @return void
          */
-        protected static function load_textdomain_file() 
+        protected static function load_textdomain_file()
         {
             // load plugin textdomain
-            load_plugin_textdomain('wp-ispconfig3', false, dirname(plugin_basename(__FILE__)) . '/lang');            
+            load_plugin_textdomain('wp-ispconfig3', false, dirname(plugin_basename(__FILE__)) . '/lang');
         }
 
         /**
@@ -314,7 +315,7 @@ if (!class_exists('WPISPConfig3') ) {
          *
          * @return void
          */
-        protected function load_options() 
+        protected function load_options()
         {
             $opt = get_option(self :: OPTION_KEY);
             if (!empty($opt)) {
@@ -327,7 +328,7 @@ if (!class_exists('WPISPConfig3') ) {
          *
          * @return bool True, if option was changed
          */
-        public function update_options() 
+        public function update_options()
         {
             return update_option(self :: OPTION_KEY, self::$OPTIONS);
         }
@@ -337,9 +338,8 @@ if (!class_exists('WPISPConfig3') ) {
          *
          * @return void
          */
-        public static function install() 
+        public static function install()
         {
-            
         }
 
         /**
@@ -349,7 +349,6 @@ if (!class_exists('WPISPConfig3') ) {
          */
         public static function deactivate()
         {
-            
         }
 
         /**
@@ -357,7 +356,7 @@ if (!class_exists('WPISPConfig3') ) {
          *
          * @return void
          */
-        public static function uninstall() 
+        public static function uninstall()
         {
             delete_option(self :: OPTION_KEY);
         }

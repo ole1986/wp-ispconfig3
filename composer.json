@@ -1,0 +1,24 @@
+{
+    "name": "ole1986/wp-ispconfig3",
+    "type": "library",
+    "description": "Wordpress ISPconfig3 management plugin with shortcodes.",
+    "homepage": "https://github.com/ole1986/wp-ispconfig3",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ole Koeckemann",
+            "email": "ole.k@web.de",
+            "role": "Project Head / Developer"
+        },
+        {
+            "name": "MachineITSvcs",
+            "role": "Contributor"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "2.8.*"
+    }
+}

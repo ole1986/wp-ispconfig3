@@ -1,11 +1,12 @@
-<?php 
+<?php
 // Prevent loading this file directly
-defined( 'ABSPATH' ) || exit; 
+defined('ABSPATH') || exit;
 
 /**
  * Provide a html form to allow users register a new client account (free edition).
  */
-class IspconfigRegisterFree extends Ispconfig {
+class IspconfigRegisterFree extends Ispconfig
+{
     /**
      * Used to provide subdomain registration instead of domain registration in frontend using the below template ID
      */
@@ -14,7 +15,7 @@ class IspconfigRegisterFree extends Ispconfig {
     public $forbiddenUserEx;
     
     /**
-     * List of Client Limit Template from ISPConfig 
+     * List of Client Limit Template from ISPConfig
      */
     public $products = [];
     
@@ -33,17 +34,21 @@ class IspconfigRegisterFree extends Ispconfig {
      */
     protected function onPost()
     {
-        if ( 'POST' !== $_SERVER[ 'REQUEST_METHOD' ] ) return;
+        if ('POST' !== $_SERVER[ 'REQUEST_METHOD' ]) {
+            return;
+        }
         
-        try{
-            if(!$this->onCaptchaPost()) throw new Exception("Wrong or invalid captcha");
+        try {
+            if (!$this->onCaptchaPost()) {
+                throw new Exception("Wrong or invalid captcha");
+            }
             
             $client = $this->validateName($_POST['client']);
             $username = $this->validateUsername($_POST['username']);
             $email = $this->validateMail($_POST['email'], $_POST['email_confirm']);
             
             // check the domain part
-            if (intval($_POST['product_id']) == self::$FreeTemplateID ) {
+            if (intval($_POST['product_id']) == self::$FreeTemplateID) {
                 // add the first page for the customer
                 $domain = $username . '.'. WPISPConfig3::$OPTIONS['default_domain'];
             } else {
@@ -55,7 +60,7 @@ class IspconfigRegisterFree extends Ispconfig {
             
             $foundTemplate = $this->products[$_POST['product_id']];
             
-            $opt = ['company_name' => $_POST['company'], 
+            $opt = ['company_name' => $_POST['company'],
                     'contact_name' => $client,
                     'domain' => $domain,
                     'street' => $_POST['street'],
@@ -89,7 +94,6 @@ class IspconfigRegisterFree extends Ispconfig {
             }
 
             echo "<div class='ispconfig-msg'>" . __('You can now login here', 'wp-ispconfig3') .": <a href=\"https://".$_SERVER['HTTP_HOST'].":8080/\">click</a></div>";
-            
         } catch (SoapFault $e) {
             echo '<div class="ispconfig-msg ispconfig-msg-error">SOAP Error: '. $e->getMessage() .'</div>';
         } catch (Exception $e) {
@@ -109,9 +113,9 @@ class IspconfigRegisterFree extends Ispconfig {
         $defaultOptions = ['title' => 'WP-ISPConfig3', 'button' => 'Click to create Client', 'subtitle' => 'New Client (incl. Website and Domain)','showtitle' => true];
         
         // load the Client templates from ISPCONFIG
-        try{
+        try {
             $templates = $this->withSoap()->GetClientTemplates();
-        } catch(SoapFault $e){
+        } catch (SoapFault $e) {
             echo '<div class="ispconfig-msg ispconfig-msg-error">SOAP Error: '. $e->getMessage() .'</div>';
             return;
         }
@@ -128,8 +132,10 @@ class IspconfigRegisterFree extends Ispconfig {
 
         ?>
         <div class="wrap">
-            <h2><?php if($opt['showtitle']) _e($opt['title'], 'wp-ispconfig3'); ?></h2>
-            <?php 
+            <h2><?php if ($opt['showtitle']) {
+                _e($opt['title'], 'wp-ispconfig3');
+} ?></h2>
+            <?php
                 $this->onPost();
             ?>
             <form method="post" class="ispconfig" action="<?php echo get_permalink(); ?>">
@@ -148,7 +154,7 @@ class IspconfigRegisterFree extends Ispconfig {
                                                 $s = (isset($_GET['product']) && $_GET['product'] == $k)?'selected':'';
                                                 $free = ($k == self::$FreeTemplateID)?'data-isfree="1"':'';
                                                 echo '<option value="'.$k.'" '.$s.' '.$free.'>'.$v['template_name'].'</option>';
-                                            }   
+                                            }
                                             ?>
                                         </select>
                                     </div>
@@ -161,7 +167,7 @@ class IspconfigRegisterFree extends Ispconfig {
                                     </div>
                                     <div style="margin-left: .2em">
                                     <?php
-                                        WPISPConfig3::getField('client', 'Full name:',null, ['container' => 'div','required' => true]);
+                                        WPISPConfig3::getField('client', 'Full name:', null, ['container' => 'div','required' => true]);
                                         WPISPConfig3::getField('company', 'Company:', null, ['container' => 'div']);
                                         WPISPConfig3::getField('street', 'Street', null, ['container' => 'div', 'required' => true]);
                                         echo "<div style='height:1px'>&nbsp;</div>";

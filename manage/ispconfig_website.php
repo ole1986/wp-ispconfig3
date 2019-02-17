@@ -6,7 +6,7 @@ class IspconfigWebsite
 {
     public static $Self;
 
-    public static function init() 
+    public static function init()
     {
         if (!self::$Self) {
             self::$Self = new self();
@@ -19,7 +19,7 @@ class IspconfigWebsite
         add_action('wp_ajax_ispconfig_website', array(&$this, 'doAjax'));
 
         // the rest after this is for NON-AJAX requests
-        if (defined('DOING_AJAX') && DOING_AJAX) { 
+        if (defined('DOING_AJAX') && DOING_AJAX) {
             return;
         }
     }
@@ -52,7 +52,7 @@ class IspconfigWebsite
                 <label class="post-attributes-label" for="user_login">User login:</label>
                 <select id="user_login" name="user_login" style="min-width: 200px">
                     <option value="">[select customer]</option>
-                <?php  
+                <?php
                 $users = get_users(['role' => 'customer']);
                 foreach ($users as $u) {
                     $company = get_user_meta($u->ID, 'billing_company', true);

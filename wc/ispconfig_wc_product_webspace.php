@@ -19,7 +19,7 @@ class WC_Product_Webspace extends WC_ISPConfigProduct
     public $sold_individually = true;
     public $product_type = "webspace";
 
-    public function __construct( $product = 0 ) 
+    public function __construct($product = 0)
     {
         self::$OPTIONS = ['m' => __('monthly', 'wp-ispconfig3'), 'y' => __('yearly', 'wp-ispconfig3') ];
 
@@ -41,7 +41,7 @@ class WC_Product_Webspace extends WC_ISPConfigProduct
         <script type='text/javascript'>
             jQuery( document ).ready( function() {
                 jQuery('.options_group.pricing' ).addClass( 'show_if_webspace' ).show();
-                <?php if($product_object instanceof self) : ?>
+                <?php if ($product_object instanceof self) : ?>
                 jQuery('.general_options').show();
                 jQuery('.general_options > a').trigger('click');
                 <?php endif; ?>
@@ -78,7 +78,7 @@ class WC_Product_Webspace extends WC_ISPConfigProduct
             woocommerce_wp_select(['id' => '_ispconfig_template_id', 'label' => '<strong>Client Limit Template</strong>', 'options' => $options]);
 
             Ispconfig::$Self->closeSoap();
-        } catch(SoapFault $e) {
+        } catch (SoapFault $e) {
             echo "<div style='color:red; margin: 1em;'>ISPConfig SOAP Request failed: " . $e->getMessage() . '</div>';
         }
   
@@ -104,14 +104,16 @@ class WC_Product_Webspace extends WC_ISPConfigProduct
     {
         $templateID = $this->getISPConfigTemplateID();
 
-        if ($templateID >= 1 && $templateID <= 3) { 
+        if ($templateID >= 1 && $templateID <= 3) {
             echo "<h3>" . __('Your desired domain', 'wp-ispconfig3') . "</h3>";
             woocommerce_form_field(
-                'order_domain', [
+                'order_domain',
+                [
                 'type'              => 'text',
                 'placeholder'       => '',
                 'custom_attributes' => ['data-ispconfig-checkdomain'=>'1']
-                 ], $checkout->get_value('order_domain')
+                 ],
+                $checkout->get_value('order_domain')
             );
         }
         
@@ -125,15 +127,15 @@ class WC_Product_Webspace extends WC_ISPConfigProduct
         
         // all products require a DOMAIN to be entered
         if ($templateID >= 1 && $templateID <= 3) {
-            try{
+            try {
                 $dom = Ispconfig::validateDomain($_POST['order_domain']);
                 $available = Ispconfig::isDomainAvailable($dom);
                 if ($available == 0) {
                     wc_add_notice(__("The domain is not available", 'wp-ispconfig3'), 'error');
-                } else if ($available == -1) {
+                } elseif ($available == -1) {
                     wc_add_notice(__("The domain might not be available", 'wp-ispconfig3'), 'notice');
                 }
-            } catch(Exception $e){
+            } catch (Exception $e) {
                 wc_add_notice($e->getMessage(), 'error');
             }
         }
@@ -141,12 +143,12 @@ class WC_Product_Webspace extends WC_ISPConfigProduct
 
     public function OnCheckoutSubmit($order_id, $item_key, $item)
     {
-        if (! empty($_POST['order_domain']) ) {
+        if (! empty($_POST['order_domain'])) {
             update_post_meta($order_id, 'Domain', sanitize_text_field($_POST['order_domain']));
 
             $templateID = $this->getISPConfigTemplateID();
             // no ispconfig product found in order - so skip doing ispconfig related stuff
-            if (empty($templateID)) { 
+            if (empty($templateID)) {
                 return;
             }
 
@@ -167,22 +169,22 @@ class WC_Product_Webspace extends WC_ISPConfigProduct
 
     public static function AddToCart($item, $item_key)
     {
-        if (get_class($item['data']) != 'WC_Product_Webspace') { 
+        if (get_class($item['data']) != 'WC_Product_Webspace') {
             return $item;
         }
         // empty cart when a webspace product is being added
         // ONLY ONE webspace product is allowed in cart
         WC()->cart->empty_cart();
-        return $item; 
+        return $item;
     }
 
     /**
      * Display a DropDown (per webspace product) for selecting the period (month / year / ...)
-     * Can be customized in $OPTIONS property  
+     * Can be customized in $OPTIONS property
      */
     public static function Period($item_qty, $item_key, $item)
     {
-        if (get_class($item['data']) != 'WC_Product_Webspace') { 
+        if (get_class($item['data']) != 'WC_Product_Webspace') {
             return;
         }
         
@@ -190,7 +192,7 @@ class WC_Product_Webspace extends WC_ISPConfigProduct
 
         ?>
         <select style="width:70%;margin-right: 0.3em" name="period[<?php echo $item_key?>]" onchange="jQuery('input[name=\'update_cart\']').prop('disabled', false).trigger('click');">
-        <?php foreach(self::$OPTIONS as $k => $v) { ?>
+        <?php foreach (self::$OPTIONS as $k => $v) { ?>
             <option value="<?php echo $k ?>" <?php echo ($period == $k)?'selected':'' ?> ><?php echo $v ?></option>
         <?php } ?>
         </select>
@@ -204,7 +206,7 @@ class WC_Product_Webspace extends WC_ISPConfigProduct
     public static function CartUpdated($isUpdated)
     {
         
-        if (!isset($_POST['period'])) { 
+        if (!isset($_POST['period'])) {
             return $isUpdated;
         }
 

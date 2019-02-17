@@ -7,7 +7,7 @@ add_filter('product_type_selector', ['WC_Product_Hour','register']);
 class WC_Product_Hour extends WC_Product
 {
 
-    public function __construct( $product ) 
+    public function __construct($product)
     {
         $this->product_type = 'hour';
         parent::__construct($product);
@@ -27,7 +27,7 @@ class WC_Product_Hour extends WC_Product
         <script type='text/javascript'>
             jQuery( document ).ready( function() {
                 jQuery( '.options_group.pricing' ).addClass( 'show_if_hour' ).show();
-                <?php if($product_object instanceof self) : ?>
+                <?php if ($product_object instanceof self) : ?>
                 jQuery('.general_options').show();
                 jQuery('.general_options > a').trigger('click');
                 <?php endif; ?>

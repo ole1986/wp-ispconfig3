@@ -75,7 +75,6 @@ class Ispconfig
         if (!is_admin()) {
             add_shortcode('ispconfig', array($this, 'shortcode'));
         }
-
     }
 
     public function withAjax()
@@ -85,7 +84,9 @@ class Ispconfig
             add_action('wp_ajax_ispconfig_whois', [$this, 'AJAX_ispconfig_whois_callback']);
             add_action('wp_ajax_nopriv_ispconfig_whois', [$this, 'AJAX_ispconfig_whois_callback']);
         } else {
-            add_action('wp_head', function () {echo "<script>var ajaxurl = '" . admin_url('admin-ajax.php') . "'</script>";});
+            add_action('wp_head', function () {
+                echo "<script>var ajaxurl = '" . admin_url('admin-ajax.php') . "'</script>";
+            });
         }
     }
 
@@ -99,7 +100,7 @@ class Ispconfig
 
         if ($ok < 0) {
             $result['text'] = __('The domain could not be verified', 'wp-ispconfig3');
-        } else if ($ok == 0) {
+        } elseif ($ok == 0) {
             $result['text'] = __('The domain is already registered', 'wp-ispconfig3');
             $result['class'] = 'ispconfig-msg-error';
         } else {
@@ -117,7 +118,7 @@ class Ispconfig
 
         if (preg_match("/^(No whois server is known|This TLD has no whois server)/m", $result)) {
             return -1;
-        } else if (preg_match("/^(Status: AVAILABLE|Status: free|NOT FOUND|" . $dom . " no match|No match for \"(.*?)\"\.)$/im", $result)) {
+        } elseif (preg_match("/^(Status: AVAILABLE|Status: free|NOT FOUND|" . $dom . " no match|No match for \"(.*?)\"\.)$/im", $result)) {
             return 1;
         }
 
@@ -157,7 +158,6 @@ class Ispconfig
         try {
             return $this->soap->client_get_by_username($this->session_id, $username);
         } catch (SoapFault $e) {
-
         }
     }
 
@@ -413,7 +413,6 @@ class Ispconfig
             } else {
                 $m[$i] = ['a' => rand(1, 15), 'b' => rand(1, 5), 'op' => $op];
             }
-
         }
 
         $choice = rand(0, 5);
@@ -532,7 +531,6 @@ class Ispconfig
         if ($input !== $input_confirm) {
             throw new Exception(__("The password does not match", 'wp-ispconfig3'));
         }
-
     }
 
     public static function validateDomain($input)

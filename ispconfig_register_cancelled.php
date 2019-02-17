@@ -19,7 +19,6 @@ class IspconfigRegisterCancelled extends Ispconfig
         try {
             $client = $this->withSoap()->GetClientByUser($attr['username']);
             if (!empty($client)) {
-
                 $client_id = $client['client_id'];
 
                 $opt = ['username' => strtolower($attr['username']),
