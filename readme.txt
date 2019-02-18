@@ -143,6 +143,9 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+= 1.3.4 =
+* Fixed active/deactive action in Websites menu
+
 = 1.3.3 =
 * support for passing arguments in shortcode (allow for execution from filters/hooks)
 * switched email method from mail to wp_mail
