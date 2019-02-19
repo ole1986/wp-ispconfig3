@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP-ISPConfig3
  * Description: ISPConfig3 plugin allows you to register customers through wordpress frontend using shortcodes.
- * Version: 1.3.4
+ * Version: 1.3.5
  * Author: ole1986 <ole.k@web.de>, MachineITSvcs <contact@machineitservices.com>
  * Author URI: https://github.com/ole1986/wp-ispconfig3
  * Text Domain: wp-ispconfig3
@@ -66,7 +66,8 @@ if (!class_exists('WPISPConfig3')) {
                                 Domain: #DOMAIN#\n
                                 Login with your account on http://#HOSTNAME#:8080",
             'default_domain' => 'yourdomain.tld',
-            'sender_name' => 'Your Sevice name'
+            'sender_name' => 'Your Sevice name',
+            'user_roles' => ['customer', 'subscriber']
         ];
 
         /**
@@ -216,9 +217,18 @@ if (!class_exists('WPISPConfig3')) {
                             <?php
                                 self::getField('confirm', 'Send Confirmation', 'checkbox');
                                 self::getField('confirm_subject', 'Confirmation subject');
-                                self::getField('confirm_body', 'Confirmation Body', 'textarea');
+                                self::getField('confirm_body', 'Confirmation Body', 'textarea', ['input_attr' => ['style' => 'width: 340px; height: 150px']]);
                                 self::getField('default_domain', 'Default Domain');
                                 self::getField('sender_name', 'Sender name');
+                            ?>
+                            <h3><?php _e('User Mapping') ?></h3>
+                            <p>Choose the below WordPress user roles to match the clients stored in ISPconfig3</p>
+                            <?php
+                            $roles = wp_roles()->roles;
+                            foreach ($roles as $k => $v) {
+                                $checked = in_array($k, self::$OPTIONS['user_roles']) ? 'checked' : '';
+                                echo "<input type='checkbox' id='user_role_$k' name='user_roles[]' value='$k' $checked /> <label for='user_role_$k'>" . $v['name'] . '</label>&nbsp;';
+                            }
                             ?>
                         </div>
                         <?php do_action('ispconfig_options'); ?>
