@@ -12,14 +12,15 @@ ISPConfig 3 ~ Hosting Control Panel ~ registration form interface incl. invoice 
 
 == Description ==
 
-The WP ISPConfig 3 plugin allows you to frontend/customer registration forms to create clients, websites, shell users directly into the [ISPConfig](http://www.ispconfig.org) Control Panel by using its REST API.
+The WP ISPConfig 3 plugin allows you to create frontend/customer registration forms and backend/checkout functions to create clients, websites, and shell users directly into the [ISPConfig](http://www.ispconfig.org) Control Panel by using its REST API.
 
 **ISPCONFIG Features**
 
-* shipped with two default registration form for websites (ispconfig_register_client / ispconfig_register_free)
+* shipped with three default registration forms for websites (ispconfig_register_client / ispconfig_register_free / ispconfig_register_cancelled)
 * use the shortcode "[ispconfig class=IspconfigRegisterClient]" and "[ispconfig class=IspconfigRegisterFree]" to display the forms at any place
-* display domains and databases filtered by user
-* build your own forms (incl. shortcodde) in less than 5 minutes (Check out the Installation section for more details)
+* use the shortcode "[ispconfig class=IspconfigRegisterCancelled]" or similarly coded class to create and update clients on the backend without a form
+* display domains and databases filtered by user and activate/deactivate websites within the WordPress Dashboard
+* build your own forms (incl. shortcode) in less than 5 minutes (Check out the Installation section for more details)
 
 Check out the Installation tab for more details on how to build your own extension
 
@@ -43,7 +44,10 @@ It is required to configure the plugin in the ISPConfig Panel as well as in the 
 
 = Plugin settings =
 
-* Log into your wordpress page as administrator and switch to the backend
+* You will need to first create a Remote User account in your ISPConfig Control Panel under the System tab. This user will need all permissions.
+* Make sure to choose/create/generate a very secure password. This user account allows full access to your Control Panel REST API.
+
+* Once this account is created, log into your WordPress Dashboard as an administrator
 * Active the plugin (if not done yet)
 * Open `WP-ISPConfig 3 -> Settings` from the backend
 * Fill in ISPConfig information as following (replace localhost with the host the REST API is running)
