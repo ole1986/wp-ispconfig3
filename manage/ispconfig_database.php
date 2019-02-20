@@ -34,7 +34,7 @@ class IspconfigDatabase
                 <select id="user_login" name="user_login" style="min-width: 200px">
                     <option value="">[select customer]</option>
                 <?php
-                $users = get_users(['role' => 'customer']);
+                $users = get_users(['role__in' => WPISPConfig3::$OPTIONS['user_roles']]);
                 foreach ($users as $u) {
                     $company = get_user_meta($u->ID, 'billing_company', true);
                     $selected = (isset($_GET['user_login']) && $u->user_login == $_GET['user_login'])?'selected':'';
