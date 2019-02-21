@@ -227,7 +227,7 @@ if (!class_exists('WPISPConfig3')) {
                             $roles = wp_roles()->roles;
                             foreach ($roles as $k => $v) {
                                 $checked = in_array($k, self::$OPTIONS['user_roles']) ? 'checked' : '';
-                                echo "<input type='checkbox' id='user_role_$k' name='user_roles[]' value='$k' $checked /> <label for='user_role_$k'>" . $v['name'] . '</label>&nbsp;';
+                                echo "<input type='checkbox' id='user_role_$k' name='user_roles[]' value='$k' $checked /> <label for='user_role_$k'>" . $v['name'] . '</label><br />';
                             }
                             ?>
                         </div>
