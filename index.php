@@ -222,7 +222,7 @@ if (!class_exists('WPISPConfig3')) {
                                 self::getField('sender_name', 'Sender name');
                             ?>
                             <h3><?php _e('User Mapping') ?></h3>
-                            <p>Choose the below WordPress user roles to match the clients stored in ISPconfig3</p>
+                            <p>Choose the below WordPress user roles to match the clients stored in ISPConfig3</p>
                             <?php
                             $roles = wp_roles()->roles;
                             foreach ($roles as $k => $v) {
