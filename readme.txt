@@ -147,6 +147,9 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+= 1.3.5 =
+* Added support for specifying multiple user roles for Website and Database lookup/edit functions
+
 = 1.3.4 =
 * Fixed activate/deactivate action in Websites menu
 * Amended php files to match PSR-2 coding standard
