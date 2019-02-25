@@ -91,7 +91,7 @@ class IspconfigRegisterClient extends Ispconfig
         <div class="wrap">
             <h2><?php if ($opt['showtitle']) {
                 _e($opt['title'], 'wp-ispconfig3');
-} ?></h2>
+                } ?></h2>
             <?php
                 $this->onPost();
             ?>

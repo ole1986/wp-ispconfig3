@@ -6,6 +6,7 @@
  * Author: ole1986 <ole.k@web.de>, MachineITSvcs <contact@machineitservices.com>
  * Author URI: https://github.com/ole1986/wp-ispconfig3
  * Text Domain: wp-ispconfig3
+ * Domain Path: /lang
  */
 defined('ABSPATH') or die('No script kiddies please!');
  
@@ -18,6 +19,7 @@ if (! defined('WPISPCONFIG3_PLUGIN_URL')) {
 }
 
 require_once 'ispconfig.php';
+require_once 'ispconfig-blocks.php';
 
 // autoload php files starting with "ispconfig_register_[...].php" when class is used
 spl_autoload_register(
@@ -34,6 +36,10 @@ spl_autoload_register(
 
 if (!class_exists('WPISPConfig3')) {
     add_action('init', array( 'WPISPConfig3', 'init' ));
+
+    add_action('plugins_loaded', function () {
+        load_plugin_textdomain('wp-ispconfig3', false, dirname(plugin_basename(__FILE__)) . '/lang');
+    });
 
     register_activation_hook(plugin_basename(__FILE__), array( 'WPISPConfig3', 'install' ));
     register_deactivation_hook(plugin_basename(__FILE__), array( 'WPISPConfig3', 'deactivate' ));
@@ -77,7 +83,6 @@ if (!class_exists('WPISPConfig3')) {
          */
         public static function init()
         {
-            WPISPConfig3 :: load_textdomain_file();
             new self();
         }
         
@@ -212,7 +217,7 @@ if (!class_exists('WPISPConfig3')) {
                                 self::getField('soap_location', 'SOAP Location:');
                                 self::getField('soap_uri', 'SOAP URI:');
                                 self::getField('skip_ssl', 'Skip certificate check', 'checkbox');
-                            ?>
+                                ?>
                             <h3><?php _e('Account creation', 'wp-ispconfig3') ?></h3>
                             <?php
                                 self::getField('confirm', 'Send Confirmation', 'checkbox');
@@ -309,17 +314,6 @@ if (!class_exists('WPISPConfig3')) {
             echo '</' . $xargs['container'] .'>';
         }
         
-        /**
-         * Load text domain to provide different languages
-         *
-         * @return void
-         */
-        protected static function load_textdomain_file()
-        {
-            // load plugin textdomain
-            load_plugin_textdomain('wp-ispconfig3', false, dirname(plugin_basename(__FILE__)) . '/lang');
-        }
-
         /**
          * Load options being stored in wordpress (wp_options)
          *

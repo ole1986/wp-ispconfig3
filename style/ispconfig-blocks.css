@@ -1,0 +1,26 @@
+.ispconfig-block-inline {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.ispconfig-block-infobox {
+    margin-bottom: 0.5em;
+    padding: .5em;
+    margin-top: 0.5em;
+    background: #f3f4f5;
+    border: 1px solid rgb(85, 93, 102);
+}
+
+.ispconfig-block-field {
+    display: inline-block;
+    width: 420px;
+    padding: .5em;
+    margin-bottom: 0.5em;
+    background: #f3f4f5;
+    margin-right: 10px;
+    border: 1px solid rgb(85, 93, 102);
+}
+
+.ispconfig-block-field select {
+    width: 200px;
+}

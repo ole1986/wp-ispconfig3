@@ -153,10 +153,14 @@ class Ispconfig
     /**
      * SOAP: Get Client by username
      */
-    public function GetClientByUser($username)
+    public function GetClientByUser($username, $withDetails = false)
     {
         try {
-            return $this->soap->client_get_by_username($this->session_id, $username);
+            $client = $this->soap->client_get_by_username($this->session_id, $username);
+            if ($withDetails) {
+                return $this->soap->client_get($this->session_id, $client['client_id']);
+            }
+            return $client;
         } catch (SoapFault $e) {
         }
     }
@@ -185,6 +189,11 @@ class Ispconfig
     public function SetSiteStatus($id, $status = 'active')
     {
         return $this->soap->sites_web_domain_set_status($this->session_id, intval($id), $status);
+    }
+
+    public function SetClientID($id)
+    {
+        $this->client_id = $id;
     }
 
     /**
@@ -277,7 +286,7 @@ class Ispconfig
         return $this;
     }
 
-    public function UpdClient($options, $c_id)
+    public function UpdClient($options)
     {
         $defaultOptions = array(
             'locked' => 'n',
@@ -293,7 +302,7 @@ class Ispconfig
             throw new Exception("Error missing or invalid username");
         }
 
-        $this->client_id = $this->soap->client_update($this->session_id, $c_id, $this->reseller_id, $options);
+        $this->client_id = $this->soap->client_update($this->session_id, $this->client_id, $this->reseller_id, $options);
         return $this;
     }
 
