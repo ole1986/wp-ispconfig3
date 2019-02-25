@@ -1,4 +1,7 @@
 <?php
+if (!class_exists('WC_Product')) {
+    return;
+}
 // Prevent loading this file directly
 defined('ABSPATH') || exit;
 
