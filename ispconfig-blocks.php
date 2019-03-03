@@ -206,24 +206,19 @@ class IspconfigBlock
         }
     }
 
-    private function generatePassword()
-    {
-        return substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 10);
-    }
-
     private function alert($message)
     {
-        return '<div style="background-color: #ad3a20; padding: 0.5em; color: white; margin-bottom: 1em;">' . $message . '</div>';
+        return '<div class="ispconfig-msg ispconfig-msg-error">' . $message . '</div>';
     }
 
     private function info($message)
     {
-        return '<div style="background-color: lightgray; padding: 0.5em; color: white; margin-bottom: 1em;">' . $message . '</div>';
+        return '<div class="ispconfig-msg">' . $message . '</div>';
     }
 
     private function success($message)
     {
-        return '<div style="background-color: #227718; padding: 0.5em; color: white; margin-bottom: 1em;">' . $message . '</div>';
+        return '<div class="ispconfig-msg ispconfig-msg-success">' . $message . '</div>';
     }
 
     protected function createClient($props, &$content)
@@ -372,7 +367,7 @@ class IspconfigBlock
 
         $contactUser = preg_replace('/\W/', '', strtolower($contactName));
 
-        $password = $this->generatePassword();
+        $password = wp_generate_password();
 
         $opt = ['username' => $contactUser, 'password' => $password,'contact_name' => $contactName, 'company_name' => $postData['client_company_name'], 'email' => $postData['client_email']];
 

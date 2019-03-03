@@ -18,25 +18,12 @@ if (! defined('WPISPCONFIG3_PLUGIN_URL')) {
     define('WPISPCONFIG3_PLUGIN_URL', plugin_dir_url(__FILE__));
 }
 
+require_once 'ispconfig-abstract.php';
 require_once 'ispconfig.php';
 require_once 'ispconfig-blocks.php';
 
-// autoload php files starting with "ispconfig_register_[...].php" when class is used
-spl_autoload_register(
-    function ($class) {
-        $cls = strtolower(preg_replace(['/([a-z\d])([A-Z])/', '/([^_])([A-Z][a-z])/'], "$1_$2", $class));
-        $f = $cls .'.php';
-        // only include 'ispconfig_register' files
-        if (preg_match("/^ispconfig_register/", $cls)) {
-            //error_log('Loading file '. $f .' from class ' . $class);
-            include $f;
-        }
-    }
-);
-
 if (!class_exists('WPISPConfig3')) {
-    add_action('init', array( 'WPISPConfig3', 'init' ));
-
+    add_action('init', ['WPISPConfig3', 'init'], 1);
     add_action('plugins_loaded', function () {
         load_plugin_textdomain('wp-ispconfig3', false, dirname(plugin_basename(__FILE__)) . '/lang');
     });
@@ -92,7 +79,7 @@ if (!class_exists('WPISPConfig3')) {
             $this->load_options();
 
             // initialize the Ispconfig class
-            Ispconfig::init();
+            new Ispconfig();
 
             // load the ISPConfig3 invoicing module (PREMIUM)
             if (file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php')) {
