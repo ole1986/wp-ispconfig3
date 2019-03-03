@@ -76,6 +76,10 @@ class IspconfigBlock
                     return;
                 }
                 break;
+            case 'action_create_mail':
+                $content .= $this->alert('Creating email accounts is not yet implemented');
+                return;
+                break;
             case 'action_update_client_bank':
             case 'action_update_client':
                 $loginField = array_pop(array_filter($props['fields'], function ($field) {
@@ -134,7 +138,7 @@ class IspconfigBlock
                     $ok = $this->createWebsiteAndClient($props, $content);
                     break;
                 case 'action_create_mail':
-                    $ok = $this->createMail($props);
+                    $ok = $this->createMail($props, $content);
                     break;
                 case 'action_update_client':
                     $ok = $this->updateClient($props, $content);
@@ -384,8 +388,30 @@ class IspconfigBlock
         return true;
     }
 
-    protected function createMail($props)
+    protected function createMail($props, &$content)
     {
+        $postData = $this->postData;
+
+        $part = preg_split('/@/', $postData['mail_address']);
+
+        if (count($part) < 2) {
+            $this->alert('Invalid mail address');
+            return;
+        }
+
+        try {
+            $domain = Ispconfig::validateDomain($part[1]);
+        } catch (Exception $e) {
+            $this->alert($e->getMessage());
+            return;
+        }
+
+        Ispconfig::$Self->withSoap();
+        $result = Ispconfig::$Self->GetMailDomainByDomain($domain);
+
+        $client = Ispconfig::$Self->GetClientByGroupID($result['sys_groupid']);
+
+        print_r($client);
     }
 
     protected function updateClient($props, &$content)

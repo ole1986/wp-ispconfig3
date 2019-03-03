@@ -126,37 +126,6 @@ abstract class IspconfigAbstract
     }
 
     /**
-     * Provide shortcode execution by calling the class constructor defined "class=..." attribute
-     */
-    /*public function shortcode($attr, $content = null)
-    {
-        // init
-        if (empty($attr)) {
-            return 'No parameters defined in shortcode';
-        }
-
-        if (empty($attr['class'])) {
-            return 'No CLASS parameter defined in shortcode';
-        }
-
-        $cls = $attr['class'];
-        //$o = new $cls();
-
-        echo "#### CLASS: " . get_class($this);
-
-        $defaultAttr = ['showtitle' => false, 'title' => 'New Client', 'subtitle' => 'Register a new client'];
-        $attr = array_merge($defaultAttr, $attr);
-
-        ob_start();
-
-        if (get_class($this) == $cls) {
-            $this->Display($attr, $content);
-        }
-
-        return ob_get_clean();
-    }*/
-
-    /**
      * SOAP: Get Client by username
      */
     public function GetClientByUser($username, $withDetails = false)
@@ -169,6 +138,11 @@ abstract class IspconfigAbstract
             return $client;
         } catch (SoapFault $e) {
         }
+    }
+
+    public function GetClientByGroupID($groupid)
+    {
+        return $this->soap->client_get_by_groupid($this->session_id, $groupid);
     }
 
     /**
@@ -369,6 +343,11 @@ abstract class IspconfigAbstract
 
         $this->domain_id = $this->soap->sites_web_domain_add($this->session_id, $this->client_id, $options, $readonly = false);
         return $this->domain_id;
+    }
+
+    public function GetMailDomainByDomain($domain)
+    {
+        return $this->soap->mail_domain_get_by_domain($this->session_id, $domain);
     }
 
     /**
