@@ -53,34 +53,39 @@ function IspconfigField(props) {
 		}
 	}
 
-	var loadOptions = function() {
+	var loadField = function(field) {
 
-		self.state.options = [ { name: 'Default', id: 'default' } ];
+		var options = [ { name: 'Default', id: '' } ];
+		var advanced = false;
+		var info = '';
 
-		switch(self.state.field.id) {
+		switch(field.id) {
 			case 'client_username':
-				self.state.options.push({ name: 'WP User', id: 'wp-user' });
-				console.log(self.state.field);
-				if (self.state.field.computed === 'default') {
-					self.state.advanced = true;
-					self.state.info = 'Client user (optional)';
+				options.push({ name: 'WP User', id: 'wp-user' });
+				if (field.computed === '') {
+					advanced = true;
+					info = 'Client user (optional)';
 				}
 				break;
 			case 'client_contact_name':
-				self.state.options.push({ name: 'WP Full Name', id: 'wp-name' });
+				options.push({ name: 'WP Full Name', id: 'wp-name' });
 				break;
 			case 'client_email':
 			case 'mail_address':
-				self.state.options.push({ name: 'WP Email', id: 'wp-email' });
+				options.push({ name: 'WP Email', id: 'wp-email' });
 				break;
 			case 'client_language':
-				self.state.options.push({ name: 'WP Locale', id: 'wp-locale' });
+				options.push({ name: 'WP Locale', id: 'wp-locale' });
 				break;
 			case 'client_template_master':
-				self.state.advanced = true;
-				self.state.info = 'Enter template id';
+				advanced = true;
+				info = 'Enter template id';
 				break;
 		}
+
+		self.setState(function() {
+			return { options, advanced, info, field};
+		});
 	}
 
 	var updateComputed = function (computed) {
@@ -106,18 +111,14 @@ function IspconfigField(props) {
 	}
 
 	self.componentDidMount = function () {
-		
+		loadField(props.field);		
 	};
 
 	self.componentWillReceiveProps = function(nextProps) {
-		self.setState(function(prevState) {
-			return {field: nextProps.field};
-		});
+		loadField(nextProps.field);
 	}
 
 	self.render = function () {
-
-		loadOptions();
 
 		var hidden = wp.element.createElement(wp.components.CheckboxControl, { className: 'ispconfig-block-inline', checked: self.state.field.hidden, label: 'Hidden', onChange: updateCheckbox.bind(this) });
 		var delicon = wp.element.createElement(wp.components.Button, {onClick: props.onDelete, disabled: self.state.field.protected, style: { 'margin-left': '10px' }, className: 'components-button button-link-delete is-button is-default is-large'}, "Delete");
@@ -279,7 +280,7 @@ wp.blocks.registerBlockType('ole1986/ispconfig-block', {
 			wp.element.createElement(wp.components.TreeSelect, { style: { 'max-width': '200px' }, tree: actionControls, selectedId: props.attributes.action, onChange: changeAction }),
 			wp.element.createElement('div', { className:'ispconfig-block-infobox' }, props.attributes.description),
 			wp.element.createElement(IspconfigFieldList, props),
-			wp.element.createElement('div', {style: {'margin-top': '1em', 'font-size': '90%'}}, 'HINT: You can use add_filter() in your own plugin to automate the field input - ', wp.element.createElement('a', {target: '_blank', href: 'https://github.com/ole1986/wp-ispconfig3/issues/20#issuecomment-467987534'}, 'Click here for details'))
+			wp.element.createElement('div', {style: {'margin-top': '1em', 'font-size': '90%'}}, 'Learn more about customizing the field input using wordpress filters or shortcodes - ', wp.element.createElement('a', {target: '_blank', href: 'https://github.com/ole1986/wp-ispconfig3/wiki'}, 'Click here for details'))
 		);
 	},
 	save: function () {
