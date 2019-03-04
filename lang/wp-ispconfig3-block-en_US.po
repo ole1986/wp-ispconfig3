@@ -38,6 +38,12 @@ msgstr "Update customer"
 msgid "action_update_client_bank"
 msgstr "Update bank details"
 
+msgid "action_lock_client"
+msgstr "Lock client account"
+
+msgid "action_unlock_client"
+msgstr "Unlock client account"
+
 msgid "client_username"
 msgstr "Client ID"
 

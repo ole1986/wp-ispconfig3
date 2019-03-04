@@ -2,13 +2,7 @@
 defined('ABSPATH') || exit;
 
 /**
- * Abstract class to provide soap requests and shortcodes
- *
- * PLEASE NOTE:
- * You can easily add features by creating a "ispconfig_register_<yourfeature>.php" file
- * shortcode can than be use the following in RTF Editor: [ispconfig class=IspconfigRegisterYourfeature]
- *
- * An Example can be found in the file: ispconfig_register_client.php
+ * Abstract class to provide soap requests and shortcodes.
  */
 abstract class IspconfigAbstract
 {
@@ -27,13 +21,11 @@ abstract class IspconfigAbstract
     public function __construct()
     {
         $this->withShortcode();
-        $this->withAjax();
-
         self::$Self = $this;
     }
 
     /**
-     * Initialize the SoapClient for ISPConfig
+     * Initialize the SoapClient connection to the ISPConfig3 REST API using the login information stored as settings
      */
     public function withSoap()
     {
@@ -57,6 +49,9 @@ abstract class IspconfigAbstract
         return $this;
     }
 
+    /**
+     * Close an existing soap connection to the ISPConfig3 REST API
+     */
     public function closeSoap()
     {
         if (!empty($this->session_id)) {
@@ -67,7 +62,10 @@ abstract class IspconfigAbstract
     }
 
     /**
-     * Enable shortcode for the calling class
+     * Allow extending child classes with its shortcode.
+     * So a class with "IspconfigTest" inherited by this abstract class becomes the shortcode "[IspconfigTest]"
+     *
+     * More details: https://github.com/ole1986/wp-ispconfig3/wiki/Extending-wp-ispconfig3-with-custom-shortcodes
      */
     public function withShortcode()
     {
@@ -75,41 +73,6 @@ abstract class IspconfigAbstract
             $cls = get_class($this);
             add_shortcode($cls, array($this, 'Display'));
         }
-    }
-
-    public function withAjax()
-    {
-        // used to request whois through ajax
-        if (is_admin()) {
-            add_action('wp_ajax_ispconfig_whois', [$this, 'AJAX_ispconfig_whois_callback']);
-            add_action('wp_ajax_nopriv_ispconfig_whois', [$this, 'AJAX_ispconfig_whois_callback']);
-        } else {
-            add_action('wp_head', function () {
-                echo "<script>var ajaxurl = '" . admin_url('admin-ajax.php') . "'</script>";
-            });
-        }
-    }
-
-    public function AJAX_ispconfig_whois_callback()
-    {
-        $dom = strtolower($_POST['domain']);
-
-        $ok = self::isDomainAvailable($dom);
-
-        $result = ['text' => '', 'class' => ''];
-
-        if ($ok < 0) {
-            $result['text'] = __('The domain could not be verified', 'wp-ispconfig3');
-        } elseif ($ok == 0) {
-            $result['text'] = __('The domain is already registered', 'wp-ispconfig3');
-            $result['class'] = 'ispconfig-msg-error';
-        } else {
-            $result['class'] = 'ispconfig-msg-success';
-            $result['text'] = __('The domain is available', 'wp-ispconfig3');
-        }
-
-        echo json_encode($result);
-        wp_die();
     }
 
     public static function isDomainAvailable($dom)

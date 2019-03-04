@@ -38,6 +38,12 @@ msgstr "Kunde aktualisieren"
 msgid "action_update_client_bank"
 msgstr "Bankdaten aktualisieren"
 
+msgid "action_lock_client"
+msgstr "Kundenzugang sperren"
+
+msgid "action_unlock_client"
+msgstr "Kundenzugang entsperren"
+
 msgid "client_username"
 msgstr "Kunden ID"
 

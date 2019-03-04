@@ -99,14 +99,6 @@ class IspconfigBlock
                 }, (array)$user);
 
                 break;
-            case 'action_locknow_client':
-                $loginField = array_pop(array_filter($props['fields'], function ($field) {
-                    return $field['id'] == 'client_username';
-                }));
-
-                $this->postData['client_username'] = $loginField['value'];
-                $this->lockClient($props, $content);
-                break;
         }
     }
 
@@ -148,6 +140,9 @@ class IspconfigBlock
                     break;
                 case 'action_lock_client':
                     $ok = $this->lockClient($props, $content);
+                    break;
+                case 'action_unlock_client':
+                    $ok = $this->unlockClient($props, $content);
                     break;
                 default:
                     throw new Exception("No action defined");
@@ -206,6 +201,15 @@ class IspconfigBlock
             case 'wp-email':
                 $user = wp_get_current_user();
                 $field['value'] = $user->user_email;
+                break;
+            case 'get-data':
+                if (!empty($_GET[$field['value']])) {
+                    $field['value'] = $_GET[$field['value']];
+                } else {
+                    $field['value'] = '';
+                }
+                
+                $field['computed'] = '';
                 break;
         }
     }
@@ -309,6 +313,27 @@ class IspconfigBlock
         Ispconfig::$Self->UpdClient($opt);
 
         $content .= $this->success("Client account " . $user['username'] . ' locked');
+
+        return true;
+    }
+
+    protected function unlockClient($props, &$content)
+    {
+        $postData = $this->postData;
+
+        Ispconfig::$Self->withSoap();
+        $user = Ispconfig::$Self->GetClientByUser($postData['client_username']);
+
+        if (empty($user)) {
+            $content .= $this->alert('Client ID not found');
+            return false;
+        }
+
+        $opt = ['username' => strtolower($user['username']), 'locked' => 'y', 'canceled' => 'y'];
+        Ispconfig::$Self->SetClientID($user['client_id']);
+        Ispconfig::$Self->UpdClient($opt);
+
+        $content .= $this->success("Client account " . $user['username'] . ' unlocked');
 
         return true;
     }
@@ -525,9 +550,7 @@ class IspconfigBlock
             WPISPConfig3::getField($field['id'], __($field['id'], 'wp-ispconfig3-block'), 'text', ['container' => 'div', 'value' => $field['value'], 'input_attr' => $input_attr]);
         }
     
-        $result = ob_get_contents();
-    
-        ob_end_clean();
+        $result = ob_get_clean();
     
         $content.= "<form method='post'>";
         $content.= $result;
