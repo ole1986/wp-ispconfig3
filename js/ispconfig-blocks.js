@@ -71,15 +71,23 @@ function IspconfigField(props) {
 				options.push({ name: 'WP Full Name', id: 'wp-name' });
 				break;
 			case 'client_email':
-			case 'mail_address':
 				options.push({ name: 'WP Email', id: 'wp-email' });
-				break;
-			case 'client_language':
-				options.push({ name: 'WP Locale', id: 'wp-locale' });
 				break;
 			case 'client_template_master':
 				advanced = true;
 				info = 'Enter template id';
+				break;
+			case 'client_language':
+				options.push({ name: 'WP Locale', id: 'wp-locale' });
+				break;
+			case 'website_domain':
+				options.push({ name: 'GET data', id: 'get-data' });
+				if (field.computed === 'get-data') {
+					advanced = true;
+					info = 'GET Parameter';
+				}
+				break;
+			case 'mail_address':
 				break;
 		}
 
@@ -103,9 +111,16 @@ function IspconfigField(props) {
 		});
 	}
 
-	var updateCheckbox = function (hidden) {
+	var updateHiddenCheckbox = function (hidden) {
 		self.setState(function () {
 			props.onChange({ hidden });
+			return props;
+		});
+	}
+
+	var updateReadonlyCheckbox = function (readonly) {
+		self.setState(function () {
+			props.onChange({ readonly });
 			return props;
 		});
 	}
@@ -120,12 +135,14 @@ function IspconfigField(props) {
 
 	self.render = function () {
 
-		var hidden = wp.element.createElement(wp.components.CheckboxControl, { className: 'ispconfig-block-inline', checked: self.state.field.hidden, label: 'Hidden', onChange: updateCheckbox.bind(this) });
+		var hidden = wp.element.createElement(wp.components.CheckboxControl, { className: 'ispconfig-block-inline', checked: self.state.field.hidden, label: 'Hidden', onChange: updateHiddenCheckbox.bind(this) });
+		var readonly = wp.element.createElement(wp.components.CheckboxControl, { className: 'ispconfig-block-inline', checked: self.state.field.readonly, label: 'Read only', onChange: updateReadonlyCheckbox.bind(this) });
+
 		var delicon = wp.element.createElement(wp.components.Button, {onClick: props.onDelete, disabled: self.state.field.protected, style: { 'margin-left': '10px' }, className: 'components-button button-link-delete is-button is-default is-large'}, "Delete");
 		var ddl = wp.element.createElement(wp.components.TreeSelect, { className: 'ispconfig-block-inline', label: getLabel(self.state.field.id),tree: self.state.options, selectedId: self.state.field.computed, onChange: updateComputed });
 		var txt = wp.element.createElement(wp.components.TextControl, { className: 'ispconfig-block-inline', label: self.state.info, value: self.state.field.value, hidden: !self.state.advanced, onChange: updateValue.bind(this) });
 
-		return wp.element.createElement('div', { className: 'ispconfig-block-field' }, ddl, txt, wp.element.createElement('div'), hidden, delicon);
+		return wp.element.createElement('div', { className: 'ispconfig-block-field' }, ddl, txt, wp.element.createElement('div'), hidden, readonly, delicon);
 	}
 }
 
@@ -241,11 +258,11 @@ wp.blocks.registerBlockType('ole1986/ispconfig-block', {
 				fields: ['client_username']
 			},
 			{
-				name: 'Lock client automation',
-				description: 'Immediately lock a client account (without postback) by the given username. BE CAREFUL WHEN USING WP USER',
-				id: 'action_locknow_client',
+				name: 'Unlock client',
+				description: 'Provide a form to unlock a client account base on the given login',
+				id: 'action_unlock_client',
 				fields: ['client_username']
-			},
+			}
 		];
 
 		function changeAction(controlId) {
@@ -258,7 +275,7 @@ wp.blocks.registerBlockType('ole1986/ispconfig-block', {
 			}
 
 			curAction.fields.forEach(function(field_id) {
-				var field = { id: field_id, value: '', computed: '', hidden: false, protected: false };
+				var field = { id: field_id, value: '', computed: '', hidden: false, readonly: false, protected: false };
 
 				if (['action_update_client','action_update_client_bank', 'action_locknow_client', 'action_create_website', 'action_create_mail'].indexOf(controlId) > -1 && field_id === 'client_username') {
 					field.protected = true;
