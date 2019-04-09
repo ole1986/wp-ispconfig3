@@ -80,27 +80,6 @@ msgstr "Ein Aufgabenplaner versendet die Rechnung an '%s'"
 msgid "Account creation"
 msgstr "Kontoerstellung"
 
-msgid "yearly"
-msgstr "jährlich"
-
-msgid "monthly"
-msgstr "monatlich"
-
-msgid "per year"
-msgstr "pro Jahr"
-
-msgid "per month"
-msgstr "pro Monat"
-
-msgid "Working hours"
-msgstr "Arbeitsstunden"
-
-msgid "Webspace"
-msgstr "Webspeicher"
-
-msgid "Discount"
-msgstr "Rabatt"
-
 msgid "The domain is already registered"
 msgstr "Der Domainname ist bereits vergeben"
 

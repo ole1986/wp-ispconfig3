@@ -2,29 +2,31 @@
 Contributors: ole1986, MachineITSvcs
 Tags:  host, ISPConfig, hosting, remote, manager, admin, panel, control, wordpress, post, plugin, interface, server
 Donate link: https://www.paypal.com/cgi-bin/webscr?item_name=Donation+WP-ISPConfig3&cmd=_donations&business=ole.k@web.de
-Requires at least: 3.1
-Tested up to: 5.0.3
+Requires at least: 5.0
+Tested up to: 5.1
 Stable tag: trunk
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-ISPConfig 3 ~ Hosting Control Panel ~ registration form interface incl. invoice module and product management for WooCommerce
+ISPConfig 3 form generation using Gutenberg Blocks incl. WooCommerce support and individual shortcode creation
 
 == Description ==
 
-The WP ISPConfig 3 plugin allows you to create frontend/customer registration forms and backend/checkout functions to create clients, websites, and shell users directly into the [ISPConfig](http://www.ispconfig.org) Control Panel by using its REST API.
+The WP ISPConfig 3 plugin allows you to build customer forms for [ISPConfig3](http://www.ispconfig.org) clients, websites, shell accounts and others using the ISPConfig3 REST API.
+With the new **Gutenberg Block support** this plugin provides several default templates.
 
-**ISPCONFIG Features**
+* Create client accounts
+* Create websites on existing client logins
+* Create websites and client login with a single form
+* Update client information
+* Update client bank details
 
-* shipped with three default registration forms for websites (ispconfig_register_client / ispconfig_register_free / ispconfig_register_cancelled)
-* use the shortcode "[ispconfig class=IspconfigRegisterClient]" and "[ispconfig class=IspconfigRegisterFree]" to display the forms at any place
-* use the shortcode "[ispconfig class=IspconfigRegisterCancelled]" or similarly coded class to create and update clients on the backend without a form
-* display domains and databases filtered by user and activate/deactivate websites within the WordPress Dashboard
-* build your own forms (incl. shortcode) in less than 5 minutes (Check out the Installation section for more details)
+If this is not enough, you can take over control by using [action/filter hooks](https://github.com/ole1986/wp-ispconfig3/wiki/Use-wp-ispconfig3-action-and-filter-hooks) provided by this plugin.
+Advanded users can extend this plugin using direct access to the ISPConfig3 REST API with a single plugin file and [build individual forms using shortcodes](https://github.com/ole1986/wp-ispconfig3/wiki/Extending-wp-ispconfig3-with-custom-shortcodes)
 
-Check out the Installation tab for more details on how to build your own extension
+Check out the [wiki pages on github.com](https://github.com/ole1986/wp-ispconfig3/wiki) for further details
 
-**FOR RECURRING INVOICES USE THE [WC Recurring Invoice PDF](https://wordpress.org/plugins/wc-invoice-pdf/) PLUGIN**
+**For WooCommerce integration, please consider installing the [WC Recurring Invoice PDF](https://wordpress.org/plugins/wc-invoice-pdf/) plugin (v1.4)**
 
 == Installation ==
 
@@ -57,79 +59,6 @@ It is required to configure the plugin in the ISPConfig Panel as well as in the 
 `SOAP Location: http://localhost:8080/remote/index.php`
 `SOAP URI: http://localhost:8080/remote/`
 
-**Customize the plugin**
-
-You can extend the plugin with your own registration form by using PHP only inside the plugin folder (E.g. wp-content/plugins/wp-ispconfig3/).
-
-**PLEASE NOTE:** BACKUP YOUR EXTENSION FILE(S) BEFORE UPDATING THE PLUGIN
-
-*A general knowledge about PHP and OOP is recommended*
-
-The simpliest way to build your on registration form is to copy one of the existing shortcode classes (either "ispconfig_register_client.php" or "ispconfig_register_free.php").
-In this examples we will use the "ispconfig_register_client.php".
-
-* Copy the "ispconfig_register_client.php" into "ispconfig_register_custom.php"
-* Open the "ispconfig_register_custom.php" and rename the class name in line 8 to "IspconfigRegisterCustom"
-* Replace or amend the method "Display($opt = null)" with your needs
-* Replace or amend the method "onPost()" to manage the page post request
-* Place a page using the shortcode "[ispconfig class=IspconfigRegisterCustom]" to display the form
-
-Below is a minimal version to register a client user with a website.
-
-
-`
-class IspconfigRegisterCustom extends Ispconfig {
-    /**
-     * Called when user submits the data from register form - see Ispconfig::Display() for more details
-     */
-    protected function onPost(){
-        if ( 'POST' !== $_SERVER[ 'REQUEST_METHOD' ] ) return;
-        
-        $opt = ['username' => $_POST['username'], 'password' => $_POST['password'], 'domain'   => $_POST['domain']];
-
-        try{
-            $client = $this->withSoap();
-            // check if the client name already exist in ISPConfig           
-            $client = $this->GetClientByUser($opt['username']);
-            if(!empty($client)) throw new Exception('The user already exist. Please choice a different name');
-
-            // add the customer
-            $this->AddClient($opt)
-                            ->AddWebsite( ['domain' => $opt['domain'], 'password' => $opt['password']] );
-            
-            echo "<div class='ispconfig-msg ispconfig-msg-success'>" . sprintf(__('Your account %s has been created', 'wp-ispconfig3'), $opt['username']) ."</div>";
-
-            $this->closeSoap();
-        } catch (SoapFault $e) {
-            //WPISPConfig3::soap->__getLastResponse();
-            echo '<div class="ispconfig-msg ispconfig-msg-error">SOAP Error: '.$e->getMessage() .'</div>';
-        } catch (Exception $e) {
-            echo '<div class="ispconfig-msg ispconfig-msg-error">Exception: '.$e->getMessage() . "</div>";
-        }
-    }
-    
-    /**
-     * Use the shortcode "[ispconfig class=IspconfigRegisterCustom]" to display the form
-     */
-    public function Display($opt = null){
-        
-        ?>
-        <div class="wrap">
-            <?php $this->onPost(); ?>
-            <form method="post" class="ispconfig" action="">
-            <?php
-                WPISPConfig3::getField('username', 'User:', 'text', ['container' => 'div']);
-                WPISPConfig3::getField('password', 'Pass:', 'text', ['container' => 'div']);
-                WPISPConfig3::getField('domain', 'Domain:', 'text', ['container' => 'div']);
-            ?>
-            <p><input type="submit" class="button-primary" name="submit" value="Submit" /></p>
-            </form>
-        </div>
-        <?php
-    }
-}
-`
-
 == Screenshots ==
 
 1. ISPConfig SOAP settings in wordpress
@@ -146,6 +75,14 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with WP Nofollow More Links. If not, see <http://www.gnu.org/licenses/>.
 
 == Changelog ==
+
+= 1.4.0 =
+BREAKING CHANGES
+
+* Replaced default shortcodes with Gutenberg Blocks
+* Changed concept on how to implement custom shortcode classes
+* Added action/filter hooks to customize gutenberg block fields
+* Moved WC_Product related classed to the "wc-invoice-pdf" project - https://wordpress.org/plugins/wc-invoice-pdf/
 
 = 1.3.5 =
 * Added support for specifying multiple user roles for Website and Database lookup/edit functions

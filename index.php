@@ -2,10 +2,11 @@
 /**
  * Plugin Name: WP-ISPConfig3
  * Description: ISPConfig3 plugin allows you to register customers through wordpress frontend using shortcodes.
- * Version: 1.3.5
+ * Version: 1.4.0
  * Author: ole1986 <ole.k@web.de>, MachineITSvcs <contact@machineitservices.com>
  * Author URI: https://github.com/ole1986/wp-ispconfig3
  * Text Domain: wp-ispconfig3
+ * Domain Path: /lang
  */
 defined('ABSPATH') or die('No script kiddies please!');
  
@@ -17,23 +18,15 @@ if (! defined('WPISPCONFIG3_PLUGIN_URL')) {
     define('WPISPCONFIG3_PLUGIN_URL', plugin_dir_url(__FILE__));
 }
 
+require_once 'ispconfig-abstract.php';
 require_once 'ispconfig.php';
-
-// autoload php files starting with "ispconfig_register_[...].php" when class is used
-spl_autoload_register(
-    function ($class) {
-        $cls = strtolower(preg_replace(['/([a-z\d])([A-Z])/', '/([^_])([A-Z][a-z])/'], "$1_$2", $class));
-        $f = $cls .'.php';
-        // only include 'ispconfig_register' files
-        if (preg_match("/^ispconfig_register/", $cls)) {
-            //error_log('Loading file '. $f .' from class ' . $class);
-            include $f;
-        }
-    }
-);
+require_once 'ispconfig-blocks.php';
 
 if (!class_exists('WPISPConfig3')) {
-    add_action('init', array( 'WPISPConfig3', 'init' ));
+    add_action('init', ['WPISPConfig3', 'init'], 1);
+    add_action('plugins_loaded', function () {
+        load_plugin_textdomain('wp-ispconfig3', false, dirname(plugin_basename(__FILE__)) . '/lang');
+    });
 
     register_activation_hook(plugin_basename(__FILE__), array( 'WPISPConfig3', 'install' ));
     register_deactivation_hook(plugin_basename(__FILE__), array( 'WPISPConfig3', 'deactivate' ));
@@ -77,7 +70,6 @@ if (!class_exists('WPISPConfig3')) {
          */
         public static function init()
         {
-            WPISPConfig3 :: load_textdomain_file();
             new self();
         }
         
@@ -87,7 +79,7 @@ if (!class_exists('WPISPConfig3')) {
             $this->load_options();
 
             // initialize the Ispconfig class
-            Ispconfig::init();
+            new Ispconfig();
 
             // load the ISPConfig3 invoicing module (PREMIUM)
             if (file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php')) {
@@ -212,7 +204,7 @@ if (!class_exists('WPISPConfig3')) {
                                 self::getField('soap_location', 'SOAP Location:');
                                 self::getField('soap_uri', 'SOAP URI:');
                                 self::getField('skip_ssl', 'Skip certificate check', 'checkbox');
-                            ?>
+                                ?>
                             <h3><?php _e('Account creation', 'wp-ispconfig3') ?></h3>
                             <?php
                                 self::getField('confirm', 'Send Confirmation', 'checkbox');
@@ -309,17 +301,6 @@ if (!class_exists('WPISPConfig3')) {
             echo '</' . $xargs['container'] .'>';
         }
         
-        /**
-         * Load text domain to provide different languages
-         *
-         * @return void
-         */
-        protected static function load_textdomain_file()
-        {
-            // load plugin textdomain
-            load_plugin_textdomain('wp-ispconfig3', false, dirname(plugin_basename(__FILE__)) . '/lang');
-        }
-
         /**
          * Load options being stored in wordpress (wp_options)
          *

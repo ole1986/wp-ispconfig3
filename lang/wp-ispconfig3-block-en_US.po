@@ -1,0 +1,96 @@
+# Loco Gettext template
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Loco Demo\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: Mon Mar 14 2016 15:02:43 GMT+0100 (W. Europe Standard "
+"Time)\n"
+"PO-Revision-Date: Mon Mar 14 2016 15:13:23 GMT+0100 (W. Europe Standard "
+"Time)\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: English\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Loco-Source-Locale: en_US\n"
+"X-Loco-Target-Locale: de_DE\n"
+"X-Generator: Loco - https://localise.biz/\n"
+"X-Loco-Parser: loco_parse_po"
+
+msgid "action_create_client"
+msgstr "Create client"
+
+msgid "action_create_website"
+msgstr "Create website"
+
+msgid "action_create_website_new"
+msgstr "Create website"
+
+msgid "action_create_mail"
+msgstr "Create email"
+
+msgid "action_update_client"
+msgstr "Update customer"
+
+msgid "action_update_client_bank"
+msgstr "Update bank details"
+
+msgid "action_lock_client"
+msgstr "Lock client account"
+
+msgid "action_unlock_client"
+msgstr "Unlock client account"
+
+msgid "client_username"
+msgstr "Client ID"
+
+msgid "client_domain"
+msgstr "Client domain"
+
+msgid "client_contact_name"
+msgstr "Client Name"
+
+msgid "client_company_name"
+msgstr "Client Company"
+
+msgid "client_email"
+msgstr "Client email"
+
+msgid "client_password"
+msgstr "Client password"
+
+msgid "client_template_master"
+msgstr "Client Template"
+
+msgid "client_street"
+msgstr "Street address"
+
+msgid "client_language"
+msgstr "Language"
+
+msgid "client_zip"
+msgstr "Zip Code"
+
+msgid "client_city"
+msgstr "City"
+
+msgid "client_telephone"
+msgstr "Phone number"
+
+msgid "client_bank_account_owner"
+msgstr "Bank account owner"
+
+msgid "client_bank_name"
+msgstr "Bank name"
+
+msgid "client_bank_account_iban"
+msgstr "IBAN number"
+
+msgid "client_bank_account_swift"
+msgstr "SWIFT / BIC"
+
+msgid "website_domain"
+msgstr "Web domain"
