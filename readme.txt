@@ -24,7 +24,7 @@ The WP ISPConfig 3 plugin allows you to create frontend/customer registration fo
 
 Check out the Installation tab for more details on how to build your own extension
 
-**FOR RECURRING INVOICES USE THE [WC Recurring Invoice PDF](https://wordpress.org/plugins/wc-invoice-pdf/) PLUGIN**
+**For WooCommerce integration, please consider installing the [WC Recurring Invoice PDF](https://wordpress.org/plugins/wc-invoice-pdf/) plugin (v1.4)**
 
 == Installation ==
 
@@ -146,6 +146,14 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with WP Nofollow More Links. If not, see <http://www.gnu.org/licenses/>.
 
 == Changelog ==
+
+= 1.4.0 =
+BREAKING CHANGES
+
+* Replaced default shortcodes with Gutenberg Blocks
+* Changed concept on how to implement custom shortcode classes
+* Added action/filter hooks to customize gutenberg block fields
+* Moved WC_Product related classed to the "wc-invoice-pdf" project - https://wordpress.org/plugins/wc-invoice-pdf/
 
 = 1.3.5 =
 * Added support for specifying multiple user roles for Website and Database lookup/edit functions

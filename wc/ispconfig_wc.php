@@ -28,11 +28,7 @@ class IspconfigWc
         if (!is_plugin_active('woocommerce/woocommerce.php')) {
             return;
         }
-
-        include_once WPISPCONFIG3_PLUGIN_WC_DIR . 'ispconfig_wc_product.php';
-        include_once WPISPCONFIG3_PLUGIN_WC_DIR . 'ispconfig_wc_product_hour.php';
-        include_once WPISPCONFIG3_PLUGIN_WC_DIR . 'ispconfig_wc_product_webspace.php';
-
+        
         if (!self::$Self) {
             self::$Self = new self();
         }
