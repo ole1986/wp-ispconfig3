@@ -76,6 +76,9 @@ You should have received a copy of the GNU General Public License along with WP 
 
 == Changelog ==
 
+= 1.4.1 =
+* Added icon for Gutenberg block "ISPConfig Fields"
+
 = 1.4.0 =
 BREAKING CHANGES
 
