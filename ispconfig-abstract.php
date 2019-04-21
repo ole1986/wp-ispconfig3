@@ -69,10 +69,16 @@ abstract class IspconfigAbstract
      */
     public function withShortcode()
     {
-        if (!is_admin()) {
-            $cls = get_class($this);
-            add_shortcode($cls, array($this, 'Display'));
-        }
+        $cls = get_class($this);
+        add_shortcode($cls, [$this, 'DisplayWrapper']);
+    }
+
+    public function DisplayWrapper($attr, $content)
+    {
+        ob_start();
+        $this->Display($attr, $content);
+        $data = ob_get_clean();
+        return $data;
     }
 
     public static function isDomainAvailable($dom)

@@ -78,7 +78,6 @@ class Ispconfig extends IspconfigAbstract
         }
 
         $input_attr = ['id' => 'txtDomain'];
-        ob_start();
         ?>
         <script>
             function checkDomain() {
@@ -110,8 +109,5 @@ class Ispconfig extends IspconfigAbstract
         </div>
         <?php endif; ?>
         <?php
-        $result .= ob_get_clean();
-
-        return $result;
     }
 }
