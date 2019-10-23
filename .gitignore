@@ -2,5 +2,6 @@
 .vscode
 .svn
 
+composer.phar
 # ignore composer vendors as they are only used for development
 vendor

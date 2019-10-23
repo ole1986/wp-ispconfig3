@@ -13,14 +13,22 @@
 
 .ispconfig-block-field {
     display: inline-block;
-    width: 420px;
+    width: 380px;
     padding: .5em;
     margin-bottom: 0.5em;
     background: #f3f4f5;
-    margin-right: 10px;
+    vertical-align: top;
     border: 1px solid rgb(85, 93, 102);
 }
 
+.ispconfig-block-field:nth-child(odd) {
+    margin-right: 10px;
+}
+
 .ispconfig-block-field select {
-    width: 200px;
+    width: 165px;
+}
+
+.ispconfig-block-field .components-base-control {
+    margin-bottom: 0px !important;
 }

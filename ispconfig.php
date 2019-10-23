@@ -2,13 +2,8 @@
 defined('ABSPATH') || exit;
 
 /**
- * Abstract class to provide soap requests and shortcodes
- *
- * PLEASE NOTE:
- * You can easily add features by creating a "ispconfig_register_<yourfeature>.php" file
- * shortcode can than be use the following in RTF Editor: [ispconfig class=IspconfigRegisterYourfeature]
- *
- * An Example can be found in the file: ispconfig_register_client.php
+ * Default class used to check for domain using whois
+ * Shortcode: [Ispconfig submit_url="..."]
  */
 class Ispconfig extends IspconfigAbstract
 {
@@ -104,7 +99,7 @@ class Ispconfig extends IspconfigAbstract
             <input id="submit" type="submit" value="Continue" style="display: none" />
         </form>
         <?php if (current_user_can('administrator')) : ?>
-        <div style="font-size: 90%">
+        <div style="font-size: 90%; margin-top: .5em">
             ADMIN NOTICE: <a href="https://github.com/ole1986/wp-ispconfig3/wiki/Extending-wp-ispconfig3-with-custom-shortcodes" target="_blank">Learn more about custom shortcodes for WP-ISPConfig3</a>
         </div>
         <?php endif; ?>

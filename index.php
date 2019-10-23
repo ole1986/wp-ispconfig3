@@ -2,14 +2,14 @@
 /**
  * Plugin Name: WP-ISPConfig3
  * Description: ISPConfig3 plugin allows you to register customers through wordpress frontend using shortcodes.
- * Version: 1.4.2
+ * Version: 1.4.3
  * Author: ole1986 <ole.k@web.de>, MachineITSvcs <contact@machineitservices.com>
  * Author URI: https://github.com/ole1986/wp-ispconfig3
  * Text Domain: wp-ispconfig3
  * Domain Path: /lang
  */
 defined('ABSPATH') or die('No script kiddies please!');
- 
+
 if (! defined('WPISPCONFIG3_PLUGIN_DIR')) {
     define('WPISPCONFIG3_PLUGIN_DIR', plugin_dir_path(__FILE__));
 }
@@ -21,6 +21,7 @@ if (! defined('WPISPCONFIG3_PLUGIN_URL')) {
 require_once 'ispconfig-abstract.php';
 require_once 'ispconfig.php';
 require_once 'ispconfig-blocks.php';
+require_once 'vendor/autoload.php';
 
 if (!class_exists('WPISPConfig3')) {
     add_action('init', ['WPISPConfig3', 'init'], 1);
