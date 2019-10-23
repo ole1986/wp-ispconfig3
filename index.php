@@ -21,7 +21,6 @@ if (! defined('WPISPCONFIG3_PLUGIN_URL')) {
 require_once 'ispconfig-abstract.php';
 require_once 'ispconfig.php';
 require_once 'ispconfig-blocks.php';
-require_once 'vendor/autoload.php';
 
 if (!class_exists('WPISPConfig3')) {
     add_action('init', ['WPISPConfig3', 'init'], 1);
