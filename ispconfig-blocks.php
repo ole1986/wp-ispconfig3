@@ -71,7 +71,7 @@ class IspconfigBlock
                 }
                 break;
             case 'action_create_website_new':
-                if (!empty(WPISPConfig3::$OPTIONS['confirm'])) {
+                if (empty(WPISPConfig3::$OPTIONS['confirm'])) {
                     $content .= $this->alert('Login information cannot be supplied through email due to disabled confirmation setting.<br />Your can still fill up the form but may not be able to login');
                     return;
                 }
