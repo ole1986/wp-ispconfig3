@@ -67,9 +67,6 @@ msgstr "Die Domain ist verfügbar"
 msgid "The domain could not be verified"
 msgstr "Der Domainname konnte nicht verifiziert werden"
 
-msgid "Your desired domain"
-msgstr "Ihre Wunschdomain"
-
 msgid "Websites"
 msgstr "Webseiten"
 
