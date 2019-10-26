@@ -60,6 +60,8 @@ if (!class_exists('WPISPConfig3')) {
                                 Login with your account on http://#HOSTNAME#:8080",
             'default_domain' => 'yourdomain.tld',
             'sender_name' => 'Your Sevice name',
+            'domain_check_global' => 1,
+            'domain_check_expiration' => 600,
             'user_roles' => ['customer', 'subscriber']
         ];
 
@@ -159,8 +161,14 @@ if (!class_exists('WPISPConfig3')) {
                 if (get_magic_quotes_gpc()) {
                     $_POST = array_map('stripslashes_deep', $_POST);
                 }
-                
-                self::$OPTIONS = $_POST;
+
+                foreach (self::$OPTIONS as $k => &$v) {
+                    if (isset($_POST[$k])) {
+                        $v = $_POST[$k];
+                    } elseif (in_array($k, ['domain_check_global', 'skip_ssl', 'confirm'])) {
+                        $v = !empty($_POST[$k]) ? 1 : 0;
+                    }
+                }
                 
                 if ($this->update_options()) {
                     ?><div class="updated"><p> <?php _e('Settings saved', 'wp-ispconfig3');?></p></div><?php
@@ -212,6 +220,13 @@ if (!class_exists('WPISPConfig3')) {
                                 self::getField('confirm_body', 'Confirmation Body', 'textarea', ['input_attr' => ['style' => 'width: 340px; height: 150px']]);
                                 self::getField('default_domain', 'Default Domain');
                                 self::getField('sender_name', 'Sender name');
+                            ?>
+                            <h3><?php _e('Domain Check') ?></h3>
+                            <p>Decide how WP-ISPConfig 3 checks for domain availability.<br />You can either validate against ISPConfig domains or use the whois command to check for free domains</p>
+                            <p>To test the domain check, use the shortcode "[Ispconfig submit_url='...']" on your favorite front page</p>
+                            <?php
+                                self::getField('domain_check_global', 'Global domain check with <strong>whois</strong><br /><i>Unhook this to validate against ISPConfig domains only</i>', 'checkbox');
+                                self::getField('domain_check_expiration', 'ISPConfig domain name cache expiration (in seconds)', 'number');
                             ?>
                             <h3><?php _e('User Mapping') ?></h3>
                             <p>Choose the below WordPress user roles to match the clients stored in ISPConfig3</p>
@@ -308,9 +323,12 @@ if (!class_exists('WPISPConfig3')) {
          */
         protected function load_options()
         {
-            $opt = get_option(self :: OPTION_KEY);
-            if (!empty($opt)) {
-                self::$OPTIONS = $opt;
+            $opt = get_option(self::OPTION_KEY, []);
+
+            foreach (self::$OPTIONS as $k => &$v) {
+                if (isset($opt[$k])) {
+                    $v = $opt[$k];
+                }
             }
         }
 
@@ -321,7 +339,7 @@ if (!class_exists('WPISPConfig3')) {
          */
         public function update_options()
         {
-            return update_option(self :: OPTION_KEY, self::$OPTIONS);
+            return update_option(self::OPTION_KEY, self::$OPTIONS);
         }
         
         /**

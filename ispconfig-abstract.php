@@ -81,17 +81,52 @@ abstract class IspconfigAbstract
         return $data;
     }
 
-    public static function isDomainAvailable($dom)
+    public function IsDomainAvailable($dom)
     {
-        $result = shell_exec("whois $dom");
+        if (WPISPConfig3::$OPTIONS['domain_check_global']) {
+            $result = shell_exec("whois $dom");
 
-        if (preg_match("/^(No whois server is known|This TLD has no whois server)/m", $result)) {
-            return -1;
-        } elseif (preg_match("/^(Status: AVAILABLE|Status: free|NOT FOUND|" . $dom . " no match|No match for \"(.*?)\"\.)$/im", $result)) {
-            return 1;
+            if (preg_match("/^(No whois server is known|This TLD has no whois server)/m", $result)) {
+                return -1;
+            }
+
+            return preg_match("/^(Status: AVAILABLE|Status: free|NOT FOUND|" . $dom . " no match|No match for \"(.*?)\"\.)$/im", $result) ? 1: 0;
+        } else {
+            $cacheExpiration = intval(WPISPConfig3::$OPTIONS['domain_check_expiration']); // 10 minutes caching the domains
+            $cachedDomains = get_option('ispconfig_cached_domains', ['expires' => 0]);
+    
+            if ($cachedDomains['expires'] < time()) {
+                $all_client_ids = $this->GetAllClientIds();
+    
+                $groupIds = [];
+    
+                foreach ($all_client_ids as $id) {
+                    $groupIds[] = $this->GetGroupIdByClientId($id);
+                }
+    
+                $result = $this->GetClientSitesByGroupIds($groupIds);
+    
+                $domains = array_map(function ($item) {
+                    return $item['domain'];
+                }, $result);
+                
+                update_option('ispconfig_cached_domains', ['domains' => $domains,'expires' => time() + $cacheExpiration]);
+            } else {
+                $domains = $cachedDomains['domains'];
+            }
+
+            return in_array($dom, $domains) ? 0 : 1;
         }
+    }
 
-        return 0;
+    public function GetAllClientIds()
+    {
+        return $this->soap->client_get_all($this->session_id);
+    }
+
+    public function GetGroupIdByClientId($clientId)
+    {
+        return $this->soap->client_get_groupid($this->session_id, $clientId);
     }
 
     /**
@@ -127,6 +162,11 @@ abstract class IspconfigAbstract
         $client = $this->GetClientByUser($user_name);
 
         return $this->soap->client_get_sites_by_user($this->session_id, $client['userid'], $client['default_group']);
+    }
+
+    public function GetClientSitesByGroupIds($groupIds = [])
+    {
+        return $this->soap->client_get_sites_by_user($this->session_id, 0, implode(',', $groupIds));
     }
 
     public function GetClientDatabases($user_name)
