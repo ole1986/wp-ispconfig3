@@ -543,7 +543,7 @@ abstract class IspconfigAbstract
 
     public static function validateDomain($input)
     {
-        if (!preg_match("/^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,4}$/", $input)) {
+        if (!preg_match("/^" . WPISPConfig3::$OPTIONS['domain_check_regex'] . "$/", $input)) {
             throw new Exception(__("The domain name is invalid", 'wp-ispconfig3'));
         }
 

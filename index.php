@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP-ISPConfig3
  * Description: ISPConfig3 plugin allows you to register customers through wordpress frontend using shortcodes.
- * Version: 1.4.3
+ * Version: 1.4.4
  * Author: ole1986 <ole.k@web.de>, MachineITSvcs <contact@machineitservices.com>
  * Author URI: https://github.com/ole1986/wp-ispconfig3
  * Text Domain: wp-ispconfig3
@@ -62,6 +62,7 @@ if (!class_exists('WPISPConfig3')) {
             'sender_name' => 'Your Sevice name',
             'domain_check_global' => 1,
             'domain_check_expiration' => 600,
+            'domain_check_regex' => '((?!-))(xn--)?[a-z0-9][a-z0-9-_]{0,61}[a-z0-9]{0,1}\.(xn--)?([a-z0-9\-]{1,61}|[a-z0-9-]{1,30}\.[a-z]{2,})',
             'user_roles' => ['customer', 'subscriber']
         ];
 
@@ -158,21 +159,31 @@ if (!class_exists('WPISPConfig3')) {
         private function onUpdateSettings()
         {
             if ('POST' === $_SERVER[ 'REQUEST_METHOD' ]) {
-                if (get_magic_quotes_gpc()) {
-                    $_POST = array_map('stripslashes_deep', $_POST);
-                }
-
                 foreach (self::$OPTIONS as $k => &$v) {
-                    if (isset($_POST[$k])) {
-                        $v = $_POST[$k];
-                    } elseif (in_array($k, ['domain_check_global', 'skip_ssl', 'confirm'])) {
+                    if (!isset($_POST[$k])) {
+                        continue;
+                    }
+
+                    if (in_array($k, ['domain_check_global', 'skip_ssl', 'confirm'])) {
                         $v = !empty($_POST[$k]) ? 1 : 0;
+                    } elseif (is_array($_POST[$k])) {
+                        array_map(function ($item) {
+                            return sanitize_text_field($item);
+                        }, $_POST[$k]);
+
+                        $v = $_POST[$k];
+                    } elseif ($k == 'confirm_body') {
+                        $v = sanitize_textarea_field($_POST[$k]);
+                    } else {
+                        $v = sanitize_text_field($_POST[$k]);
                     }
                 }
                 
                 if ($this->update_options()) {
                     ?><div class="updated"><p> <?php _e('Settings saved', 'wp-ispconfig3');?></p></div><?php
                 }
+
+                $this->load_options();
             }
         }
         
@@ -227,6 +238,7 @@ if (!class_exists('WPISPConfig3')) {
                             <?php
                                 self::getField('domain_check_global', 'Global domain check with <strong>whois</strong><br /><i>Unhook this to validate against ISPConfig domains only</i>', 'checkbox');
                                 self::getField('domain_check_expiration', 'ISPConfig domain name cache expiration (in seconds)', 'number');
+                                self::getField('domain_check_regex', 'Regular expression used to validate the domain');
                             ?>
                             <h3><?php _e('User Mapping') ?></h3>
                             <p>Choose the below WordPress user roles to match the clients stored in ISPConfig3</p>
@@ -327,7 +339,11 @@ if (!class_exists('WPISPConfig3')) {
 
             foreach (self::$OPTIONS as $k => &$v) {
                 if (isset($opt[$k])) {
-                    $v = $opt[$k];
+                    if ($k == 'domain_check_regex') {
+                        $v = stripslashes($opt[$k]);
+                    } else {
+                        $v = $opt[$k];
+                    }
                 }
             }
         }

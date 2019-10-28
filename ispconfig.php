@@ -34,24 +34,31 @@ class Ispconfig extends IspconfigAbstract
      */
     public function AJAX_ispconfig_whois_callback()
     {
-        $dom = strtolower($_POST['domain']);
+        try {
+            $dom = self::validateDomain($_POST['domain']);
+            $this->withSoap();
 
-        $this->withSoap();
-
-        $ok = $this->IsDomainAvailable($dom);
-
-        $this->closeSoap();
-
-        $result = ['text' => '', 'class' => ''];
-
-        if ($ok < 0) {
-            $result['text'] = __('The domain could not be verified', 'wp-ispconfig3');
-        } elseif ($ok == 0) {
-            $result['text'] = __('The domain is already registered', 'wp-ispconfig3');
+            $ok = $this->IsDomainAvailable($dom);
+    
+            $this->closeSoap();
+    
+            $result = ['text' => '', 'class' => ''];
+    
+            if ($ok < 0) {
+                $result['text'] = __('The domain could not be verified', 'wp-ispconfig3');
+            } elseif ($ok == 0) {
+                $result['text'] = __('The domain is already registered', 'wp-ispconfig3');
+                $result['class'] = 'ispconfig-msg-error';
+            } else {
+                $result['class'] = 'ispconfig-msg-success';
+                $result['text'] = __('The domain is available', 'wp-ispconfig3');
+            }
+        } catch (SoapFault $e) {
+            $result['text'] = 'Soap connection issue';
             $result['class'] = 'ispconfig-msg-error';
-        } else {
-            $result['class'] = 'ispconfig-msg-success';
-            $result['text'] = __('The domain is available', 'wp-ispconfig3');
+        } catch (Exception $e) {
+            $result['text'] = __('The domain name is invalid', 'wp-ispconfig3');
+            $result['class'] = 'ispconfig-msg-error';
         }
 
         echo json_encode($result);
