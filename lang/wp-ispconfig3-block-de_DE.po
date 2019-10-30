@@ -22,6 +22,9 @@ msgstr "Kundenzugang sperren"
 msgid "action_unlock_client"
 msgstr "Kundenzugang entsperren"
 
+msgid "action_check_domain"
+msgstr "Domain prüfen"
+
 msgid "client_username"
 msgstr "Kunden ID"
 
@@ -72,3 +75,6 @@ msgstr "SWIFT / BIC"
 
 msgid "website_domain"
 msgstr "Web Domain"
+
+msgid "domain_name"
+msgstr "Domain Name"

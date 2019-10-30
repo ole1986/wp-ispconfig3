@@ -22,6 +22,9 @@ msgstr "Lock client account"
 msgid "action_unlock_client"
 msgstr "Unlock client account"
 
+msgid "action_check_domain"
+msgstr "Check Domain"
+
 msgid "client_username"
 msgstr "Client ID"
 
@@ -72,3 +75,6 @@ msgstr "SWIFT / BIC"
 
 msgid "website_domain"
 msgstr "Web domain"
+
+msgid "domain_name"
+msgstr "Domain name"

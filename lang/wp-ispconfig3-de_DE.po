@@ -4,8 +4,8 @@ msgstr "Ihr Konto %s wurde erfolgreich erstellt"
 msgid "You will receive a confirmation email shortly"
 msgstr "Sie erhalten in kürze eine Bestätigung per Email"
 
-msgid "You can now login here"
-msgstr "Sie können sich hier anmelden"
+msgid "You need to sign in before continue"
+msgstr "Eine Anmeldung ist erforderlich um fortzufahren"
 
 msgid "The name cannot be empty"
 msgstr "Der Name kann nicht leer bleiben"
