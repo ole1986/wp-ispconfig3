@@ -1,0 +1,35 @@
+#!/bin/sh
+
+phpcsCommand() {
+    if hash phpcs 2>/dev/null; then
+        phpcs "$@" >/dev/null
+    else
+        vendor/bin/phpcs "$@" >/dev/null
+    fi
+}
+
+phpCbfCommand() {
+    if hash phpcbf 2>/dev/null; then
+        phpcbf "$@" >/dev/null
+    else
+        vendor/bin/phpcbf "$@" >/dev/null
+    fi
+}
+
+STAGED_FILES_CMD=`git diff --cached --name-only --diff-filter=ACMR HEAD | grep \\\\.php`
+
+for f in $STAGED_FILES_CMD
+do
+    phpcsCommand $f
+    if [ $? != 0 ]
+    then
+        phpCbfCommand $f
+        if [ $? == 0 ]
+        then
+            echo "[PHPCBF] Failed to beautify $f."
+            exit 1
+        fi
+        echo "[PHPCBF] Fixed formatting for $f..."
+        git add $f
+    fi
+done
