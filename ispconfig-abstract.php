@@ -362,6 +362,11 @@ abstract class IspconfigAbstract
         return $this->domain_id;
     }
 
+    public function GetWebDomain($domain_id)
+    {
+        return $this->soap->sites_web_domain_get($this->session_id, $domain_id);
+    }
+
     public function GetMailDomainByDomain($domain)
     {
         return $this->soap->mail_domain_get_by_domain($this->session_id, $domain);

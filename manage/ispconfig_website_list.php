@@ -79,7 +79,9 @@ class IspconfigWebsiteList extends WP_List_Table
             $sites = Ispconfig::$Self->withSoap()->GetClientSites($_GET['user_login']);
             
             if (!empty($sites)) {
-                $this->items = json_decode(json_encode((object) $sites), false);
+                $this->items = array_map(function ($item) use (&$domain_ids) {
+                    return (object)$item;
+                }, $sites);
             }
             
             Ispconfig::$Self->closeSoap();

@@ -63,7 +63,11 @@ class IspconfigDatabaseList extends WP_List_Table
 
         if (!empty($_GET['user_login'])) {
             $databases = Ispconfig::$Self->withSoap()->GetClientDatabases($_GET['user_login']);
-            $this->items = json_decode(json_encode((object) $databases), false);
+
+            $this->items = array_map(function ($item) {
+                return (object)$item;
+            }, $databases);
+
             Ispconfig::$Self->closeSoap();
         }
     }
