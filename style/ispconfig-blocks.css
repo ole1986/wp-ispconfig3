@@ -21,6 +21,12 @@
     border: 1px solid rgb(85, 93, 102);
 }
 
+.ispconfig-block-action {
+    display: block;
+    margin-right: 10px;
+}
+
+
 .ispconfig-block-field:nth-child(odd) {
     margin-right: 10px;
 }

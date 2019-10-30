@@ -65,76 +65,16 @@ class Ispconfig extends IspconfigAbstract
         wp_die();
     }
 
-    public function onPost()
-    {
-        if ('POST' !== $_SERVER[ 'REQUEST_METHOD']) {
-            return false;
-        }
-    }
-
     /**
      * Provide shortcode execution by calling the class constructor defined "class=..." attribute
      */
     public function Display($attr, $content = null)
     {
-        $result = '';
-
-        if (empty($attr['submit_url'])) {
-            $result .= '<div class="ispconfig-msg ispconfig-msg-error">The parameter \'submit_url\' is missing</div>';
-        }
-
-        $input_attr = ['id' => 'txtDomain', 'placeholder' => 'E.g. yourdomain.net'];
         ?>
-        <script>
-            if($ === undefined) {
-                var $ = jQuery;
-            }
-
-            function toggleCheck() {
-                $('#submit').hide();
-                $('#check').prop('disabled', false);
-                $('#check').show();
-            }
-
-            function toggleSubmit() {
-                $('#submit').show();
-                $('#check').hide();
-            }
-
-            function checkDomain() {
-                var domain = $('#txtDomain').val();
-
-                $('#check').prop('disabled', true);
-
-                $.post(ajaxurl, { action: 'ispconfig_whois', 'domain': domain }, null, 'json').done(function(resp){
-                    $('.ispconfig-box').html('<div class="ispconfig-msg ' + resp.class + '">' + resp.text + '</div>');
-
-                    if (resp.class !== 'ispconfig-msg-error') {
-                        toggleSubmit();
-                    } else {
-                        toggleCheck();
-                    }
-                });
-            }
-
-            $(function() {
-                $('#txtDomain').focus(function() {
-                    toggleCheck();
-                    $(this).select();
-                });
-            });
-        </script>
-        <div class="ispconfig-box"></div>
-        <div>&nbsp;</div>
-        <form action="<?php echo $attr['submit_url']; ?>" method="get">
-            <?php WPISPConfig3::getField('domain', 'Check Domain', 'text', ['container' => 'div', 'input_attr' => $input_attr]); ?>
-            <div>&nbsp;</div>
-            <input id="check" type="button" value="Check Domain" onclick="checkDomain()" />
-            <input id="submit" type="submit" value="Continue" style="display: none" />
-        </form>
+        <div class="ispconfig-msg">Please use the WP-ISPConfig3 Blocks feature to validate domains</div>
         <?php if (current_user_can('administrator')) : ?>
         <div style="font-size: 80%; margin-top: .5em">
-            ADMIN NOTICE: <a href="https://github.com/ole1986/wp-ispconfig3/wiki/Extending-wp-ispconfig3-with-custom-shortcodes" target="_blank">Learn more about custom shortcodes for WP-ISPConfig3</a>
+            ADMIN NOTICE: Custom shortcodes can still be achieved with the WP-ISPConfig3 plugin. <a href="https://github.com/ole1986/wp-ispconfig3/wiki/Extending-wp-ispconfig3-with-custom-shortcodes" target="_blank">Learn More</a>
         </div>
         <?php endif; ?>
         <?php

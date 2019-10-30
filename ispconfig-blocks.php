@@ -41,9 +41,25 @@ class IspconfigBlock
     private function onLoad($props, &$content)
     {
         if ('POST' === $_SERVER[ 'REQUEST_METHOD' ]) {
-            return;
+            return true;
         }
         
+        $loginField = array_pop(array_filter($props['fields'], function ($field) {
+            return $field['id'] == 'client_username';
+        }));
+
+
+        if (isset($loginField) && $loginField['computed'] == 'session' && empty($_SESSION['ispconfig']['client_username'])) {
+            $content .= $this->alert('The session has been expired for the client username');
+            return false;
+        }
+
+        if (isset($loginField) && $loginField['computed'] == 'wp-user' && !is_user_logged_in()) {
+            $content .= $this->alert(__('You need to sign in before continue', 'wp-ispconfig3'));
+            return false;
+        }
+
+
         switch ($props['action']) {
             default:
             case 'action_create_client':
@@ -51,10 +67,14 @@ class IspconfigBlock
                     return $field['id'] == 'client_template_master';
                 }));
 
+                if (empty(WPISPConfig3::$OPTIONS['confirm'])) {
+                    $content .= $this->alert('Login information cannot be supplied through email due to disabled confirmation setting.<br />Your can still fill up the form but may not be able to login');
+                }
+
                 if ($templateField != null) {
                     if (empty($templateField['value'])) {
                         $content .= $this->alert('No client template provided. Either delete the field or set a proper ISPConfig3 template id');
-                        return;
+                        return true;
                     }
 
                     Ispconfig::$Self->withSoap();
@@ -66,29 +86,25 @@ class IspconfigBlock
     
                     if (empty($found)) {
                         $content .= $this->alert('No client template found for id ' . $templateField['value']);
-                        return;
+                        return true;
                     }
                 }
                 break;
-            case 'action_create_website_new':
-                if (empty(WPISPConfig3::$OPTIONS['confirm'])) {
-                    $content .= $this->alert('Login information cannot be supplied through email due to disabled confirmation setting.<br />Your can still fill up the form but may not be able to login');
-                    return;
+            case 'action_create_website':
+                if (empty($loginField['value'])) {
+                    $content .= $this->alert('No client login defined');
+                    return false;
                 }
                 break;
             case 'action_create_mail':
                 $content .= $this->alert('Creating email accounts is not yet implemented');
-                return;
+                return true;
                 break;
             case 'action_update_client_bank':
             case 'action_update_client':
-                $loginField = array_pop(array_filter($props['fields'], function ($field) {
-                    return $field['id'] == 'client_username';
-                }));
-
                 if (empty($loginField['value'])) {
                     $content .= $this->alert('No client login defined');
-                    return;
+                    return true;
                 }
 
                 Ispconfig::$Self->withSoap();
@@ -99,13 +115,22 @@ class IspconfigBlock
                 }, (array)$user);
 
                 break;
+            case 'action_locknow_client':
+                return false;
+                break;
         }
+
+        return true;
     }
 
     private function onPost($props, &$content)
     {
         if ('POST' !== $_SERVER[ 'REQUEST_METHOD' ]) {
-            return false;
+            return true;
+        }
+
+        if (empty($_POST)) {
+            return true;
         }
 
         $ok = false;
@@ -118,6 +143,27 @@ class IspconfigBlock
         // recover the values of read-only fields
         $this->recoverFieldValues($props);
 
+        // connect to ISPConfig REST API
+        Ispconfig::$Self->withSoap();
+
+        // validate the users input dependent on the given action
+        $valid = $this->validateValues($this->postData['action'], $props, $content);
+
+        if (!$valid) {
+            // stop here, but display the controls for retry
+            return true;
+        }
+
+        if ($props['submission']['action'] == 'continue' && $this->postData['action'] != 'action_check_domain') {
+            if (!session_id()) {
+                session_start();
+            }
+
+            $_SESSION['ispconfig'] = $this->postData;
+            wp_redirect($props['submission']['url']);
+            exit;
+        }
+
         try {
             switch ($this->postData['action']) {
                 case 'action_create_client':
@@ -125,9 +171,6 @@ class IspconfigBlock
                     break;
                 case 'action_create_website':
                     $ok = $this->createWebsite($props, $content);
-                    break;
-                case 'action_create_website_new':
-                    $ok = $this->createWebsiteAndClient($props, $content);
                     break;
                 case 'action_create_mail':
                     $ok = $this->createMail($props, $content);
@@ -144,6 +187,23 @@ class IspconfigBlock
                 case 'action_unlock_client':
                     $ok = $this->unlockClient($props, $content);
                     break;
+                case 'action_check_domain':
+                    $isAvailable = Ispconfig::$Self->IsDomainAvailable($this->postData['domain_name']);
+                    $ok = true;
+                    if ($isAvailable) {
+                        $content .= $this->success(__('The domain is available', 'wp-ispconfig3'));
+                        if (!empty($props['submission']) && $props['submission']['action'] == 'continue' && !empty($props['submission']['url'])) {
+                            $content .= $this->info('You will be redirected shortly...');
+                            $content .= '<script>jQuery(function() { 
+                                document.location.href = "'. sprintf('%s?domain=%s', $props['submission']['url'], $this->postData['domain_name']) .'"
+                            })</script>';
+                            $ok = false;
+                        }
+                    } else {
+                        $content .= $this->alert(__('The domain is already registered', 'wp-ispconfig3'));
+                    }
+                    
+                    break;
                 default:
                     throw new Exception("No action defined");
             }
@@ -155,6 +215,9 @@ class IspconfigBlock
         if (!$ok) {
             return false;
         }
+
+        // clear session
+        unset($_SESSION['ispconfig']);
 
         return true;
     }
@@ -178,10 +241,112 @@ class IspconfigBlock
         }
     }
 
+    private function validateValues($action, $props, &$content)
+    {
+        $postData = $this->postData;
+
+        switch ($action) {
+            case 'action_create_client':
+                if (empty($postData['client_username'])) {
+                    $content .= $this->alert('No client username defined');
+                    return false;
+                }
+               
+                $user = Ispconfig::$Self->GetClientByUser($postData['client_username']);
+                
+                if (empty($user)) {
+                    // when the user does not exist, continue validating required
+                    // field to create a new client
+                    if (empty($postData['client_contact_name'])) {
+                        $content .= $this->alert('No client contact name defined');
+                        return false;
+                    }
+            
+                    if (empty($postData['client_email'])) {
+                        $content .= $this->alert('No client email defined');
+                        return false;
+                    }
+            
+                    if (!is_email($postData['client_email'])) {
+                        $content .= $this->alert('N valid client email address defined');
+                        return false;
+                    }
+            
+                    if (empty($postData['client_password'])) {
+                        $content .= $this->alert('No client password defined');
+                        return false;
+                    }
+            
+                    if (strlen($postData['client_password']) < 5) {
+                        $content .= $this->alert('Client password is to short');
+                        return false;
+                    }
+                }
+                break;
+            case 'action_create_website':
+                if (empty($postData['website_domain'])) {
+                    $content .= $this->alert('No website given');
+                    return false;
+                }
+                break;
+            case 'action_update_client':
+                if (empty($postData['client_contact_name'])) {
+                    $content .= $this->alert('No client contact name defined');
+                    return false;
+                }
+
+                if (empty($postData['client_language'])) {
+                    $content .= $this->alert('No language given');
+                    return false;
+                }
+
+                if (!preg_match("/^[A-Za-z]{2}$/", $postData['client_language'])) {
+                    $content .= $this->alert('No valid ISO 639-1 language code. (E.g. en)');
+                    return false;
+                }
+
+                break;
+            case 'action_update_client_bank':
+                if (empty($postData['client_bank_account_owner'])) {
+                    $content .= $this->alert('Missing bank account owner');
+                    return false;
+                }
+        
+                if (empty($postData['client_bank_name'])) {
+                    $content .= $this->alert('Missing bank name');
+                    return false;
+                }
+        
+                if (!is_email($postData['client_bank_account_iban'])) {
+                    $content .= $this->alert('Missing bank account number');
+                    return false;
+                }
+                break;
+            case 'action_check_domain':
+                try {
+                    $postData['domain_name'] = $this->postData['domain_name'] = Ispconfig::validateDomain($postData['domain_name']);
+                } catch (Exception $e) {
+                    $content .= $this->alert($e->getMessage());
+                    return false;
+                }
+                break;
+        }
+
+        return true;
+    }
+
     private function computeField(&$field)
     {
         switch ($field['computed']) {
             default:
+                break;
+            case 'session':
+                if (!session_id()) {
+                    session_start();
+                }
+
+                $field['value'] = $_SESSION['ispconfig'][$field['id']];
+                $field['readonly'] = true;
                 break;
             case 'wp-locale':
                 $lang = get_locale();
@@ -232,38 +397,6 @@ class IspconfigBlock
     protected function createClient($props, &$content)
     {
         $postData = $this->postData;
-
-        if (empty($postData['client_username'])) {
-            $content .= $this->alert('No client username defined');
-            return false;
-        }
-
-        if (empty($postData['client_contact_name'])) {
-            $content .= $this->alert('No client contact name defined');
-            return false;
-        }
-
-        if (empty($postData['client_email'])) {
-            $content .= $this->alert('No client email defined');
-            return false;
-        }
-
-        if (!is_email($postData['client_email'])) {
-            $content .= $this->alert('N valid client email address defined');
-            return false;
-        }
-
-        if (empty($postData['client_password'])) {
-            $content .= $this->alert('No client password defined');
-            return false;
-        }
-
-        if (strlen($postData['client_password']) < 5) {
-            $content .= $this->alert('Client password is to short');
-            return false;
-        }
-
-        Ispconfig::$Self->withSoap();
 
         $opt = [
             'contact_name' => $postData['client_contact_name'],
@@ -340,75 +473,39 @@ class IspconfigBlock
 
     protected function createWebsite($props, &$content)
     {
-        $postData = $this->postData;
+        $loginField = array_pop(array_filter($props['fields'], function ($field) {
+            return $field['id'] == 'client_username';
+        }));
 
-        if (empty($postData['website_domain'])) {
-            $content .= $this->alert('No Webdomain defined');
-            return false;
-        }
+        $postData = $this->postData;
 
         Ispconfig::$Self->withSoap();
 
         $user = Ispconfig::$Self->GetClientByUser($postData['client_username']);
+
+        if (empty($user) && $loginField['computed'] == 'session') {
+            // when the client info is shipped through session
+            // use createClient to create the client first
+            $this->postData = $_SESSION['ispconfig'];
+            $ok = $this->createClient($props, $content);
+            if (!$ok) {
+                return false;
+            }
+            $user = Ispconfig::$Self->GetClientByUser($postData['client_username']);
+        }
 
         if (empty($user)) {
             $content .= $this->alert('Client ID not found');
             return false;
         }
 
-        $content .= "<p style='color:green;'>Client found (". $user['client_id'] .")</p>";
+        $content .= $this->success("Client found (" . $user['client_id'] . ")");
 
         Ispconfig::$Self->SetClientID($user['client_id']);
 
         $domain = Ispconfig::$Self->AddWebsite(['domain' => $postData['website_domain']]);
 
         $content .= $this->success("Website " . $postData['website_domain'] . " successfully created (".$domain.")");
-
-        return true;
-    }
-
-    protected function createWebsiteAndClient($props, &$content)
-    {
-        $postData = $this->postData;
-
-        if (empty($postData['website_domain'])) {
-            $content .= $this->alert('No Webdomain defined');
-            return false;
-        }
-
-        $contactName = $postData['client_contact_name'];
-
-        if (empty($contactName)) {
-            $content .= $this->alert('No contact information supplied');
-            return false;
-        }
-
-        if (!is_email($postData['client_email'])) {
-            $content .= $this->alert('No valid email provided');
-            return false;
-        }
-
-        $domain = strtolower($postData['website_domain']);
-        if (!preg_match("/^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/", $domain)) {
-            $content .= $this->alert('No valid domain provided');
-            return false;
-        }
-
-        $contactUser = preg_replace('/\W/', '', strtolower($contactName));
-
-        $password = wp_generate_password();
-
-        $opt = ['username' => $contactUser, 'password' => $password,'contact_name' => $contactName, 'company_name' => $postData['client_company_name'], 'email' => $postData['client_email']];
-
-        Ispconfig::$Self->withSoap();
-        Ispconfig::$Self->AddClient($opt)
-                        ->AddWebsite(['domain' => $domain]);
-
-        $content .= $this->success("Website and client account successfully created");
-        
-        if (!empty(WPISPConfig3::$OPTIONS['confirm'])) {
-            $sent = Ispconfig::$Self->SendConfirmation(array_merge($opt, ['domain' => $domain]));
-        }
 
         return true;
     }
@@ -443,11 +540,6 @@ class IspconfigBlock
     {
         $postData = $this->postData;
 
-        if (empty($postData['client_username'])) {
-            $content .= $this->alert('No client login defined');
-            return false;
-        }
-
         Ispconfig::$Self->withSoap();
         $user = Ispconfig::$Self->GetClientByUser($postData['client_username']);
 
@@ -467,11 +559,6 @@ class IspconfigBlock
     protected function updateClientDetails($props, &$content)
     {
         $postData = $this->postData;
-
-        if (empty($postData['client_username'])) {
-            $content .= $this->alert('No client login defined');
-            return false;
-        }
 
         Ispconfig::$Self->withSoap();
         $user = Ispconfig::$Self->GetClientByUser($postData['client_username']);
@@ -506,6 +593,8 @@ class IspconfigBlock
 
     public function Output($props, $content)
     {
+        $buttonClass = 'btn btn-default';
+        $buttonPrimaryClass = 'btn btn-primary';
         // set the default action if none is set
         if (empty($props['action'])) {
             $props['action'] = 'action_create_client';
@@ -521,14 +610,18 @@ class IspconfigBlock
         // update field from other plugin using "add_filter" hooks
         $props['fields'] = apply_filters('ispconfig_block_' . $props['action'], $props['fields']);
 
-        $this->onLoad($props, $content);
+        $onLoad = $this->onLoad($props, $content);
 
         // premature end when action is locknow
-        if ($props['action'] == 'action_locknow_client') {
+        if (!$onLoad) {
             return $content;
         }
 
         $onPost = $this->onPost($props, $content);
+
+        if (!$onPost) {
+            return $content;
+        }
 
         ob_start();
     
@@ -547,7 +640,13 @@ class IspconfigBlock
                 $field['value'] = $this->postData[$field['id']];
             }
             
-            WPISPConfig3::getField($field['id'], __($field['id'], 'wp-ispconfig3-block'), 'text', ['container' => 'div', 'value' => $field['value'], 'input_attr' => $input_attr]);
+            $type = "text";
+
+            if ($field['password']) {
+                $type = "password";
+            }
+
+            WPISPConfig3::getField($field['id'], __($field['id'], 'wp-ispconfig3-block'), $type, ['container' => 'div', 'value' => $field['value'], 'input_attr' => $input_attr]);
         }
     
         $result = ob_get_clean();
@@ -556,9 +655,23 @@ class IspconfigBlock
         $content.= $result;
 
         if (!empty($props['action'])) {
+            $button_title = __($props['action'], 'wp-ispconfig3-block');
+            if (!empty($props['submission']['button_title'])) {
+                $button_title = $props['submission']['button_title'];
+            }
+            
             $content .= '<div style="margin-top: 1em">';
             $content .= '<input type="hidden" name="action" value="'.$props['action'] .'" />';
-            $content .= '<input type="submit" class="button-primary" name="submit" value="'.__($props['action'], 'wp-ispconfig3-block') .'" />';
+
+            if (!empty($props['submission']['button_back'])) {
+                $back_button_title = "Back";
+                if (!empty($props['submission']['button_back_title'])) {
+                    $back_button_title = $props['submission']['button_back_title'];
+                }
+                $content .= '<input type="button" class="'. $buttonClass .'" onclick="javascript:history.back();" value="'. $back_button_title .'" />&nbsp;';
+            }
+            
+            $content .= '<input type="submit" class="'. $buttonPrimaryClass .'" name="submit" value="'. $button_title .'" />';
             $content .= '</div>';
         }
         $content.= "</form>";

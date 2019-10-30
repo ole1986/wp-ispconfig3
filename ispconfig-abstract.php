@@ -9,7 +9,7 @@ abstract class IspconfigAbstract
     public static $Self;
 
     private $soap;
-    private $session_id;
+    private $session_id = null;
 
     protected $client_id;
     protected $domain_id;
@@ -27,25 +27,28 @@ abstract class IspconfigAbstract
     /**
      * Initialize the SoapClient connection to the ISPConfig3 REST API using the login information stored as settings
      */
-    public function withSoap()
+    public function withSoap($force = false)
     {
-        $options = ['location' => WPISPConfig3::$OPTIONS['soap_location'], 'uri' => WPISPConfig3::$OPTIONS['soap_uri'], 'trace' => 1, 'exceptions' => 1];
+        if ($this->session_id == null) {
+            $options = ['location' => WPISPConfig3::$OPTIONS['soap_location'], 'uri' => WPISPConfig3::$OPTIONS['soap_uri'], 'trace' => 1, 'exceptions' => 1];
 
-        if (WPISPConfig3::$OPTIONS['skip_ssl']) {
-            // apply stream context to disable ssl checks
-            $options['stream_context'] = stream_context_create(
-                [
-                    'ssl' => [
-                        'verify_peer' => false,
-                        'verify_peer_name' => false,
-                        'allow_self_signed' => true,
-                    ],
-                ]
-            );
+            if (WPISPConfig3::$OPTIONS['skip_ssl']) {
+                // apply stream context to disable ssl checks
+                $options['stream_context'] = stream_context_create(
+                    [
+                        'ssl' => [
+                            'verify_peer' => false,
+                            'verify_peer_name' => false,
+                            'allow_self_signed' => true,
+                        ],
+                    ]
+                );
+            }
+    
+            $this->soap = new SoapClient(null, $options);
+            $this->session_id = $this->soap->login(WPISPConfig3::$OPTIONS['soapusername'], WPISPConfig3::$OPTIONS['soappassword']);
         }
 
-        $this->soap = new SoapClient(null, $options);
-        $this->session_id = $this->soap->login(WPISPConfig3::$OPTIONS['soapusername'], WPISPConfig3::$OPTIONS['soappassword']);
         return $this;
     }
 
@@ -183,6 +186,11 @@ abstract class IspconfigAbstract
     public function SetClientID($id)
     {
         $this->client_id = $id;
+    }
+
+    public function GetClientID()
+    {
+        return $this->client_id;
     }
 
     /**
