@@ -26,12 +26,15 @@ class IspconfigWebsite
 
     public function doAjax()
     {
-        $result = '';
-        if (!empty($_POST['website_id']) && !empty($_POST['status'])) {
-            $result = Ispconfig::$Self->withSoap()->SetSiteStatus($_POST['website_id'], $_POST['status']);
-        }
+        header('Content-Type: application/json');
 
-        return json_encode($result);
+        $ok = 0;
+        if (!empty($_POST['website_id']) && !empty($_POST['status'])) {
+            $ok = Ispconfig::$Self->withSoap()->SetSiteStatus($_POST['website_id'], $_POST['status']);
+        }
+        
+        echo $ok;
+
         wp_die();
     }
     

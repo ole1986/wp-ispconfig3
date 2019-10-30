@@ -3,7 +3,6 @@ defined('ABSPATH') || exit;
 
 /**
  * Default class used to check for domain using whois
- * Shortcode: [Ispconfig submit_url="..."]
  */
 class Ispconfig extends IspconfigAbstract
 {
@@ -34,6 +33,8 @@ class Ispconfig extends IspconfigAbstract
      */
     public function AJAX_ispconfig_whois_callback()
     {
+        header('Content-Type: application/json');
+        
         try {
             $dom = self::validateDomain($_POST['domain']);
             $this->withSoap();
@@ -60,6 +61,8 @@ class Ispconfig extends IspconfigAbstract
             $result['text'] = __('The domain name is invalid', 'wp-ispconfig3');
             $result['class'] = 'ispconfig-msg-error';
         }
+
+        $result['value'] = $ok;
 
         echo json_encode($result);
         wp_die();

@@ -60,9 +60,9 @@ class IspconfigWebsiteList extends WP_List_Table
     protected function column_active($item)
     {
         if ($item->active === 'y') {
-            $actions = [ 'deactivate' => '<a href="javascript:void(0)" data-id="'.$item->domain_id.'" onclick="ISPConfigAdmin.WebsiteStatus(this,\'inactive\')" target="_blank">Deactivate</a>' ];
+            $actions = [ 'deactivate' => '<a href="javascript:void(0)" data-id="'.$item->domain_id.'" onclick="ISPConfigAdmin.WebsiteStatus(this,\'inactive\')">Deactivate</a>' ];
         } else {
-            $actions = [ 'activate' => '<a href="javascript:void(0)" data-id="'.$item->domain_id.'" onclick="ISPConfigAdmin.WebsiteStatus(this,\'active\')" target="_blank">Activate</a>' ];
+            $actions = [ 'activate' => '<a href="javascript:void(0)" data-id="'.$item->domain_id.'" onclick="ISPConfigAdmin.WebsiteStatus(this,\'active\')">Activate</a>' ];
         }
         
         return sprintf('%s %s', ($item->active == 'y') ? 'Yes' : 'No', $this->row_actions($actions));
