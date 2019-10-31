@@ -84,11 +84,6 @@ if (!class_exists('WPISPConfig3')) {
             // initialize the Ispconfig class
             new Ispconfig();
 
-            // load the ISPConfig3 invoicing module (PREMIUM)
-            if (file_exists(WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php')) {
-                include_once WPISPCONFIG3_PLUGIN_DIR . 'wc/ispconfig_wc.php';
-                IspconfigWc::init();
-            }
             if (file_exists(WPISPCONFIG3_PLUGIN_DIR . 'manage/ispconfig_website.php')) {
                 include_once WPISPCONFIG3_PLUGIN_DIR . 'manage/ispconfig_website.php';
                 IspconfigWebsite::init();

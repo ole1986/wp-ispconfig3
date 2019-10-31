@@ -10,6 +10,7 @@ abstract class IspconfigAbstract
 
     private $soap;
     private $session_id = null;
+    private $forbiddenUserEx = '';
 
     protected $client_id;
     protected $domain_id;
@@ -21,6 +22,14 @@ abstract class IspconfigAbstract
     public function __construct()
     {
         $this->withShortcode();
+
+        // contains any of the below word is forbidden in username
+        $this->forbiddenUserEx = 'www|mail|ftp|smtp|imap|download|upload|image|service|offline|online|admin|root|username|webmail|blog|help|support';
+        // exact words forbidden in username
+        $this->forbiddenUserEx .= '|^kb$|^wiki$|^api$|^static$|^dev$|^mysql$|^search$|^media$|^status$';
+        // start with words forbidden in username
+        $this->forbiddenUserEx .= '|^mobile';
+
         self::$Self = $this;
     }
 
