@@ -1,0 +1,92 @@
+{
+   "domain": "messages",
+   "locale_data": {
+      "messages": {
+         "": {
+            "domain": "messages",
+            "lang": "en_US"
+         },
+         "action_create_client": [
+            "Create client"
+         ],
+         "action_create_website": [
+            "Create website"
+         ],
+         "action_create_website_new": [
+            "Create website"
+         ],
+         "action_create_mail": [
+            "Create email"
+         ],
+         "action_update_client": [
+            "Update customer"
+         ],
+         "action_update_client_bank": [
+            "Update bank details"
+         ],
+         "action_lock_client": [
+            "Lock client account"
+         ],
+         "action_unlock_client": [
+            "Unlock client account"
+         ],
+         "action_check_domain": [
+            "Check Domain"
+         ],
+         "client_username": [
+            "Client ID"
+         ],
+         "client_domain": [
+            "Client domain"
+         ],
+         "client_contact_name": [
+            "Client Name"
+         ],
+         "client_company_name": [
+            "Client Company"
+         ],
+         "client_email": [
+            "Client email"
+         ],
+         "client_password": [
+            "Client password"
+         ],
+         "client_template_master": [
+            "Client Template"
+         ],
+         "client_street": [
+            "Street address"
+         ],
+         "client_language": [
+            "Language"
+         ],
+         "client_zip": [
+            "Zip Code"
+         ],
+         "client_city": [
+            "City"
+         ],
+         "client_telephone": [
+            "Phone number"
+         ],
+         "client_bank_account_owner": [
+            "Bank account owner"
+         ],
+         "client_bank_name": [
+            "Bank name"
+         ],
+         "client_bank_account_iban": [
+            "IBAN number"
+         ],
+         "client_bank_account_swift": [
+            "SWIFT / BIC"
+         ],
+         "website_domain": [
+            "Web domain"
+         ],
+         "domain_name": [
+            "Domain name"
+         ]
+      }
+   }
+}

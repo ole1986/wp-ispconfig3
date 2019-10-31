@@ -10,52 +10,9 @@ function IspconfigField(props) {
 	self.state = props.field;
 
 	var getLabel = function (id) {
-		//return wp.i18n.__(id, 'wp-ispconfig3');
-		switch (id) {
-			case 'client_username':
-				return 'Client Login';
-			case 'client_password':
-				return "Client Password";
-			case 'client_template_master':
-				return 'Client Template';
-			case 'client_contact_name':
-				return 'Contact Name';
-			case 'client_company_name':
-				return 'Company Name';
-			case 'client_email':
-				return 'Email';
-			case 'client_language':
-				return 'Language code (ISO-639-1)';
-			case 'client_street':
-				return 'Street';
-			case 'client_zip':
-				return 'Zip Code';
-			case 'client_city':
-				return 'City';
-			case 'client_telephone':
-				return 'Phone number';
-			case 'client_bank_name':
-				return 'Bank Name';
-			case 'client_bank_account_owner':
-				return 'Bank Account Owner';
-			case 'client_bank_account_iban':
-				return 'Bank IBAN';
-			case 'client_bank_account_swift':
-				return 'BIC / Swift';
-
-			case 'website_domain':
-				return "Website Domain";
-
-			case 'mail_address':
-				return "Mail address";
-			case 'mail_name':
-				return 'Mail Name';
-			case 'mail_password':
-				return 'Mail password';
-
-			case 'domain_name':
-				return 'Domain name';
-		}
+		// use wordpress i18n translations stored in
+		// plugins languages directory as json file
+		return wp.i18n.__(id, 'wp-ispconfig3');
 	}
 
 	var getAdvancedLabel = function(id, computed) {
@@ -266,9 +223,9 @@ function IspconfigSubmit(props) {
 		var buttonName = wp.element.createElement(wp.components.TextControl, { className: 'ispconfig-block-inline', label: 'Button title', placeholder: 'Enter button title here', value: self.state.button_title, onChange: changeTitle.bind(this) });
 
 		var showBackButton = wp.element.createElement(wp.components.CheckboxControl, { className: 'ispconfig-block-inline', checked: self.state.button_back, label: 'Back button', onChange: backButtonVisible.bind(this)});
-		var backButtonTitle = wp.element.createElement(wp.components.TextControl, { className: 'ispconfig-block-inline', label: 'Back button title', placeholder: 'Back button title', value: self.state.button_back_title, onChange: backButtonTitle.bind(this) });
+		var backButtonName = wp.element.createElement(wp.components.TextControl, { className: 'ispconfig-block-inline', label: 'Back button title', placeholder: 'Back button title', value: self.state.button_back_title, onChange: backButtonTitle.bind(this) });
 
-		return wp.element.createElement('div', { className: 'ispconfig-block-action' }, actionRadio, txt, showBackButton, buttonName, backButtonTitle);
+		return wp.element.createElement('div', { className: 'ispconfig-block-action' }, actionRadio, txt, showBackButton, buttonName, backButtonName);
 	}
 }
 
@@ -363,43 +320,43 @@ wp.blocks.registerBlockType('ole1986/ispconfig-block', {
 	edit: function (props) {
 		var actionControls = [
 			{
-				name: 'Create Client',
+				name: wp.i18n.__('action_create_client', 'wp-ispconfig3'),
 				description: 'Provide a form to create a new client login',
 				id: 'action_create_client', 
 				fields: ['client_username', 'client_contact_name', 'client_company_name', 'client_email', 'client_password', 'client_template_master']
 			},
 			{
-				name: 'Create Website',
+				name: wp.i18n.__('action_create_website', 'wp-ispconfig3'),
 				description: 'Provide a form to create a new website based on a given client login',
 				id: 'action_create_website',
 				fields: ['client_username', 'website_domain']
 			},
 			{
-				name: 'Update Client info',
+				name: wp.i18n.__('action_update_client', 'wp-ispconfig3'),
 				description: 'Provide a form to update general client information',
 				id: 'action_update_client',
 				fields: [ 'client_username', 'client_contact_name', 'client_company_name', 'client_language','client_street', 'client_zip', 'client_city', 'client_telephone']
 			},
 			{
-				name: 'Update bank details',
+				name: wp.i18n.__('action_update_client_bank', 'wp-ispconfig3'),
 				description: 'Provide a form to update client bank details',
 				id: 'action_update_client_bank',
 				fields: [ 'client_username', 'client_bank_account_owner', 'client_bank_name', 'client_bank_account_iban', 'client_bank_account_swift']
 			},
 			{
-				name: 'Check Domain',
+				name: wp.i18n.__('action_check_domain', 'wp-ispconfig3'),
 				description: 'Validate a domain and check for availibility',
 				id: 'action_check_domain',
 				fields: ['domain_name']
 			},
 			{
-				name: 'Lock client',
+				name: wp.i18n.__('action_lock_client', 'wp-ispconfig3'),
 				description: 'Provide a form to lock a client account base on the given login',
 				id: 'action_lock_client',
 				fields: ['client_username']
 			},
 			{
-				name: 'Unlock client',
+				name: wp.i18n.__('action_unlock_client', 'wp-ispconfig3'),
 				description: 'Provide a form to unlock a client account base on the given login',
 				id: 'action_unlock_client',
 				fields: ['client_username']

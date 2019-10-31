@@ -1,3 +1,20 @@
+# Copyright (C) 2019
+# This file is distributed under the same license as the Scratch Plugin plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: WP-ISPConfig3 1.5.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-ispconfig3\n"
+"Last-Translator: Ole Koeckemann <ole.k@web.de>\n"
+"Language-Team: Ole Koeckemann <ole.k@web.de>\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2019-10-31T11:19:49+01:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+
+### BLOCKS
+
 msgid "action_create_client"
 msgstr "Create client"
 

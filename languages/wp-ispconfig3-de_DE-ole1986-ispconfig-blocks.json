@@ -1,0 +1,167 @@
+{
+   "domain": "messages",
+   "locale_data": {
+      "messages": {
+         "": {
+            "domain": "messages",
+            "lang": "de_DE"
+         },
+         "Your account %s has been created": [
+            "Ihr Konto %s wurde erfolgreich erstellt"
+         ],
+         "You will receive a confirmation email shortly": [
+            "Sie erhalten in kürze eine Bestätigung per Email"
+         ],
+         "You need to sign in before continue": [
+            "Eine Anmeldung ist erforderlich um fortzufahren"
+         ],
+         "The name cannot be empty": [
+            "Der Name kann nicht leer bleiben"
+         ],
+         "Please enter your name in full-style": [
+            "Bitte geben Sie Ihren vollständigen Namen ein"
+         ],
+         "The username cannot be empty": [
+            "DEr Benutzername kann nicht leer sein"
+         ],
+         "The username contains invalid characters": [
+            "Der Benutzer enthält ungültige Zeichen"
+         ],
+         "The username is too short": [
+            "Der Benutzername ist zu kurz"
+         ],
+         "The username is too long": [
+            "Der Benutzername ist zu lang"
+         ],
+         "The username is not allowed": [
+            "Der Benutzername ist nicht erlaubt"
+         ],
+         "The password is too short": [
+            "Das Passwort ist zu kurz"
+         ],
+         "The password is too long": [
+            "Das Passwort ist zu lang"
+         ],
+         "The password contains invalid characters": [
+            "Das Passwort enthält ungültige Zeichen"
+         ],
+         "The password does not match": [
+            "Das Passwort stimmt nicht überein"
+         ],
+         "The domain name is invalid": [
+            "Der Domainname ist ungültig"
+         ],
+         "The email address is invalid": [
+            "Die Email Adresse ist ungültig"
+         ],
+         "The email address does not match": [
+            "Die Email Adresse stimmt nicht überein"
+         ],
+         "Payments shall be made in advance:": [
+            "Die Zahlung erfolgt im Voraus:"
+         ],
+         "A scheduler will submit the invoice to '%s'": [
+            "Ein Aufgabenplaner versendet die Rechnung an '%s'"
+         ],
+         "Account creation": [
+            "Kontoerstellung"
+         ],
+         "The domain is already registered": [
+            "Der Domainname ist bereits vergeben"
+         ],
+         "The domain is available": [
+            "Die Domain ist verfügbar"
+         ],
+         "The domain could not be verified": [
+            "Der Domainname konnte nicht verifiziert werden"
+         ],
+         "Websites": [
+            "Webseiten"
+         ],
+         "Databases": [
+            "Datenbanken"
+         ],
+         "action_create_client": [
+            "Kunde erstellen"
+         ],
+         "action_create_website": [
+            "Webseite erstellen"
+         ],
+         "action_create_website_new": [
+            "Webseite erstellen"
+         ],
+         "action_create_mail": [
+            "Email erstellen"
+         ],
+         "action_update_client": [
+            "Kunde aktualisieren"
+         ],
+         "action_update_client_bank": [
+            "Bankdaten aktualisieren"
+         ],
+         "action_lock_client": [
+            "Kundenzugang sperren"
+         ],
+         "action_unlock_client": [
+            "Kundenzugang entsperren"
+         ],
+         "action_check_domain": [
+            "Domain prüfen"
+         ],
+         "client_username": [
+            "Kunden ID"
+         ],
+         "client_domain": [
+            "Kunden Domain"
+         ],
+         "client_contact_name": [
+            "Kunden Name"
+         ],
+         "client_company_name": [
+            "Kunden Firma"
+         ],
+         "client_email": [
+            "Kunden Email"
+         ],
+         "client_password": [
+            "Kunden Passwort"
+         ],
+         "client_template_master": [
+            "Kundenvorlage"
+         ],
+         "client_street": [
+            "Straße"
+         ],
+         "client_language": [
+            "Sprache"
+         ],
+         "client_zip": [
+            "Postleitzahl"
+         ],
+         "client_city": [
+            "Stadt"
+         ],
+         "client_telephone": [
+            "Telefonnummer"
+         ],
+         "client_bank_account_owner": [
+            "Bank Eigentümer"
+         ],
+         "client_bank_name": [
+            "Bank Name"
+         ],
+         "client_bank_account_iban": [
+            "IBAN Nummer"
+         ],
+         "client_bank_account_swift": [
+            "SWIFT / BIC"
+         ],
+         "website_domain": [
+            "Web Domain"
+         ],
+         "domain_name": [
+            "Domain Name"
+         ]
+      }
+   }
+}

@@ -1,9 +1,5 @@
 <?php
-
-add_action('init', array( 'IspconfigBlock', 'init' ));
-add_action('plugins_loaded', function () {
-    load_plugin_textdomain('wp-ispconfig3-block', false, dirname(plugin_basename(__FILE__)) . '/lang');
-});
+add_action('init', array( 'IspconfigBlock', 'init' ), 20);
 
 function array_map_assoc(callable $f, array $a)
 {
@@ -24,15 +20,19 @@ class IspconfigBlock
         add_action('enqueue_block_editor_assets', [$this, 'LoadAssets']);
 
         // dynamic gutenberg block rendering
-        if (!is_admin()) {
-            register_block_type('ole1986/ispconfig-block', ['render_callback' => [$this, 'Output']]);
-        }
+        register_block_type('ole1986/ispconfig-block', [
+            'render_callback' => [$this, 'Output']
+        ]);
     }
 
     public function LoadAssets()
     {
-        wp_enqueue_script('ole1986-ispconfig-blocks', WPISPCONFIG3_PLUGIN_URL . 'js/ispconfig-blocks.js', ['wp-blocks', 'wp-i18n', 'wp-editor'], true);
-        wp_enqueue_style('ole1986-ispconfig-blocks', WPISPCONFIG3_PLUGIN_URL . 'style/ispconfig-blocks.css');
+        wp_enqueue_script('ole1986-ispconfig-blocks', WPISPCONFIG3_PLUGIN_URL . 'js/ispconfig-blocks.js', [ 'wp-blocks', 'wp-i18n' ], WPISPCONFIG3_VERSION);
+        wp_enqueue_style('ole1986-ispconfig-blocks', WPISPCONFIG3_PLUGIN_URL . 'style/ispconfig-blocks.css', null, WPISPCONFIG3_VERSION);
+        
+        // script translations requires the json files (in ped format)
+        // to be available in the languages directory
+        wp_set_script_translations('ole1986-ispconfig-blocks', 'wp-ispconfig3', WPISPCONFIG3_PLUGIN_DIR . 'languages');
     }
 
     /**
@@ -646,7 +646,7 @@ class IspconfigBlock
                 $type = "password";
             }
 
-            WPISPConfig3::getField($field['id'], __($field['id'], 'wp-ispconfig3-block'), $type, ['container' => 'div', 'value' => $field['value'], 'input_attr' => $input_attr]);
+            WPISPConfig3::getField($field['id'], __($field['id'], 'wp-ispconfig3'), $type, ['container' => 'div', 'value' => $field['value'], 'input_attr' => $input_attr]);
         }
     
         $result = ob_get_clean();
@@ -655,7 +655,7 @@ class IspconfigBlock
         $content.= $result;
 
         if (!empty($props['action'])) {
-            $button_title = __($props['action'], 'wp-ispconfig3-block');
+            $button_title = __($props['action'], 'wp-ispconfig3');
             if (!empty($props['submission']['button_title'])) {
                 $button_title = $props['submission']['button_title'];
             }

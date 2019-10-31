@@ -6,9 +6,13 @@
  * Author: ole1986 <ole.k@web.de>, MachineITSvcs <contact@machineitservices.com>
  * Author URI: https://github.com/ole1986/wp-ispconfig3
  * Text Domain: wp-ispconfig3
- * Domain Path: /lang
+ * Domain Path: /languages
  */
 defined('ABSPATH') or die('No script kiddies please!');
+
+if (! defined('WPISPCONFIG3_VERSION')) {
+    define('WPISPCONFIG3_VERSION', '1.5.0');
+}
 
 if (! defined('WPISPCONFIG3_PLUGIN_DIR')) {
     define('WPISPCONFIG3_PLUGIN_DIR', plugin_dir_path(__FILE__));
@@ -22,11 +26,10 @@ require_once 'ispconfig-abstract.php';
 require_once 'ispconfig.php';
 require_once 'ispconfig-blocks.php';
 
+load_plugin_textdomain('wp-ispconfig3', false, basename(dirname(__FILE__)) . '/languages');
+
 if (!class_exists('WPISPConfig3')) {
     add_action('init', ['WPISPConfig3', 'init'], 1);
-    add_action('plugins_loaded', function () {
-        load_plugin_textdomain('wp-ispconfig3', false, dirname(plugin_basename(__FILE__)) . '/lang');
-    });
 
     register_activation_hook(plugin_basename(__FILE__), array( 'WPISPConfig3', 'install' ));
     register_deactivation_hook(plugin_basename(__FILE__), array( 'WPISPConfig3', 'deactivate' ));
@@ -92,7 +95,7 @@ if (!class_exists('WPISPConfig3')) {
                 include_once WPISPCONFIG3_PLUGIN_DIR . 'manage/ispconfig_database.php';
                 IspconfigDatabase::init();
             }
-            
+
             // action hook to load the scripts and style sheets (frontend)
             add_action('wp_enqueue_scripts', array($this, 'wpdocs_theme_name_scripts'));
             // action hook to load the scripts and style sheets (backend)

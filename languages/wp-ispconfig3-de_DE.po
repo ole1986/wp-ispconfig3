@@ -1,3 +1,18 @@
+# Copyright (C) 2019
+# This file is distributed under the same license as the Scratch Plugin plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: WP-ISPConfig3 1.5.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-ispconfig3\n"
+"Last-Translator: Ole Koeckemann <ole.k@web.de>\n"
+"Language-Team: Ole Koeckemann <ole.k@web.de>\n"
+"Language: de_DE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2019-10-31T11:19:49+01:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+
 msgid "Your account %s has been created"
 msgstr "Ihr Konto %s wurde erfolgreich erstellt"
 
@@ -72,3 +87,87 @@ msgstr "Webseiten"
 
 msgid "Databases"
 msgstr "Datenbanken"
+
+
+### BLOCKS
+
+msgid "action_create_client"
+msgstr "Kunde erstellen"
+
+msgid "action_create_website"
+msgstr "Webseite erstellen"
+
+msgid "action_create_website_new"
+msgstr "Webseite erstellen"
+
+msgid "action_create_mail"
+msgstr "Email erstellen"
+
+msgid "action_update_client"
+msgstr "Kunde aktualisieren"
+
+msgid "action_update_client_bank"
+msgstr "Bankdaten aktualisieren"
+
+msgid "action_lock_client"
+msgstr "Kundenzugang sperren"
+
+msgid "action_unlock_client"
+msgstr "Kundenzugang entsperren"
+
+msgid "action_check_domain"
+msgstr "Domain prüfen"
+
+msgid "client_username"
+msgstr "Kunden ID"
+
+msgid "client_domain"
+msgstr "Kunden Domain"
+
+msgid "client_contact_name"
+msgstr "Kunden Name"
+
+msgid "client_company_name"
+msgstr "Kunden Firma"
+
+msgid "client_email"
+msgstr "Kunden Email"
+
+msgid "client_password"
+msgstr "Kunden Passwort"
+
+msgid "client_template_master"
+msgstr "Kundenvorlage"
+
+msgid "client_street"
+msgstr "Straße"
+
+msgid "client_language"
+msgstr "Sprache"
+
+msgid "client_zip"
+msgstr "Postleitzahl"
+
+msgid "client_city"
+msgstr "Stadt"
+
+msgid "client_telephone"
+msgstr "Telefonnummer"
+
+msgid "client_bank_account_owner"
+msgstr "Bank Eigentümer"
+
+msgid "client_bank_name"
+msgstr "Bank Name"
+
+msgid "client_bank_account_iban"
+msgstr "IBAN Nummer"
+
+msgid "client_bank_account_swift"
+msgstr "SWIFT / BIC"
+
+msgid "website_domain"
+msgstr "Web Domain"
+
+msgid "domain_name"
+msgstr "Domain Name"
