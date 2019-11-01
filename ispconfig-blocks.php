@@ -324,7 +324,7 @@ class IspconfigBlock
                 break;
             case 'action_check_domain':
                 try {
-                    $postData['domain_name'] = $this->postData['domain_name'] = Ispconfig::validateDomain($postData['domain_name']);
+                    $postData['domain_name'] = $this->postData['domain_name'] = Ispconfig::$Self->validateDomain($postData['domain_name']);
                 } catch (Exception $e) {
                     $content .= $this->alert($e->getMessage());
                     return false;

@@ -36,7 +36,7 @@ class Ispconfig extends IspconfigAbstract
         header('Content-Type: application/json');
         
         try {
-            $dom = self::validateDomain($_POST['domain']);
+            $dom = $this->validateDomain($_POST['domain']);
             $this->withSoap();
 
             $ok = $this->IsDomainAvailable($dom);

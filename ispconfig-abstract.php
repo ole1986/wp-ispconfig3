@@ -563,7 +563,7 @@ abstract class IspconfigAbstract
         }
     }
 
-    public static function validateDomain($input)
+    public function validateDomain($input)
     {
         if (!preg_match("/^" . WPISPConfig3::$OPTIONS['domain_check_regex'] . "$/", $input)) {
             throw new Exception(__("The domain name is invalid", 'wp-ispconfig3'));
