@@ -20,11 +20,13 @@ function IspconfigField(props) {
 		switch(id) {
 			case 'client_username':
 				if(computed === '') {
-					info = 'Client user (optional)';
+					info = 'Predefined user';
+				} else if (computed === 'generated') {
+					info = 'Random username';
 				} else if (computed === 'wp-user') {
 					info = 'User need to login first';
 				} else if (computed === 'session') {
-					info = 'Get client from session';
+					info = 'Gather from session';
 				}
 				break;
 			case 'client_template_master':
@@ -46,7 +48,7 @@ function IspconfigField(props) {
 
 		switch(id) {
 			case 'client_username':
-				if (computed == '') {
+				if ([''].indexOf(computed) != -1) {
 					advanced = true;
 				}
 				break;
@@ -70,9 +72,10 @@ function IspconfigField(props) {
 
 		switch(nextProps.field.id) {
 			case 'client_username':
-				options.push({ name: 'WP User', id: 'wp-user' });
-
-				if(nextProps.action === 'action_create_website' || nextProps.action === 'action_update_client' || nextProps.action === 'action_update_client_bank') {
+				if(nextProps.action === 'action_create_client') {
+					options.push({ name: 'Generated', id: 'generate' });
+				} else {
+					options.push({ name: 'WP User', id: 'wp-user' });
 					options.push({ name: 'Session', id: 'session' });
 				}
 
@@ -218,7 +221,7 @@ function IspconfigSubmit(props) {
 
 	self.render = function () {
 		var title = wp.element.createElement('div', null,  wp.element.createElement('label', null, 'Submission'));
-		var actionRadio = wp.element.createElement(wp.components.RadioControl, { className: 'ispconfig-block-inline', selected: self.state.action, options: getOptions(), label: wp.i18n.__('Action', 'wp-ispconfig3'), onChange: changeAction.bind(this) });
+		var actionRadio = wp.element.createElement(wp.components.RadioControl, { className: 'ispconfig-block-inline', selected: self.state.action || 'save', options: getOptions(), label: wp.i18n.__('Action', 'wp-ispconfig3'), onChange: changeAction.bind(this) });
 		var txt = wp.element.createElement(wp.components.TextControl, { className: 'ispconfig-block-inline', placeholder: 'Enter url', value: self.state.url, hidden: !IsAdvanced(self.state.action), onChange: changeValue.bind(this) });
 
 		var buttonName = wp.element.createElement(wp.components.TextControl, { className: 'ispconfig-block-inline', label: 'Title', placeholder: 'Button title (E.g. Submit)', value: self.state.button_title, onChange: changeTitle.bind(this) });
@@ -339,6 +342,12 @@ wp.blocks.registerBlockType('ole1986/ispconfig-block', {
 				fields: ['client_username', 'website_domain']
 			},
 			{
+				name: wp.i18n.__('action_create_database', 'wp-ispconfig3'),
+				description: 'Provide a form to create a new database based on a given client login',
+				id: 'action_create_database',
+				fields: ['client_username', 'database_name', 'database_password']
+			},
+			{
 				name: wp.i18n.__('action_update_client', 'wp-ispconfig3'),
 				description: 'Provide a form to update general client information',
 				id: 'action_update_client',
@@ -378,7 +387,7 @@ wp.blocks.registerBlockType('ole1986/ispconfig-block', {
 			curAction.fields.forEach(function(field_id) {
 				var field = { id: field_id, value: '', computed: '', password: false, hidden: false, readonly: false, protected: false };
 
-				if (['action_update_client','action_update_client_bank', 'action_locknow_client', 'action_create_website', 'action_create_mail'].indexOf(controlId) > -1 && field_id === 'client_username') {
+				if (['action_update_client','action_update_client_bank', 'action_create_database','action_locknow_client', 'action_create_website', 'action_create_mail'].indexOf(controlId) > -1 && field_id === 'client_username') {
 					field.protected = true;
 					field.computed = 'wp-user';
 				}
@@ -387,7 +396,7 @@ wp.blocks.registerBlockType('ole1986/ispconfig-block', {
 					field.protected = true;
 				}
 
-				if (['client_password'].indexOf(field_id) > -1) {
+				if (['client_password', 'database_password'].indexOf(field_id) > -1) {
 					field.password = true;
 				}
 

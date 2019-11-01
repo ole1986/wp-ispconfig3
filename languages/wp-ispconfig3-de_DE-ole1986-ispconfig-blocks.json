@@ -87,8 +87,8 @@
          "action_create_website": [
             "Webseite erstellen"
          ],
-         "action_create_website_new": [
-            "Webseite erstellen"
+         "action_create_database": [
+            "Datenbank erstellen"
          ],
          "action_create_mail": [
             "Email erstellen"
@@ -158,6 +158,15 @@
          ],
          "website_domain": [
             "Web Domain"
+         ],
+         "database_name": [
+            "Datenbank Name"
+         ],
+         "database_password": [
+            "Datenbank Passwort"
+         ],
+         "database_user": [
+            "Datenbank Benutzer"
          ],
          "domain_name": [
             "Domain Name"

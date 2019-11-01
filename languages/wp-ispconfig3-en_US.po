@@ -21,8 +21,8 @@ msgstr "Create client"
 msgid "action_create_website"
 msgstr "Create website"
 
-msgid "action_create_website_new"
-msgstr "Create website"
+msgid "action_create_database"
+msgstr "Create database"
 
 msgid "action_create_mail"
 msgstr "Create email"
@@ -92,6 +92,15 @@ msgstr "SWIFT / BIC"
 
 msgid "website_domain"
 msgstr "Web domain"
+
+msgid "database_name"
+msgstr "Database name"
+
+msgid "database_password"
+msgstr "Database password"
+
+msgid "database_user"
+msgstr "Database user"
 
 msgid "domain_name"
 msgstr "Domain name"

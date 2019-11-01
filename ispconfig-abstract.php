@@ -14,6 +14,7 @@ abstract class IspconfigAbstract
 
     protected $client_id;
     protected $domain_id;
+    protected $database_id;
 
     private $reseller_id = 0;
 
@@ -148,8 +149,10 @@ abstract class IspconfigAbstract
     {
         try {
             $client = $this->soap->client_get_by_username($this->session_id, $username);
+            $this->client_id = intval($client['client_id']);
+
             if ($withDetails) {
-                return $this->soap->client_get($this->session_id, $client['client_id']);
+                return $this->soap->client_get($this->session_id, $this->client_id);
             }
             return $client;
         } catch (SoapFault $e) {
@@ -158,7 +161,13 @@ abstract class IspconfigAbstract
 
     public function GetClientByGroupID($groupid)
     {
-        return $this->soap->client_get_by_groupid($this->session_id, $groupid);
+        try {
+            $client = $this->soap->client_get_by_groupid($this->session_id, $groupid);
+            $this->client_id = intval($client['client_id']);
+
+            return $client;
+        } catch (SoapFault $e) {
+        }
     }
 
     /**
@@ -190,11 +199,6 @@ abstract class IspconfigAbstract
     public function SetSiteStatus($id, $status = 'active')
     {
         return $this->soap->sites_web_domain_set_status($this->session_id, intval($id), $status);
-    }
-
-    public function SetClientID($id)
-    {
-        $this->client_id = $id;
     }
 
     public function GetClientID()
@@ -317,7 +321,7 @@ abstract class IspconfigAbstract
      */
     public function AddWebsite($options)
     {
-        $defaultOptions = array(
+        $defaultOptions = [
             'server_id' => '1',
             'domain' => '',
             'ip_address' => '*',
@@ -363,7 +367,7 @@ abstract class IspconfigAbstract
             'pm' => 'dynamic',
             'pm_process_idle_timeout' => 10,
             'pm_max_requests' => 0,
-        );
+        ];
 
         $options = array_merge($defaultOptions, $options);
 
@@ -374,6 +378,31 @@ abstract class IspconfigAbstract
     public function GetWebDomain($domain_id)
     {
         return $this->soap->sites_web_domain_get($this->session_id, $domain_id);
+    }
+
+    /**
+     * SOAP: Add database
+     */
+    public function AddDatabase($options)
+    {
+        $defaultOptions = [
+            'server_id' => 1,
+            'website_id' => 0,
+            'type' => 'mysql',
+            'database_name' => '',
+            'database_password' => '',
+            'database_charset' => 'UTF8',
+            'database_user_id' => 0,
+            'database_ro_user_id' => 0,
+            'remote_access' => 'n',
+            'backup_interval' => 'none',
+            'backup_copies' => 1,
+            'active' => 'y'
+        ];
+
+        $options = array_merge($defaultOptions, $options);
+        $this->database_id = $this->soap->sites_database_add($this->session_id, $this->client_id, $options);
+        return $this->database_id;
     }
 
     public function GetMailDomainByDomain($domain)

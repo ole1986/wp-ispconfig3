@@ -12,8 +12,8 @@
          "action_create_website": [
             "Create website"
          ],
-         "action_create_website_new": [
-            "Create website"
+         "action_create_database": [
+            "Create database"
          ],
          "action_create_mail": [
             "Create email"
@@ -83,6 +83,15 @@
          ],
          "website_domain": [
             "Web domain"
+         ],
+         "database_name": [
+            "Database name"
+         ],
+         "database_password": [
+            "Database password"
+         ],
+         "database_user": [
+            "Database user"
          ],
          "domain_name": [
             "Domain name"
