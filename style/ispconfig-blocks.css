@@ -3,12 +3,8 @@
     margin-right: 10px;
 }
 
-.ispconfig-block-infobox {
-    margin-bottom: 0.5em;
-    padding: .5em;
-    margin-top: 0.5em;
-    background: #f3f4f5;
-    border: 1px solid rgb(85, 93, 102);
+.ispconfig-block-info {
+    font-size: 80%;
 }
 
 .ispconfig-block-field {

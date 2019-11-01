@@ -95,3 +95,21 @@ msgstr "Web domain"
 
 msgid "domain_name"
 msgstr "Domain name"
+
+msgid "Hide"
+msgstr "Hide"
+
+msgid "Readonly"
+msgstr "Read only"
+
+msgid "Delete"
+msgstr "Delete"
+
+msgid "Action"
+msgstr "Action"
+
+msgid "Save"
+msgstr "Save"
+
+msgid "Continue with..."
+msgstr "Continue with..."

@@ -171,3 +171,21 @@ msgstr "Web Domain"
 
 msgid "domain_name"
 msgstr "Domain Name"
+
+msgid "Hide"
+msgstr "Ausblenden"
+
+msgid "Readonly"
+msgstr "Nur lesen"
+
+msgid "Delete"
+msgstr "Löschen"
+
+msgid "Action"
+msgstr "Aktion"
+
+msgid "Save"
+msgstr "Speichern"
+
+msgid "Continue with..."
+msgstr "Fortfahren mit..."

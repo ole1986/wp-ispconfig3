@@ -161,6 +161,24 @@
          ],
          "domain_name": [
             "Domain Name"
+         ],
+         "Hide": [
+            "Ausblenden"
+         ],
+         "Readonly": [
+            "Nur lesen"
+         ],
+         "Delete": [
+            "Löschen"
+         ],
+         "Action": [
+            "Aktion"
+         ],
+         "Save": [
+            "Speichern"
+         ],
+         "Continue with...": [
+            "Fortfahren mit..."
          ]
       }
    }

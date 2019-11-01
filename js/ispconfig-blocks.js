@@ -138,10 +138,10 @@ function IspconfigField(props) {
 
 	self.render = function () {
 
-		var hidden = wp.element.createElement(wp.components.CheckboxControl, { className: 'ispconfig-block-inline', checked: self.state.hidden, label: 'Hidden', onChange: updateHiddenCheckbox.bind(this)});
-		var readonly = wp.element.createElement(wp.components.CheckboxControl, { className: 'ispconfig-block-inline', checked: self.state.readonly, label: 'Read only', onChange: updateReadonlyCheckbox.bind(this)});
+		var hidden = wp.element.createElement(wp.components.CheckboxControl, { className: 'ispconfig-block-inline', checked: self.state.hidden, label: wp.i18n.__('Hide', 'wp-ispconfig3'), onChange: updateHiddenCheckbox.bind(this)});
+		var readonly = wp.element.createElement(wp.components.CheckboxControl, { className: 'ispconfig-block-inline', checked: self.state.readonly, label: wp.i18n.__('Readonly', 'wp-ispconfig3'), onChange: updateReadonlyCheckbox.bind(this)});
 
-		var delicon = wp.element.createElement(wp.components.Button, {onClick: props.onDelete, disabled: self.state.protected, style: { 'margin-left': '10px' }, className: 'components-button button-link-delete is-button is-default is-large'}, "Delete");
+		var delicon = wp.element.createElement(wp.components.Button, {onClick: props.onDelete, disabled: self.state.protected, style: { 'margin-left': '10px' }, className: 'components-button button-link-delete is-button is-default is-large'}, wp.i18n.__('Delete', 'wp-ispconfig3'));
 		var ddl = wp.element.createElement(wp.components.TreeSelect, { className: 'ispconfig-block-inline', label: getLabel(self.state.id),tree: options, selectedId: self.state.computed, onChange: updateComputed });
 		var txt = wp.element.createElement(wp.components.TextControl, { className: 'ispconfig-block-inline', label: getAdvancedLabel(self.state.id, self.state.computed), value:self.state.value, hidden: !IsAdvanced(self.state.id, self.state.computed), onChange: updateValue.bind(this) });
 
@@ -158,7 +158,7 @@ function IspconfigSubmit(props) {
 	self.state = props.submission;
 
 	var getOptions = function() {
-		return [{ label: 'Save', value: 'save' }, {label: 'Continue with URL', value: 'continue'}];
+		return [{ label: wp.i18n.__('Save', 'wp-ispconfig3'), value: 'save' }, {label: wp.i18n.__('Continue with...', 'wp-ispconfig3'), value: 'continue'}];
 	}
 
 	var IsAdvanced = function(value) {
@@ -217,15 +217,22 @@ function IspconfigSubmit(props) {
 	}
 
 	self.render = function () {
-		var actionRadio = wp.element.createElement(wp.components.RadioControl, { className: 'ispconfig-block-inline', selected: self.state.action, options: getOptions(), label: 'Final', onChange: changeAction.bind(this) });
+		var title = wp.element.createElement('div', null,  wp.element.createElement('label', null, 'Submission'));
+		var actionRadio = wp.element.createElement(wp.components.RadioControl, { className: 'ispconfig-block-inline', selected: self.state.action, options: getOptions(), label: wp.i18n.__('Action', 'wp-ispconfig3'), onChange: changeAction.bind(this) });
 		var txt = wp.element.createElement(wp.components.TextControl, { className: 'ispconfig-block-inline', placeholder: 'Enter url', value: self.state.url, hidden: !IsAdvanced(self.state.action), onChange: changeValue.bind(this) });
 
-		var buttonName = wp.element.createElement(wp.components.TextControl, { className: 'ispconfig-block-inline', label: 'Button title', placeholder: 'Enter button title here', value: self.state.button_title, onChange: changeTitle.bind(this) });
+		var buttonName = wp.element.createElement(wp.components.TextControl, { className: 'ispconfig-block-inline', label: 'Title', placeholder: 'Button title (E.g. Submit)', value: self.state.button_title, onChange: changeTitle.bind(this) });
 
-		var showBackButton = wp.element.createElement(wp.components.CheckboxControl, { className: 'ispconfig-block-inline', checked: self.state.button_back, label: 'Back button', onChange: backButtonVisible.bind(this)});
-		var backButtonName = wp.element.createElement(wp.components.TextControl, { className: 'ispconfig-block-inline', label: 'Back button title', placeholder: 'Back button title', value: self.state.button_back_title, onChange: backButtonTitle.bind(this) });
+		var container = wp.element.createElement('div', null);
 
-		return wp.element.createElement('div', { className: 'ispconfig-block-action' }, actionRadio, txt, showBackButton, buttonName, backButtonName);
+		var showBackButton = wp.element.createElement(wp.components.CheckboxControl, { className: 'ispconfig-block-inline', checked: self.state.button_back, label: 'Show back button', onChange: backButtonVisible.bind(this)});
+		
+		var backButtonName = null;
+		if (self.state.button_back) {
+			backButtonName = wp.element.createElement(wp.components.TextControl, { className: 'ispconfig-block-inline', label: 'Title', placeholder: 'Back button title', value: self.state.button_back_title, onChange: backButtonTitle.bind(this) });
+		}
+
+		return wp.element.createElement('div', { className: 'ispconfig-block-action' }, title, actionRadio, txt, buttonName, container, showBackButton, backButtonName);
 	}
 }
 
@@ -394,8 +401,10 @@ wp.blocks.registerBlockType('ole1986/ispconfig-block', {
 			"div",
 			{className: 'ispconfig-block'},
 			wp.element.createElement('label', null, 'Choose option'),
-			wp.element.createElement(wp.components.TreeSelect, { style: { 'max-width': '200px' }, tree: actionControls, selectedId: props.attributes.action, onChange: changeAction }),
-			wp.element.createElement('div', { className:'ispconfig-block-infobox' }, props.attributes.description),
+			wp.element.createElement('div', null,
+				wp.element.createElement(wp.components.TreeSelect, { className: 'ispconfig-block-inline', style: { 'max-width': '200px' }, tree: actionControls, selectedId: props.attributes.action, onChange: changeAction }),
+				wp.element.createElement('div', { className: 'ispconfig-block-inline ispconfig-block-info'}, props.attributes.description),
+			),
 			wp.element.createElement(IspconfigFieldList, props),
 			wp.element.createElement('div', {style: {'margin-top': '1em', 'font-size': '90%'}}, 'Learn more about customizing the field input using wordpress filters or shortcodes - ', wp.element.createElement('a', {target: '_blank', href: 'https://github.com/ole1986/wp-ispconfig3/wiki'}, 'Click here for details'))
 		);
