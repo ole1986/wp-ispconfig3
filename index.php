@@ -54,13 +54,13 @@ if (!class_exists('WPISPConfig3')) {
             'soap_location' => 'http://localhost:8080/remote/index.php',
             'soap_uri' => 'http://localhost:8080/remote/',
             'skip_ssl' => 0,
-            'confirm'   => 0,
+            'confirm_actions' => [],
             'confirm_subject'=> 'Your ISPConfig account has been created',
-            'confirm_body'   => "Your payment has been received and your account has been created\n
-                                Username: #USERNAME#
-                                Password: #PASSWORD#\n
-                                Domain: #DOMAIN#\n
-                                Login with your account on http://#HOSTNAME#:8080",
+            'confirm_body'   => "Your ISPConfig account has been successfully create.\nHere are the details:\n\n
+                                Username: [client_username]\n
+                                Password: [client_password]\n
+                                Domain: [website_domain]\n
+                                Login with your account on http://YOURWEBSITE:8080",
             'default_domain' => 'yourdomain.tld',
             'sender_name' => 'Your Sevice name',
             'domain_check_global' => 1,
@@ -223,8 +223,17 @@ if (!class_exists('WPISPConfig3')) {
                                 self::getField('skip_ssl', 'Skip certificate check', 'checkbox');
                                 ?>
                             <h3><?php _e('Account creation', 'wp-ispconfig3') ?></h3>
+                            <label style="width: 220px; display:inline-block;vertical-align:top;">Enable confirmation mail</label>
+                            <div style="display:inline-block">
                             <?php
-                                self::getField('confirm', 'Send Confirmation', 'checkbox');
+                            foreach (['action_create_client', 'action_create_website', 'action_create_database'] as $k => $v) {
+                                $checked = in_array($v, self::$OPTIONS['confirm_actions']) ? 'checked' : '';
+                                echo "<input type='checkbox' id='$v' name='confirm_actions[]' value='$v' $checked />";
+                                echo "<label for='$v'>" . __($v, 'wp-ispconfig3') . '</label><br />';
+                            }
+                            ?>
+                            </div>
+                            <?php
                                 self::getField('confirm_subject', 'Confirmation subject');
                                 self::getField('confirm_body', 'Confirmation Body', 'textarea', ['input_attr' => ['style' => 'width: 340px; height: 150px']]);
                                 self::getField('default_domain', 'Default Domain');
@@ -232,21 +241,23 @@ if (!class_exists('WPISPConfig3')) {
                             ?>
                             <h3><?php _e('Domain Check') ?></h3>
                             <p>Decide how WP-ISPConfig 3 checks for domain availability.<br />You can either validate against ISPConfig domains or use the whois command to check for free domains</p>
-                            <p>To test the domain check, use the shortcode "[Ispconfig submit_url='...']" on your favorite front page</p>
                             <?php
                                 self::getField('domain_check_global', 'Global domain check with <strong>whois</strong><br /><i>Unhook this to validate against ISPConfig domains only</i>', 'checkbox');
                                 self::getField('domain_check_expiration', 'ISPConfig domain name cache expiration (in seconds)', 'number');
                                 self::getField('domain_check_regex', 'Regular expression used to validate the domain');
                             ?>
                             <h3><?php _e('User Mapping') ?></h3>
-                            <p>Choose the below WordPress user roles to match the clients stored in ISPConfig3</p>
+                            <label style="width: 220px; display:inline-block;vertical-align:top;">Choose the below WordPress user roles to match the clients stored in ISPConfig3</label>
+                            <div style="display: inline-block">
                             <?php
                             $roles = wp_roles()->roles;
                             foreach ($roles as $k => $v) {
                                 $checked = in_array($k, self::$OPTIONS['user_roles']) ? 'checked' : '';
-                                echo "<input type='checkbox' id='user_role_$k' name='user_roles[]' value='$k' $checked /> <label for='user_role_$k'>" . $v['name'] . '</label><br />';
+                                echo "<input type='checkbox' id='user_role_$k' name='user_roles[]' value='$k' $checked />";
+                                echo "<label for='user_role_$k'>" . $v['name'] . '</label><br />';
                             }
                             ?>
+                            </div>
                         </div>
                         <?php do_action('ispconfig_options'); ?>
                         <div class="inside">

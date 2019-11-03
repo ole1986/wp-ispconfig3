@@ -345,7 +345,7 @@ wp.blocks.registerBlockType('ole1986/ispconfig-block', {
 				name: wp.i18n.__('action_create_database', 'wp-ispconfig3'),
 				description: 'Provide a form to create a new database based on a given client login',
 				id: 'action_create_database',
-				fields: ['client_username', 'database_name', 'database_password']
+				fields: ['client_username', 'database_name', 'database_user', 'database_password']
 			},
 			{
 				name: wp.i18n.__('action_update_client', 'wp-ispconfig3'),

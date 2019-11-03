@@ -40,56 +40,6 @@ class IspconfigBlock
         wp_set_script_translations('ole1986-ispconfig-blocks', 'wp-ispconfig3', WPISPCONFIG3_PLUGIN_DIR . 'languages');
     }
 
-    private function computeField(&$field)
-    {
-        switch ($field['computed']) {
-            default:
-                break;
-            case 'session':
-                if (!session_id()) {
-                    session_start();
-                }
-
-                // assuming that a cumputed 'session' field
-                // is always the 'client_username' from action_create_client
-                $field['value'] = $_SESSION['ispconfig']['action_create_client']['postData'][$field['id']];
-                $field['readonly'] = true;
-                break;
-            case 'generate':
-                $field['value'] = 'user-' . substr(sha1(uniqid(rand(), true)), 0, 10);
-                $field['readonly'] = true;
-                break;
-            case 'wp-locale':
-                $lang = get_locale();
-                if (!empty($lang)) {
-                    $field['value'] = substr($lang, 0, 2);
-                }
-                break;
-            case 'wp-user':
-                $user = wp_get_current_user();
-                $field['value'] = $user->user_login;
-                $field['readonly'] = true;
-                break;
-            case 'wp-name':
-                $user = wp_get_current_user();
-                $field['value'] = $user->user_nicename;
-                break;
-            case 'wp-email':
-                $user = wp_get_current_user();
-                $field['value'] = $user->user_email;
-                break;
-            case 'get-data':
-                if (!empty($_GET[$field['value']])) {
-                    $field['value'] = $_GET[$field['value']];
-                } else {
-                    $field['value'] = '';
-                }
-                
-                $field['computed'] = '';
-                break;
-        }
-    }
-
     private function alert($message)
     {
         return '<div class="ispconfig-msg ispconfig-msg-error">' . $message . '</div>';
@@ -216,10 +166,17 @@ class IspconfigBlock
             throw new BlockException('Client user could not be found');
         }
 
+        $prefix = preg_replace("/\.-/", "_", $user['username']);
+
+        $dbuserid = Ispconfig::$Self->AddDatabaseUser([
+            'database_user' => $prefix . '_' . $postData['database_user'],
+            'database_password' => $postData['database_password']
+        ]);
+
         $database = Ispconfig::$Self->AddDatabase([
             'website_id' => $website_id,
-            'database_name' => $user['username'] . '_' . $postData['database_name'],
-            'database_password' => $postData['database_password']
+            'database_name' => $prefix . '_' . $postData['database_name'],
+            'database_user_id' => $dbuserid
         ]);
         
         $content .= $this->success("Database " . $postData['database_name'] . " successfully created");
@@ -302,6 +259,56 @@ class IspconfigBlock
         return true;
     }
 
+    private function computeField(&$field)
+    {
+        switch ($field['computed']) {
+            default:
+                break;
+            case 'session':
+                if (!session_id()) {
+                    session_start();
+                }
+
+                // assuming that a cumputed 'session' field
+                // is always the 'client_username' from action_create_client
+                $field['value'] = $_SESSION['ispconfig']['action_create_client']['postData'][$field['id']];
+                $field['readonly'] = true;
+                break;
+            case 'generate':
+                $field['value'] = substr(sha1(uniqid(rand(), true)), 0, 10);
+                $field['readonly'] = true;
+                break;
+            case 'wp-locale':
+                $lang = get_locale();
+                if (!empty($lang)) {
+                    $field['value'] = substr($lang, 0, 2);
+                }
+                break;
+            case 'wp-user':
+                $user = wp_get_current_user();
+                $field['value'] = $user->user_login;
+                $field['readonly'] = true;
+                break;
+            case 'wp-name':
+                $user = wp_get_current_user();
+                $field['value'] = $user->user_nicename;
+                break;
+            case 'wp-email':
+                $user = wp_get_current_user();
+                $field['value'] = $user->user_email;
+                break;
+            case 'get-data':
+                if (!empty($_GET[$field['value']])) {
+                    $field['value'] = $_GET[$field['value']];
+                } else {
+                    $field['value'] = '';
+                }
+                
+                $field['computed'] = '';
+                break;
+        }
+    }
+    
     /**
      * Used to optionally fill input fields with existing data from ISPConfig3
      */
@@ -340,10 +347,6 @@ class IspconfigBlock
                 $templateField = array_pop(array_filter($props['fields'], function ($field) {
                     return $field['id'] == 'client_template_master';
                 }));
-
-                if (empty(WPISPConfig3::$OPTIONS['confirm'])) {
-                    $content .= $this->alert('Login information cannot be supplied through email due to disabled confirmation setting.<br />Your can still fill up the form but may not be able to login');
-                }
 
                 if ($templateField != null) {
                     if (empty($templateField['value'])) {
@@ -691,12 +694,42 @@ class IspconfigBlock
             }
     
             if ($this->onPost($props, $content)) {
+                // submit email to address when post succeeded
+                // and setting matches the current post action
+                if (in_array($this->postData['action'], WPISPConfig3::$OPTIONS['confirm_actions'])) {
+                    $email = $this->postData['client_email'];
+                    if (empty($email) && !empty($_SESSION['ispconfig']['action_create_client'])) {
+                        // try from session
+                        $email = $_SESSION['ispconfig']['action_create_client']['postData']['client_email'];
+                    }
+
+                    $options = $this->postData;
+
+                    if (!empty($_SESSION['ispconfig'])) {
+                        $sessionPostData = array_column($_SESSION['ispconfig'], 'postData');
+                        $sessionPostData = array_merge(...$sessionPostData);
+                        $options += $sessionPostData;
+                    }
+
+                    if (!empty($email)) {
+                        $sent = Ispconfig::$Self->SendConfirmation($email, $options);
+                        if ($sent) {
+                            $content .= $this->info('Confirmation email sent to' . $email);
+                        }
+                    } else {
+                        $content .= $this->info('No email has been submitted due to missing email address');
+                    }
+                }
                 // clear session when post call was succesfully
                 unset($_SESSION['ispconfig']);
                 // only display alerts or notifications (if available) and skip the fields
                 return $content;
             }
         } catch (BlockException $e) {
+            unset($_SESSION['ispconfig']);
+            $content .= $this->alert($e->getMessage());
+            return $content;
+        } catch (SoapFault $e) {
             unset($_SESSION['ispconfig']);
             $content .= $this->alert($e->getMessage());
             return $content;

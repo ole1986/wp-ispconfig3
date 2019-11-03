@@ -390,7 +390,6 @@ abstract class IspconfigAbstract
             'website_id' => 0,
             'type' => 'mysql',
             'database_name' => '',
-            'database_password' => '',
             'database_charset' => 'UTF8',
             'database_user_id' => 0,
             'database_ro_user_id' => 0,
@@ -403,6 +402,22 @@ abstract class IspconfigAbstract
         $options = array_merge($defaultOptions, $options);
         $this->database_id = $this->soap->sites_database_add($this->session_id, $this->client_id, $options);
         return $this->database_id;
+    }
+
+    /**
+     * SOAP: Add database user
+     */
+    public function AddDatabaseUser($options)
+    {
+        $defaultOptions = [
+            'server_id' => 1,
+            'database_user' => '',
+            'database_password' => '',
+
+        ];
+
+        $options = array_merge($defaultOptions, $options);
+        return $this->soap->sites_database_user_add($this->session_id, $this->client_id, $options);
     }
 
     public function GetMailDomainByDomain($domain)
@@ -438,22 +453,26 @@ abstract class IspconfigAbstract
     /**
      * Provide an option to send a confirmation email
      */
-    public function SendConfirmation($opt)
+    public function SendConfirmation($recipient, $opt)
     {
-        if (!$this->client_id) {
-            return;
+
+        if (!filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
+            return false;
         }
 
-        if (!filter_var($opt['email'], FILTER_VALIDATE_EMAIL)) {
-            return;
-        }
-
-        $header = 'From: ' . WPISPConfig3::$OPTIONS['sender_name'] . ' <no-reply@' . WPISPConfig3::$OPTIONS['default_domain'] . '>';
+        $headers = 'Content-Type: text/plain; charset=UTF-8' . "\r\n";
+        $headers.= 'From: ' . WPISPConfig3::$OPTIONS['sender_name'] . ' <no-reply@' . WPISPConfig3::$OPTIONS['default_domain'] . '>' . "\r\n";
 
         $subject = WPISPConfig3::$OPTIONS['confirm_subject'];
-        $message = str_replace(['#USERNAME#', '#PASSWORD#', '#DOMAIN#', '#HOSTNAME#'], [$opt['username'], $opt['password'], $opt['domain'], $_SERVER['HTTP_HOST']], WPISPConfig3::$OPTIONS['confirm_body']);
+        $message = WPISPConfig3::$OPTIONS['confirm_body'];
 
-        return wp_mail($opt['email'], $subject, $message, $header);
+        $sPlaceholder = array_map(function ($v) {
+            return '[' . $v  . ']';
+        }, array_keys($opt));
+
+        $message = str_replace($sPlaceholder, $opt, $message);
+
+        return wp_mail($recipient, $subject, $message, $headers);
     }
 
     public function Captcha($title = 'Catpcha')
