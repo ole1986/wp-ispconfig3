@@ -207,24 +207,30 @@ if (!class_exists('WPISPConfig3')) {
                 echo '<div class="notice notice-error"><p><strong>IMPORTANT:</strong> Please install and <strong>MIGRATE</strong> the WC-InvoicePdf plugin before saving - Otherwise PDF and recurring settings get lost!!!</p></div>';
             }
             ?>
-            
             <div class="wrap">
                 <h2><?php _e('WP-ISPConfig 3 Settings', 'wp-ispconfig3');?></h2>
+                <h2 id="wp-ispconfig-tabs" class="nav-tab-wrapper">
+                    <a href="#tab-soap" class="nav-tab nav-tab-active"><?php _e('SOAP Settings', 'wp-ispconfig3') ?></a>
+                    <a href="#tab-account" class="nav-tab"><?php _e('Account creation', 'wp-ispconfig3') ?></a>
+                    <a href="#tab-domain" class="nav-tab"><?php _e('Domain Check') ?></a>
+                    <a href="#tab-usermapping" class="nav-tab"><?php _e('User Mapping', 'wp-ispconfig3') ?></a>
+                    <a href="#tab-additional" class="nav-tab">Additional</a>
+                </h2>
                 <form method="post" action="">
-                <div id="poststuff" class="metabox-holder has-right-sidebar">
-                    <div class="postbox inside">
-                        <div id="ispconfig-general" class="inside tabs-panel" style="display: block;">
-                            <h3><?php _e('SOAP Settings', 'wp-ispconfig3') ?></h3>
-                                <?php
-                                self::getField('soapusername', 'SOAP Username:');
-                                self::getField('soappassword', 'SOAP Password:', 'password');
-                                self::getField('soap_location', 'SOAP Location:');
-                                self::getField('soap_uri', 'SOAP URI:');
-                                self::getField('skip_ssl', 'Skip certificate check', 'checkbox');
-                                ?>
-                            <h3><?php _e('Account creation', 'wp-ispconfig3') ?></h3>
+                    <div id="wp-ispconfig-settings">
+                        <div id="tab-soap">
+                            <?php
+                            self::getField('soapusername', 'SOAP Username:');
+                            self::getField('soappassword', 'SOAP Password:', 'password');
+                            self::getField('soap_location', 'SOAP Location:');
+                            self::getField('soap_uri', 'SOAP URI:');
+                            self::getField('skip_ssl', 'Skip certificate check', 'checkbox');
+                            ?>
+                        </div>
+                        <div id="tab-account">
+                            <p>
                             <label style="width: 220px; display:inline-block;vertical-align:top;">Enable confirmation mail</label>
-                            <div style="display:inline-block">
+                            <span style="display:inline-block">
                             <?php
                             foreach (['action_create_client', 'action_create_website', 'action_create_database'] as $k => $v) {
                                 $checked = in_array($v, self::$OPTIONS['confirm_actions']) ? 'checked' : '';
@@ -232,23 +238,27 @@ if (!class_exists('WPISPConfig3')) {
                                 echo "<label for='$v'>" . __($v, 'wp-ispconfig3') . '</label><br />';
                             }
                             ?>
-                            </div>
+                            </span>
+                            </p>
                             <?php
                                 self::getField('confirm_subject', 'Confirmation subject');
                                 self::getField('confirm_body', 'Confirmation Body', 'textarea', ['input_attr' => ['style' => 'width: 340px; height: 150px']]);
                                 self::getField('default_domain', 'Default Domain');
                                 self::getField('sender_name', 'Sender name');
                             ?>
-                            <h3><?php _e('Domain Check') ?></h3>
+                        </div>
+                        <div id="tab-domain">
                             <p>Decide how WP-ISPConfig 3 checks for domain availability.<br />You can either validate against ISPConfig domains or use the whois command to check for free domains</p>
                             <?php
                                 self::getField('domain_check_global', 'Global domain check with <strong>whois</strong><br /><i>Unhook this to validate against ISPConfig domains only</i>', 'checkbox');
                                 self::getField('domain_check_expiration', 'ISPConfig domain name cache expiration (in seconds)', 'number');
                                 self::getField('domain_check_regex', 'Regular expression used to validate the domain');
                             ?>
-                            <h3><?php _e('User Mapping') ?></h3>
-                            <label style="width: 220px; display:inline-block;vertical-align:top;">Choose the below WordPress user roles to match the clients stored in ISPConfig3</label>
-                            <div style="display: inline-block">
+                        </div>
+                        <div id="tab-usermapping">
+                            <p>
+                            <label style="width: 220px; display:inline-block;vertical-align:top;">User roles being used to match the clients stored in ISPConfig3</label>
+                            <span style="display: inline-block">
                             <?php
                             $roles = wp_roles()->roles;
                             foreach ($roles as $k => $v) {
@@ -257,19 +267,22 @@ if (!class_exists('WPISPConfig3')) {
                                 echo "<label for='user_role_$k'>" . $v['name'] . '</label><br />';
                             }
                             ?>
-                            </div>
+                            </span>
+                            </p>
                         </div>
-                        <?php do_action('ispconfig_options'); ?>
-                        <div class="inside">
-                            <p></p>
-                            <p><input type="submit" class="button-primary" name="submit" value="<?php _e('Save');?>" /></p>
-                            <p></p>
+                        <div id="tab-additional">
+                            <p>Additional options being loaded from other plugins using 'ispconfig_options' hook</p>
+                            <?php do_action('ispconfig_options'); ?>
                         </div>
                     </div>
-                </div>
+                    <div class="inside">
+                        <p></p>
+                        <p><input type="submit" class="button-primary" name="submit" value="<?php _e('Save');?>" /></p>
+                        <p></p>
+                    </div>
                 </form>
-
-            </div><?php
+            </div>
+            <?php
         }
         
         public static function getField($name, $title, $type = 'text', $args = [])

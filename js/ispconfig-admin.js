@@ -14,6 +14,18 @@ function ISPConfigAdminClass() {
         return jQuery.post(ajaxurl, data, null, 'json');
     };
 
+    var toggleTab = function(event) {
+        event.preventDefault();
+        var $el = $(event.currentTarget);
+        var target = $el.attr('href');
+
+        $el.parent().find('a').removeClass('nav-tab-active');
+        $el.addClass('nav-tab-active');
+
+        $('#wp-ispconfig-settings > div').hide();
+        $(target).show();
+    };
+
     this.WebsiteStatus = function(obj, status){
         var website_id = parseInt($(obj).data('id'));
 
@@ -27,6 +39,12 @@ function ISPConfigAdminClass() {
             document.location.reload(true);
         });
     };
+
+    $(function() {
+        $('#wp-ispconfig-tabs > a').click(toggleTab);
+        $('#wp-ispconfig-settings')
+        $('#wp-ispconfig-tabs > a:first').trigger('click');
+    })
 }
 
 window['ISPConfigAdmin'] = new ISPConfigAdminClass();
