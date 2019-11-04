@@ -206,6 +206,11 @@ abstract class IspconfigAbstract
         return $this->client_id;
     }
 
+    public function ClientPassword($newPassword)
+    {
+        return $this->soap->client_change_password($this->session_id, $this->client_id, $newPassword);
+    }
+
     /**
      * SOAP: Add a new client into ISPConfig
      */

@@ -66,7 +66,8 @@ if (!class_exists('WPISPConfig3')) {
             'domain_check_global' => 1,
             'domain_check_expiration' => 600,
             'domain_check_regex' => '((?!-))(xn--)?[a-z0-9][a-z0-9-_]{0,61}[a-z0-9]{0,1}\.(xn--)?([a-z0-9\-]{1,61}|[a-z0-9-]{1,30}\.[a-z]{2,})',
-            'user_roles' => ['customer', 'subscriber']
+            'user_roles' => ['customer', 'subscriber'],
+            'user_password_sync' => 0
         ];
 
         /**
@@ -101,6 +102,11 @@ if (!class_exists('WPISPConfig3')) {
             // action hook to load the scripts and style sheets (backend)
             add_action('admin_enqueue_scripts', array($this, 'wp_admin_scripts'));
             
+
+            if (self::$OPTIONS['user_password_sync']) {
+                add_action('profile_update', [$this, 'sync_user_password']);
+            }
+
             // skip the rest if its a frontend request
             if (! is_admin()) {
                 return;
@@ -109,6 +115,46 @@ if (!class_exists('WPISPConfig3')) {
             // below is for backend only
             add_action('admin_menu', array( $this, 'admin_menu' ));
         }
+
+        public function sync_user_password($user_id)
+        {
+            // when both wordpress and woocommerce password submission is empty, skip it
+            if (empty($_POST['pass1']) && empty($_POST['password_1'])) {
+                return;
+            }
+
+            // skip when pass_1 and pass_2 are provided (wordpress) but not equal
+            if (isset($_POST['pass1'], $_POST['pass2']) && !$_POST['pass1'] === $_POST['pass2']) {
+                return;
+            }
+
+            // skip when password_1 and password_2 are provided (woocommerce -> my account) but not equal
+            if (isset($_POST['password_1'], $_POST['password_2']) && !$_POST['password_1'] === $_POST['password_2']) {
+                return;
+            }
+
+            if (!empty($_POST['pass1'])) {
+                $pass = $_POST['pass1'];
+            } elseif (!empty($_POST['password_1'])) {
+                $pass = $_POST['password_1'];
+            }
+
+            $user = get_user_by('id', $user_id);
+
+            $matchRoles = array_filter(self::$OPTIONS['user_roles'], function ($r) use ($user) {
+                return in_array($r, $user->roles);
+            });
+            
+            if (!empty($matchRoles)) {
+                $ispconfig_user = Ispconfig::$Self->withSoap()->GetClientByUser($user->user_login);
+
+                if (!empty($ispconfig_user)) {
+                    // trying to update clients password on ISPConfig
+                    $ok = Ispconfig::$Self->ClientPassword($pass);
+                }
+            }
+        }
+
         /**
          * Load the neccessary JS and stylesheets
          * HOOK: wp_enqueue_scripts
@@ -268,6 +314,12 @@ if (!class_exists('WPISPConfig3')) {
                             }
                             ?>
                             </span>
+                            </p>
+                            <?php
+                                self::getField('user_password_sync', 'Enable password syncronization<br /><i>Syncronize the wordpress user password matching the User Mapping</i>', 'checkbox');
+                            ?>
+                            <p>
+                                <span style="color: red">Be careful with password syncronization when using role <strong>administrator</strong>. This can cause a password change on the ISPConfig admin account</span>
                             </p>
                         </div>
                         <div id="tab-additional">
