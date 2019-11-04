@@ -105,6 +105,7 @@ if (!class_exists('WPISPConfig3')) {
 
             if (self::$OPTIONS['user_password_sync']) {
                 add_action('profile_update', [$this, 'sync_user_password']);
+                add_action('woocommerce_customer_reset_password', [$this, 'sync_user_password_from_woocommerce_reset']);
             }
 
             // skip the rest if its a frontend request
@@ -114,6 +115,11 @@ if (!class_exists('WPISPConfig3')) {
             
             // below is for backend only
             add_action('admin_menu', array( $this, 'admin_menu' ));
+        }
+
+        public function sync_user_password_from_woocommerce_reset($user)
+        {
+            $this->sync_user_password($user->ID);
         }
 
         public function sync_user_password($user_id)
