@@ -9,12 +9,16 @@
 
 .ispconfig-block-field {
     display: inline-block;
-    width: 380px;
+    width: 370px;
     padding: .5em;
     margin-bottom: 0.5em;
     background: #f3f4f5;
     vertical-align: top;
-    border: 1px solid rgb(85, 93, 102);
+    border: 1px solid rgb(185, 185, 185);
+}
+
+.ispconfig-block-field input[type="text"] {
+    max-width: 150px;
 }
 
 .ispconfig-block-action {
