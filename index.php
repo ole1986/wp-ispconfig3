@@ -200,7 +200,7 @@ if (!class_exists('WPISPConfig3')) {
             <?php
             include_once ABSPATH . 'wp-admin/includes/plugin.php';
             if (!is_plugin_active('wc-invoice-pdf/wc-invoice-pdf.php')) {
-                echo '<div class="notice notice-info"><p>Install the <strong>WC-InvoicePdf</strong> plugin to enable the recurring invoice / billing feature - <a href="'.get_admin_url().'/plugin-install.php?s=WC%20InvoicePdf&tab=search&type=term">Click here</a></p></div>';
+                echo '<div class="notice notice-info"><p><a href="'.get_admin_url().'/plugin-install.php?s=WC%20Recurring%20InvoicePdf&tab=search&type=term">Click here</a> to install the <strong>WC-InvoicePdf</strong> plugin for a recurring invoice / billing feature</p></div>';
             }
 
             if (isset(self::$OPTIONS['wc_pdf_title'])) {
