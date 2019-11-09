@@ -210,11 +210,7 @@ if (!class_exists('WPISPConfig3')) {
         {
             if ('POST' === $_SERVER[ 'REQUEST_METHOD' ]) {
                 foreach (self::$OPTIONS as $k => &$v) {
-                    if (!isset($_POST[$k])) {
-                        continue;
-                    }
-
-                    if (in_array($k, ['domain_check_global', 'skip_ssl', 'confirm'])) {
+                    if (in_array($k, ['domain_check_global', 'user_password_sync', 'skip_ssl', 'confirm'])) {
                         $v = !empty($_POST[$k]) ? 1 : 0;
                     } elseif (is_array($_POST[$k])) {
                         array_map(function ($item) {
