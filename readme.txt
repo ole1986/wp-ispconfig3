@@ -20,13 +20,14 @@ With the new **Gutenberg Block support** this plugin provides several default te
 * Create databases
 * Update client information
 * Update client bank details
+* Wizard integration
 
 To extend this plugin [action/filter hooks](https://github.com/ole1986/wp-ispconfig3/wiki/Use-wp-ispconfig3-action-and-filter-hooks) can be used.
 For complex solutions and access to the ISPConfig3 REST API an [extension plugin](https://github.com/ole1986/wp-ispconfig3/wiki/Extension-plugins) may be more relevent
 
 Check out the [wiki pages on github.com](https://github.com/ole1986/wp-ispconfig3/wiki) for further details
 
-**For WooCommerce integration, please consider installing the [WC Recurring Invoice PDF](https://wordpress.org/plugins/wc-invoice-pdf/) plugin (v1.4)**
+**For WooCommerce integration, please install [WC Recurring Invoice PDF](https://wordpress.org/plugins/wc-invoice-pdf/)**
 
 == Installation ==
 
