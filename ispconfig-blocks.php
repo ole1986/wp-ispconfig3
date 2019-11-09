@@ -635,7 +635,7 @@ class IspconfigBlock
 
         if (!$valid) {
             // stop here, but keep session intact
-            return true;
+            return false;
         }
 
         if ($props['submission']['action'] == 'continue' && $this->postData['action'] != 'action_check_domain') {
