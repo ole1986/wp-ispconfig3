@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP-ISPConfig3
  * Description: ISPConfig3 plugin allows you to register customers through wordpress frontend using shortcodes.
- * Version: 1.5.0
+ * Version: 1.5.2
  * Author: ole1986 <ole.k@web.de>, MachineITSvcs <contact@machineitservices.com>
  * Author URI: https://github.com/ole1986/wp-ispconfig3
  * Text Domain: wp-ispconfig3
@@ -11,7 +11,7 @@
 defined('ABSPATH') or die('No script kiddies please!');
 
 if (! defined('WPISPCONFIG3_VERSION')) {
-    define('WPISPCONFIG3_VERSION', '1.5.0');
+    define('WPISPCONFIG3_VERSION', '1.5.2');
 }
 
 if (! defined('WPISPCONFIG3_PLUGIN_DIR')) {
@@ -64,6 +64,7 @@ if (!class_exists('WPISPConfig3')) {
             'default_domain' => 'yourdomain.tld',
             'sender_name' => 'Your Sevice name',
             'domain_check_global' => 1,
+            'domain_check_usedig' => 0,
             'domain_check_expiration' => 600,
             'domain_check_regex' => '((?!-))(xn--)?[a-z0-9][a-z0-9-_]{0,61}[a-z0-9]{0,1}\.(xn--)?([a-z0-9\-]{1,61}|[a-z0-9-]{1,30}\.[a-z]{2,})',
             'user_roles' => ['customer', 'subscriber'],
@@ -210,7 +211,7 @@ if (!class_exists('WPISPConfig3')) {
         {
             if ('POST' === $_SERVER[ 'REQUEST_METHOD' ]) {
                 foreach (self::$OPTIONS as $k => &$v) {
-                    if (in_array($k, ['domain_check_global', 'user_password_sync', 'skip_ssl', 'confirm'])) {
+                    if (in_array($k, ['domain_check_global', 'domain_check_usedig', 'user_password_sync', 'skip_ssl', 'confirm'])) {
                         $v = !empty($_POST[$k]) ? 1 : 0;
                     } elseif (is_array($_POST[$k])) {
                         array_map(function ($item) {
@@ -299,6 +300,7 @@ if (!class_exists('WPISPConfig3')) {
                             <p>Decide how WP-ISPConfig 3 checks for domain availability.<br />You can either validate against ISPConfig domains or use the whois command to check for free domains</p>
                             <?php
                                 self::getField('domain_check_global', 'Global domain check with <strong>whois</strong><br /><i>Unhook this to validate against ISPConfig domains only</i>', 'checkbox');
+                                self::getField('domain_check_usedig', 'Use <strong>dig</strong> to verify domain availability.<br /><i>Works only when global domain check is enabled</i>', 'checkbox');
                                 self::getField('domain_check_expiration', 'ISPConfig domain name cache expiration (in seconds)', 'number');
                                 self::getField('domain_check_regex', 'Regular expression used to validate the domain');
                             ?>

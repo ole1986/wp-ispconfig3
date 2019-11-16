@@ -97,13 +97,26 @@ abstract class IspconfigAbstract
     public function IsDomainAvailable($dom)
     {
         if (WPISPConfig3::$OPTIONS['domain_check_global']) {
-            $result = shell_exec("whois $dom");
-
-            if (preg_match("/^(No whois server is known|This TLD has no whois server)/m", $result)) {
-                return -1;
+            $dom = escapeshellarg($dom);
+            if (WPISPConfig3::$OPTIONS['domain_check_usedig']) {
+                $command_available = shell_exec("which dig");
+                if ($command_available) {
+                    $result = shell_exec("dig +noall +answer $dom NS");
+                    if (empty($result)) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                } else {
+                    return -1;
+                }
+            } else {
+                $result = shell_exec("whois $dom");
+                if (preg_match("/^(No whois server is known|This TLD has no whois server)/m", $result)) {
+                    return -1;
+                }
+                return preg_match("/^(Status: AVAILABLE|Status: free|NOT FOUND|" . $dom . " no match|No match for \"(.*?)\"\.)$/im", $result) ? 1: 0;
             }
-
-            return preg_match("/^(Status: AVAILABLE|Status: free|NOT FOUND|" . $dom . " no match|No match for \"(.*?)\"\.)$/im", $result) ? 1: 0;
         } else {
             $cacheExpiration = intval(WPISPConfig3::$OPTIONS['domain_check_expiration']); // 10 minutes caching the domains
             $cachedDomains = get_option('ispconfig_cached_domains', ['expires' => 0]);
