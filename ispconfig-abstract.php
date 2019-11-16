@@ -101,7 +101,7 @@ abstract class IspconfigAbstract
             if (WPISPConfig3::$OPTIONS['domain_check_usedig']) {
                 $command_available = shell_exec("which dig");
                 if ($command_available) {
-                    $result = shell_exec("dig +noall +answer $dom NS");
+                    $result = shell_exec("dig +short $dom NS");
                     if (empty($result)) {
                         return 1;
                     } else {
