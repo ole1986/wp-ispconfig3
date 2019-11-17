@@ -67,6 +67,7 @@ if (!class_exists('WPISPConfig3')) {
             'domain_check_usedig' => 0,
             'domain_check_expiration' => 600,
             'domain_check_regex' => '((?!-))(xn--)?[a-z0-9][a-z0-9-_]{0,61}[a-z0-9]{0,1}\.(xn--)?([a-z0-9\-]{1,61}|[a-z0-9-]{1,30}\.[a-z]{2,})',
+            'domain_check_whitelist' => '',
             'user_roles' => ['customer', 'subscriber'],
             'user_password_sync' => 0
         ];
@@ -219,7 +220,7 @@ if (!class_exists('WPISPConfig3')) {
                         }, $_POST[$k]);
 
                         $v = $_POST[$k];
-                    } elseif ($k == 'confirm_body') {
+                    } elseif ($k == 'confirm_body' || $k == 'domain_check_whitelist') {
                         $v = sanitize_textarea_field($_POST[$k]);
                     } else {
                         $v = sanitize_text_field($_POST[$k]);
@@ -261,7 +262,7 @@ if (!class_exists('WPISPConfig3')) {
                 <h2 id="wp-ispconfig-tabs" class="nav-tab-wrapper">
                     <a href="#tab-soap" class="nav-tab nav-tab-active"><?php _e('SOAP Settings', 'wp-ispconfig3') ?></a>
                     <a href="#tab-account" class="nav-tab"><?php _e('Account creation', 'wp-ispconfig3') ?></a>
-                    <a href="#tab-domain" class="nav-tab"><?php _e('Domain Check') ?></a>
+                    <a href="#tab-domain" class="nav-tab"><?php _e('Domain Check', 'wp-ispconfig3') ?></a>
                     <a href="#tab-usermapping" class="nav-tab"><?php _e('User Mapping', 'wp-ispconfig3') ?></a>
                     <a href="#tab-additional" class="nav-tab">Additional</a>
                 </h2>
@@ -297,11 +298,15 @@ if (!class_exists('WPISPConfig3')) {
                             ?>
                         </div>
                         <div id="tab-domain">
-                            <p>Decide how WP-ISPConfig 3 checks for domain availability.<br />You can either validate against ISPConfig domains or use the whois command to check for free domains</p>
+                            <p>
+                                Usually domains are being checked for availability based on the Websites stored in ISPConfig 3 using the REST API<br />
+                                In addition to this a global check using either `whois` or `dig` can be achieved für validation.
+                            </p>
                             <?php
-                                self::getField('domain_check_global', 'Global domain check with <strong>whois</strong><br /><i>Unhook this to validate against ISPConfig domains only</i>', 'checkbox');
+                                self::getField('domain_check_global', 'Enable global domain check<br /><i>Unhook this to only validate against ISPConfig 3 domains</i>', 'checkbox');
                                 self::getField('domain_check_usedig', 'Use <strong>dig</strong> to verify domain availability.<br /><i>Works only when global domain check is enabled</i>', 'checkbox');
                                 self::getField('domain_check_expiration', 'ISPConfig domain name cache expiration (in seconds)', 'number');
+                                self::getField('domain_check_whitelist', 'Exclude the following domains from being checked for availability.<br /><i>Use whitespace as separator</i>', 'textarea');
                                 self::getField('domain_check_regex', 'Regular expression used to validate the domain');
                             ?>
                         </div>

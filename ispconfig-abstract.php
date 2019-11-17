@@ -96,9 +96,52 @@ abstract class IspconfigAbstract
 
     public function IsDomainAvailable($dom)
     {
+        // check whitelist
+        $whitelist = preg_split('/\s+/', WPISPConfig3::$OPTIONS['domain_check_whitelist']);
+
+        if (in_array($dom, $whitelist)) {
+            // always available
+            return 1;
+        }
+
+        // check if cache for ISPConfig 3 domains is expired
+        $cacheExpiration = intval(WPISPConfig3::$OPTIONS['domain_check_expiration']); // 10 minutes caching the domains
+        $cachedDomains = get_option('ispconfig_cached_domains', ['expires' => 0]);
+
+        if ($cachedDomains['expires'] < time()) {
+            // fetch all cleints
+            $all_client_ids = $this->GetAllClientIds();
+
+            $groupIds = [];
+            // gather all related group ids for the clients
+            foreach ($all_client_ids as $id) {
+                $groupIds[] = $this->GetGroupIdByClientId($id);
+            }
+
+            // gt all the sites available in ISPConfig (by group id)
+            $result = $this->GetClientSitesByGroupIds($groupIds);
+
+            $domains = array_map(function ($item) {
+                return $item['domain'];
+            }, $result);
+            
+            // cache the domains
+            update_option('ispconfig_cached_domains', ['domains' => $domains,'expires' => time() + $cacheExpiration]);
+        } else {
+            $domains = $cachedDomains['domains'];
+        }
+
+        // check if the given domain is stored ISPConfig 3
+        if (in_array($dom, $domains)) {
+            // exit with 'domain unavailable'
+            return 0;
+        }
+
+        // when global check for domains is enabled, continue
         if (WPISPConfig3::$OPTIONS['domain_check_global']) {
             $dom = escapeshellarg($dom);
             if (WPISPConfig3::$OPTIONS['domain_check_usedig']) {
+                // use 'dig' to verify if the domain is available for the public
                 $command_available = shell_exec("which dig");
                 if ($command_available) {
                     $result = shell_exec("dig +short $dom NS");
@@ -111,38 +154,17 @@ abstract class IspconfigAbstract
                     return -1;
                 }
             } else {
+                // use 'whois' to check if the domain is available for the public
                 $result = shell_exec("whois $dom");
                 if (preg_match("/^(No whois server is known|This TLD has no whois server)/m", $result)) {
                     return -1;
                 }
                 return preg_match("/^(Status: AVAILABLE|Status: free|NOT FOUND|" . $dom . " no match|No match for \"(.*?)\"\.)$/im", $result) ? 1: 0;
             }
-        } else {
-            $cacheExpiration = intval(WPISPConfig3::$OPTIONS['domain_check_expiration']); // 10 minutes caching the domains
-            $cachedDomains = get_option('ispconfig_cached_domains', ['expires' => 0]);
-    
-            if ($cachedDomains['expires'] < time()) {
-                $all_client_ids = $this->GetAllClientIds();
-    
-                $groupIds = [];
-    
-                foreach ($all_client_ids as $id) {
-                    $groupIds[] = $this->GetGroupIdByClientId($id);
-                }
-    
-                $result = $this->GetClientSitesByGroupIds($groupIds);
-    
-                $domains = array_map(function ($item) {
-                    return $item['domain'];
-                }, $result);
-                
-                update_option('ispconfig_cached_domains', ['domains' => $domains,'expires' => time() + $cacheExpiration]);
-            } else {
-                $domains = $cachedDomains['domains'];
-            }
-
-            return in_array($dom, $domains) ? 0 : 1;
         }
+
+        // assume the domain is avilable
+        return 1;
     }
 
     public function GetAllClientIds()
