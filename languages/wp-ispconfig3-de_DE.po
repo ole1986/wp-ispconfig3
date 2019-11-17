@@ -73,6 +73,9 @@ msgstr "Ein Aufgabenplaner versendet die Rechnung an '%s'"
 msgid "Account creation"
 msgstr "Kontoerstellung"
 
+msgid "Domain Check"
+msgstr "Domainprüfung"
+
 msgid "The domain is already registered"
 msgstr "Der Domainname ist bereits vergeben"
 
