@@ -63,9 +63,10 @@ It is required to configure the plugin in the ISPConfig Panel as well as in the 
 == Screenshots ==
 
 1. ISPConfig SOAP settings in wordpress
-2. Registration form (client edition) 
-3. Registration form (free edition) 
-4. Example on how to build a "webspace" product (animated)
+2. Gutenberg create website
+3. Gutenberg create database
+4. Gutenberg update client (admin area)
+5. Gutenberg update client (frontend)
 
 == License ==
 
