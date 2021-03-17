@@ -66,7 +66,7 @@ class IspconfigBlock
         ]);
 
         if (is_wp_error($user_id)) {
-            $content .= $this->alert('Failed to create wp user');
+            $content .= $this->alert('Failed to create wp user: ' . $user_id->get_error_message());
             return false;
         }
 
