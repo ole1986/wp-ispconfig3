@@ -59,17 +59,20 @@ class IspconfigBlock
     {
         $postData = $this->postData;
 
-        $user_id = wp_insert_user([
-            'user_login' => $postData['client_username'],
-            'user_pass' => $postData['client_password'],
-            'user_email' => $postData['client_email']
-        ]);
-
-        if (is_wp_error($user_id)) {
-            $content .= $this->alert('Failed to create wp user: ' . $user_id->get_error_message());
-            return false;
+        if (WPISPConfig3::$OPTIONS['user_create_wordpress']) {
+            // when user creation is enabled for wordpress, add it accordingly
+            $user_id = wp_insert_user([
+                'user_login' => $postData['client_username'],
+                'user_pass' => $postData['client_password'],
+                'user_email' => $postData['client_email']
+            ]);
+    
+            if (is_wp_error($user_id)) {
+                $content .= $this->alert('Failed to create wp user: ' . $user_id->get_error_message());
+                return false;
+            }
         }
-
+        
         $opt = [
             'contact_name' => $postData['client_contact_name'],
             'email' => $postData['client_email'],
@@ -317,10 +320,12 @@ class IspconfigBlock
         if ('POST' === $_SERVER[ 'REQUEST_METHOD' ]) {
             return true;
         }
-        
-        $loginField = array_pop(array_filter($props['fields'], function ($field) {
-            return $field['id'] == 'client_username';
-        }));
+
+        $fields = array_filter($props['fields'], function ($field) {
+            return isset($field['id']) && $field['id'] == 'client_username';
+        });
+
+        $loginField = array_pop($fields);
 
         $loginFieldIsEmptyAndNonEditable = empty($loginField['value']) && ($loginField['readonly'] || $loginField['hidden']);
 
@@ -344,9 +349,11 @@ class IspconfigBlock
             default:
                 break;
             case 'action_create_client':
-                $templateField = array_pop(array_filter($props['fields'], function ($field) {
+                $fields = array_filter($props['fields'], function ($field) {
                     return $field['id'] == 'client_template_master';
-                }));
+                });
+
+                $templateField = array_pop($fields);
 
                 if ($templateField != null) {
                     if (empty($templateField['value'])) {
@@ -638,7 +645,7 @@ class IspconfigBlock
             return false;
         }
 
-        if ($props['submission']['action'] == 'continue' && $this->postData['action'] != 'action_check_domain') {
+        if (isset($props['submission']) && $props['submission']['action'] == 'continue' && $this->postData['action'] != 'action_check_domain') {
             if (!session_id()) {
                 session_start();
             }
@@ -696,7 +703,7 @@ class IspconfigBlock
             if ($this->onPost($props, $content)) {
                 // submit email to address when post succeeded
                 // and setting matches the current post action
-                if (in_array($this->postData['action'], WPISPConfig3::$OPTIONS['confirm_actions'])) {
+                if (in_array($this->postData['action'], (array)WPISPConfig3::$OPTIONS['confirm_actions'])) {
                     $email = $this->postData['client_email'];
                     if (empty($email) && !empty($_SESSION['ispconfig']['action_create_client'])) {
                         // try from session
@@ -720,8 +727,11 @@ class IspconfigBlock
                         $content .= $this->info('No email has been submitted due to missing email address');
                     }
                 }
+                
                 // clear session when post call was succesfully
-                unset($_SESSION['ispconfig']);
+                if (isset($_SESSION['ispconfig'])) {
+                    unset($_SESSION['ispconfig']);
+                }
                 // only display alerts or notifications (if available) and skip the fields
                 return $content;
             }

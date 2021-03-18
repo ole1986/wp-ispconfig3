@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP-ISPConfig3
  * Description: ISPConfig3 plugin allows you to register customers through wordpress frontend using shortcodes.
- * Version: 1.5.3
+ * Version: 1.5.4
  * Author: ole1986 <ole.k@web.de>, MachineITSvcs <contact@machineitservices.com>
  * Author URI: https://github.com/ole1986/wp-ispconfig3
  * Text Domain: wp-ispconfig3
@@ -11,7 +11,7 @@
 defined('ABSPATH') or die('No script kiddies please!');
 
 if (! defined('WPISPCONFIG3_VERSION')) {
-    define('WPISPCONFIG3_VERSION', '1.5.2');
+    define('WPISPCONFIG3_VERSION', '1.5.4');
 }
 
 if (! defined('WPISPCONFIG3_PLUGIN_DIR')) {
@@ -68,6 +68,7 @@ if (!class_exists('WPISPConfig3')) {
             'domain_check_expiration' => 600,
             'domain_check_regex' => '((?!-))(xn--)?[a-z0-9][a-z0-9-_]{0,61}[a-z0-9]{0,1}\.(xn--)?([a-z0-9\-]{1,61}|[a-z0-9-]{1,30}\.[a-z]{2,})',
             'domain_check_whitelist' => '',
+            'user_create_wordpress' => 1,
             'user_roles' => ['customer', 'subscriber'],
             'user_password_sync' => 0
         ];
@@ -214,16 +215,16 @@ if (!class_exists('WPISPConfig3')) {
                 foreach (self::$OPTIONS as $k => &$v) {
                     if (in_array($k, ['domain_check_global', 'domain_check_usedig', 'user_password_sync', 'skip_ssl', 'confirm'])) {
                         $v = !empty($_POST[$k]) ? 1 : 0;
-                    } elseif (is_array($_POST[$k])) {
+                    } elseif (isset($_POST[$k]) && is_array($_POST[$k])) {
                         array_map(function ($item) {
                             return sanitize_text_field($item);
                         }, $_POST[$k]);
 
                         $v = $_POST[$k];
                     } elseif ($k == 'confirm_body' || $k == 'domain_check_whitelist') {
-                        $v = sanitize_textarea_field($_POST[$k]);
+                        $v = sanitize_textarea_field($_POST[$k] ?? null);
                     } else {
-                        $v = sanitize_text_field($_POST[$k]);
+                        $v = sanitize_text_field($_POST[$k] ?? null);
                     }
                 }
                 
@@ -283,7 +284,7 @@ if (!class_exists('WPISPConfig3')) {
                             <span style="display:inline-block">
                             <?php
                             foreach (['action_create_client', 'action_create_website', 'action_create_database'] as $k => $v) {
-                                $checked = in_array($v, self::$OPTIONS['confirm_actions']) ? 'checked' : '';
+                                $checked = in_array($v, (array)self::$OPTIONS['confirm_actions']) ? 'checked' : '';
                                 echo "<input type='checkbox' id='$v' name='confirm_actions[]' value='$v' $checked />";
                                 echo "<label for='$v'>" . __($v, 'wp-ispconfig3') . '</label><br />';
                             }
@@ -311,6 +312,11 @@ if (!class_exists('WPISPConfig3')) {
                             ?>
                         </div>
                         <div id="tab-usermapping">
+                            <p>
+                            <?php
+                                self::getField('user_create_wordpress', 'Create Wordpress user<br /><i>Automatically create the wordpress user when ISPConfig Block "Create Client" is submitted</i>', 'checkbox');
+                            ?>
+                            </p>
                             <p>
                             <label style="width: 220px; display:inline-block;vertical-align:top;">User roles being used to match the clients stored in ISPConfig3</label>
                             <span style="display: inline-block">
