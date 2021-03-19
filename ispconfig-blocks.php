@@ -432,7 +432,7 @@ class IspconfigBlock
                 
                 if (empty($user)) {
                     // check if the user already exist in wordpress
-                    if (username_exists($postData['client_username'])) {
+                    if (WPISPConfig3::$OPTIONS['user_create_wordpress'] && username_exists($postData['client_username'])) {
                         $content .= $this->alert('The given username already exists in the other system');
                         return false;
                     }
