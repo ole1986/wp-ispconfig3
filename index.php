@@ -193,14 +193,14 @@ if (!class_exists('WPISPConfig3')) {
             // show the main menu 'WP-ISPConfig 3' in backend
             add_menu_page(__('WP-ISPConfig 3', 'wp-ispconfig3'), __('WP-ISPConfig 3', 'wp-ispconfig3'), 'null', 'ispconfig3_menu', null, WPISPCONFIG3_PLUGIN_URL.'ispconfig.png', 3);
             // display the settings menu entry
-            add_submenu_page('ispconfig3_menu', __('Settings'), __('Settings'), 'edit_themes', 'ispconfig_settings', array($this, 'DisplaySettings'));
+            add_submenu_page('ispconfig3_menu', __('Settings'), __('Settings'), 'manage_options', 'ispconfig_settings', array($this, 'DisplaySettings'));
             // if woocommerce and invoicing module for ISPConfig is avialble, load it and display invoices menu entry
             
             if (file_exists(WPISPCONFIG3_PLUGIN_DIR . 'manage/ispconfig_website.php')) {
-                add_submenu_page('ispconfig3_menu', __('Websites', 'wp-ispconfig3'), __('Websites', 'wp-ispconfig3'), 'edit_themes', 'ispconfig_websites', array('IspconfigWebsite', 'DisplayWebsites'));
+                add_submenu_page('ispconfig3_menu', __('Websites', 'wp-ispconfig3'), __('Websites', 'wp-ispconfig3'), 'manage_options', 'ispconfig_websites', array('IspconfigWebsite', 'DisplayWebsites'));
             }
             if (file_exists(WPISPCONFIG3_PLUGIN_DIR . 'manage/ispconfig_database.php')) {
-                add_submenu_page('ispconfig3_menu', __('Databases', 'wp-ispconfig3'), __('Databases', 'wp-ispconfig3'), 'edit_themes', 'ispconfig_databases', array('IspconfigDatabase', 'DisplayDatabases'));
+                add_submenu_page('ispconfig3_menu', __('Databases', 'wp-ispconfig3'), __('Databases', 'wp-ispconfig3'), 'manage_options', 'ispconfig_databases', array('IspconfigDatabase', 'DisplayDatabases'));
             }
         }
         
