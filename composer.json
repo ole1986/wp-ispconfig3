@@ -16,13 +16,15 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0"
+        "php": ">=8.1"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "3.4.*"
     },
     "autoload": {
-        "psr-4": {"Ole1986\\": "install/"}
+        "psr-4": {
+            "Ole1986\\": "install/"
+        }
     },
     "scripts": {
         "post-install-cmd": [
