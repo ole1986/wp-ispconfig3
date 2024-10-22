@@ -1,6 +1,6 @@
 === WP-ISPConfig 3 ===
 Contributors: ole1986, MachineITSvcs
-Tags:  host, ISPConfig, hosting, remote, manager, admin, panel, control, wordpress, post, plugin, interface, server
+Tags:  ISPConfig, hosting, remote, management, admin-panel
 Donate link: https://www.paypal.com/cgi-bin/webscr?item_name=Donation+WP-ISPConfig3&cmd=_donations&business=ole.k@web.de
 Requires at least: 5.0
 Tested up to: 6.6
