@@ -224,7 +224,7 @@ if (!class_exists('WPISPConfig3')) {
                     } elseif ($k == 'confirm_body' || $k == 'domain_check_whitelist') {
                         $v = sanitize_textarea_field($_POST[$k] ?? null);
                     } else {
-                        $v = sanitize_text_field($_POST[$k] ?? null);
+                        $v = sanitize_text_field(esc_attr($_POST[$k]) ?? null);
                     }
                 }
                 
